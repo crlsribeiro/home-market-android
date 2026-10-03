@@ -15,7 +15,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 |---|---|---|---|
 | Loading screen while the auth state resolves | `Views/Common/RootView.swift` | M1 | todo |
 | Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | todo |
-| Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History), — (Account) | todo |
+| Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | todo |
 | Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | todo |
 | Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme) | todo |
 
@@ -25,13 +25,13 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 |---|---|---|---|
 | Login screen: email + password | `Views/Login/LoginView.swift` | M1 | todo |
 | Sign in with Google | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | M1 | todo |
-| Sign in with Apple | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | — | todo |
-| Forgot password sheet: send reset email, confirmation state | `Views/Login/ForgotPasswordView.swift` | — | todo |
+| Sign in with Apple | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | — (proposed: out of scope) | todo |
+| Forgot password sheet: send reset email, confirmation state | `Views/Login/ForgotPasswordView.swift` | M8 | todo |
 | Register screen: first name, last name, email, password, confirm password | `Views/Login/RegisterView.swift` | M1 | todo |
 | Register: validation (names and email required, password ≥ 8 characters, passwords match, complete phone or empty) | `Views/Login/RegisterView.swift` | M1 | todo |
-| Register: phone number with country picker and input mask (BR, US, PT, AR, ES) | `Views/Login/RegisterView.swift`, `Models/PhoneCountry.swift` | — | todo |
-| Register: optional profile photo from camera or gallery, uploaded to `users/{uid}/avatar` | `Views/Login/RegisterView.swift` | — | todo |
-| Register: links to Terms of Use and Privacy Policy | `Views/Login/RegisterView.swift` | — | todo |
+| Register: phone number with country picker and input mask (BR, US, PT, AR, ES) | `Views/Login/RegisterView.swift`, `Models/PhoneCountry.swift` | M8 | todo |
+| Register: optional profile photo from camera or gallery, uploaded to `users/{uid}/avatar` | `Views/Login/RegisterView.swift` | M8 | todo |
+| Register: links to Terms of Use and Privacy Policy | `Views/Login/RegisterView.swift` | M8 | todo |
 | Create `users/{uid}` on first sign-in; keep the session across restarts | `Services/AuthService.swift`, `ViewModels/AuthViewModel.swift` | M1 | todo |
 | Sign out with confirmation dialog | `Views/MainList/MainListView.swift` | M1 | todo |
 
@@ -86,8 +86,9 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
 | Progress card: week, "x of y items", progress bar | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| "To get" list with "got it" and "not available" actions | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
+| "To get" list with "got it" and "not available" actions. Android follows the web: "not available" writes `not_found` | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
 | "Not found" section ("notification sent") | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
+| The member who added a not-found item resolves it (web flow; iOS has none) | — (web `NotFoundModal.tsx`) | M5 | todo |
 | "Already picked up" section | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
 | Close list: weekly cut, then create the purchase record | `Views/Shopping/ShoppingModeView.swift` | M5 (cut), M7 (purchase record) | todo |
 | Abandon shopping with confirmation (list back to `open`) | `Views/Shopping/ShoppingModeView.swift` | — | todo |
@@ -104,7 +105,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Purchase history list: week label, store name, total; empty state | `Views/History/HistoryView.swift` | M7 | todo |
+| Purchase history list: week label, store name, total; empty state. Admin only on Android (web behaviour) | `Views/History/HistoryView.swift` | M7 | todo |
 | Purchase detail: total and line items (quantity, unit price, line total) | `Views/History/HistoryView.swift` | M7 | todo |
 | Upload or re-upload a receipt photo; on-device OCR and parsing replace the line items | `Views/History/HistoryView.swift`, `Services/HistoryService.swift` | M7 | todo |
 | Store name extracted from the receipt | `Services/HistoryService.swift` | M7 | todo |
@@ -114,30 +115,27 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Account tab: profile photo, name, email | `Views/Common/AccountSettingsView.swift` | — | todo |
-| Change profile photo from camera or gallery | `Views/Common/AccountSettingsView.swift` | — | todo |
-| Edit phone number with country picker | `Views/Common/AccountSettingsView.swift` | — | todo |
-| Change login email (verification link sent to the new address) | `Views/Common/AccountSettingsView.swift`, `Services/AuthService.swift` | — | todo |
-| Privacy Policy link (in-app browser) | `Views/Common/AccountSettingsView.swift`, `Views/Common/SafariView.swift` | — | todo |
-| Delete account with confirmation; admin hand-off to another member; re-authentication error | `Views/Common/DeleteAccountView.swift`, `ViewModels/HouseholdViewModel.swift` | — | todo |
+| Account tab: profile photo, name, email | `Views/Common/AccountSettingsView.swift` | M8 | todo |
+| Change profile photo from camera or gallery | `Views/Common/AccountSettingsView.swift` | M8 | todo |
+| Edit phone number with country picker | `Views/Common/AccountSettingsView.swift` | M8 | todo |
+| Change login email (verification link sent to the new address) | `Views/Common/AccountSettingsView.swift`, `Services/AuthService.swift` | M8 | todo |
+| Privacy Policy link (in-app browser) | `Views/Common/AccountSettingsView.swift`, `Views/Common/SafariView.swift` | M8 | todo |
+| Delete account with confirmation; admin hand-off to another member; re-authentication error | `Views/Common/DeleteAccountView.swift`, `ViewModels/HouseholdViewModel.swift` | M8 | todo |
 
 ## iOS features not covered by a milestone
 
-These iOS features have no milestone in `CODEX_PLAN.md`. Each needs a decision: add it to a milestone,
-add a new milestone, or leave it out on purpose.
+These iOS features have no milestone in `CODEX_PLAN.md` yet. Each needs a decision: add it to a milestone
+or leave it out on purpose.
 
 | Feature | Notes |
 |---|---|
 | Sign in with Apple | Apple's provider is uncommon on Android. Firebase supports it through a web flow. Proposal: leave out. |
-| Forgot password | Small; fits M1. |
-| Registration phone number with country mask | Fits M1. Writes `phone`, `phoneCountryCode`. |
-| Registration profile photo | Fits M1. Writes `users/{uid}/avatar`. |
-| Terms of Use and Privacy Policy links | Fits M1 (register) and M8 (release). Required by Google Play for apps with accounts. |
-| Account tab: avatar, phone and email change | No milestone. Proposal: new milestone between M7 and M8. |
-| Delete account with admin hand-off | No milestone. Google Play requires in-app account deletion for apps that create accounts. Proposal: same new milestone. |
 | Add or replace an item photo after creation | Fits M3. |
 | Adding an item creates this week's list when there is none | Fits M3. The plan says only the admin creates the list. |
 | Automatic close of last week's list | Fits M4 or M5. iOS-only behaviour, not in the web. |
 | Abandon shopping | Fits M5. Writes `status: "open"`, an existing value. |
 | "Items per person this week" chart in the admin panel | Fits M4. |
 | Copy invite code to the clipboard | Fits M2 next to the share sheet. |
+
+Forgot password, the registration phone and photo, the Terms and Privacy links, account settings and
+account deletion were moved to the new milestone M8 (Account) on 2026-10-03. Release readiness is now M9.
