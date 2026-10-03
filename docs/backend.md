@@ -36,6 +36,19 @@ Decided by the repository owner on 2026-10-03. Each one writes only fields and v
    or the price in item detail.
 5. **The `onItemAdded` defect is recorded in [`backend-proposals.md`](backend-proposals.md).** The owner
    fixes it in the web repository. Android does not write `householdMembers`.
+6. **Same business rules as the existing apps.** Android keeps the iOS rule for every feature except the
+   ones above that follow the web. It adds no rule of its own. In particular:
+   - The list status flow offers both the web lock step (`open → locked → shopping`) and the iOS shortcut
+     (`open → shopping`), plus abandon shopping (`shopping → open`).
+   - Adding an item when there is no current list creates this week's list first, as on iOS.
+   - A current list whose `weekEnd` has passed is closed with the weekly cut, without a purchase, and this
+     week's list is created, as on iOS.
+   - `rolled_over` items stay as they are today: they keep their `listId` and are shown as "next week"
+     items. Nothing moves them into the new list.
+   - A list closed before Sunday blocks a new list until the next Monday, as on iOS (see
+     [List document id](#list-document-id)).
+7. **Sign in with Apple is not offered on Android.** Android writes no Apple-specific field, so nothing in
+   the data changes.
 
 ## Firebase project
 
@@ -441,14 +454,10 @@ open a specific screen from the message content alone.
 
 1. **Security rules and indexes.** Waiting for the export from the Firebase console. Once received, store
    them in `docs/` unchanged and check every Android write against them.
-2. **Locked status.** M4 asks for lock and reopen, so Android follows the web: `open → locked → shopping`.
-   Should Android also offer the iOS shortcut (start shopping straight from `open`) and abandon shopping
-   (`shopping → open`)? Both write existing values only.
-3. **Rolled-over items.** Should "next week" items be moved into the new list when it is created? No client
-   does it today, and doing it is only a status/`listId` update with existing values.
-4. **A second list in the same week.** With deterministic ids, a list closed before Sunday blocks a new list
-   until the next Monday (see [List document id](#list-document-id)). Is that acceptable, or should the
-   "create this week's list" action be hidden once the week's list is closed?
+2. **Adding an item after the week's list was closed early.** iOS then reuses the closed list's id, so the
+   new item is written to the closed list and no one sees it. Copying that would lose items. Proposal:
+   Android shows "no active list" and disables adding until next Monday, which writes nothing new. To be
+   confirmed before M3.
 
 ## Resolved questions
 
@@ -458,3 +467,6 @@ Answered by the repository owner on 2026-10-03 and recorded in
 - `weekLabel` language: Portuguese, like the web; the UI formats the label from `weekStart`.
 - List document id: deterministic, in the iOS format.
 - "Item not found" and prices: follow the web.
+- Locked status, abandon shopping, rolled-over items and a second list in the same week: same business
+  rules as the existing apps (decision 6).
+- Sign in with Apple: not on Android (decision 7).
