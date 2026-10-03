@@ -1,4 +1,4 @@
-package app.carlosribeiro.homemarket.ui.theme
+package app.carlosribeiro.homemarket.presentation.theme
 
 import android.app.Activity
 import android.os.Build
