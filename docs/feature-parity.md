@@ -18,7 +18,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | todo |
 | Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | todo |
 | Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | todo |
-| Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme) | todo |
+| Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme), later milestones (components) | in progress |
 
 ## Authentication
 
