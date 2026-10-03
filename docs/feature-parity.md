@@ -3,8 +3,9 @@
 One row per iOS screen and feature, the milestone from `CODEX_PLAN.md` that covers it on Android, and its
 status. Update the status column in every pull request.
 
-Status values: `todo`, `in progress`, `done`. Milestone `—` means no milestone covers it yet (see
-[iOS features not covered by a milestone](#ios-features-not-covered-by-a-milestone)).
+Status values: `todo`, `in progress`, `done`, `out of scope` (decided by the repository owner not to build on
+Android). Business rules are the same as in the existing apps: Android keeps the iOS rule for every
+feature, except where `backend.md` records a decision to follow the web.
 
 The iOS source file is given for each screen so the behaviour can be checked. Backend details are in
 [`backend.md`](backend.md).
@@ -25,7 +26,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 |---|---|---|---|
 | Login screen: email + password | `Views/Login/LoginView.swift` | M1 | todo |
 | Sign in with Google | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | M1 | todo |
-| Sign in with Apple | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | — (proposed: out of scope) | todo |
+| Sign in with Apple | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | — | out of scope |
 | Forgot password sheet: send reset email, confirmation state | `Views/Login/ForgotPasswordView.swift` | M8 | todo |
 | Register screen: first name, last name, email, password, confirm password | `Views/Login/RegisterView.swift` | M1 | todo |
 | Register: validation (names and email required, password ≥ 8 characters, passwords match, complete phone or empty) | `Views/Login/RegisterView.swift` | M1 | todo |
@@ -44,7 +45,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Join household with an invite code; "invalid code" error | `Views/Common/OnboardingView.swift`, `ViewModels/HouseholdViewModel.swift` | M2 | todo |
 | Admin panel: household name and member list with admin badge | `Views/Admin/AdminPanelView.swift` | M2 | todo |
 | Admin panel: "you're the only one here" hint | `Views/Admin/AdminPanelView.swift` | M2 | todo |
-| Admin panel: show invite code and copy it to the clipboard | `Views/Admin/AdminPanelView.swift` | M2 (plan asks for the share sheet) | todo |
+| Admin panel: show invite code, copy it to the clipboard and share it with the share sheet | `Views/Admin/AdminPanelView.swift` | M2 | todo |
 | Admin panel: generate a new invite code | `Views/Admin/AdminPanelView.swift` | M2 | todo |
 
 ## Weekly list
@@ -60,15 +61,15 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Swipe to delete an item | `Views/MainList/MainListView.swift` | M3 | todo |
 | Add item sheet: name, quantity stepper (1–99), notes, urgent toggle | `Views/MainList/MainListView.swift` (`AddItemView`) | M3 | todo |
 | Add item: optional photo from camera or gallery, uploaded to Storage | `Views/MainList/MainListView.swift`, `Views/Common/CameraPicker.swift` | M3 | todo |
-| Adding an item with no active list creates this week's list first | `ViewModels/ListViewModel.swift` | — | todo |
+| Adding an item with no active list creates this week's list first | `ViewModels/ListViewModel.swift` | M3 | todo |
 | Item detail: photo, name, notes, quantity, requested by, time added, week | `Views/MainList/ItemDetailView.swift` | M3 | todo |
 | Item detail: edit notes | `Views/MainList/ItemDetailView.swift` | M3 | todo |
-| Item detail: add or replace the photo after creation | `Views/MainList/ItemDetailView.swift`, `Services/ListService.swift` | — | todo |
+| Item detail: add or replace the photo after creation | `Views/MainList/ItemDetailView.swift`, `Services/ListService.swift` | M3 | todo |
 | Item detail: remove from list with a confirmation step (hidden when the list is closed) | `Views/MainList/ItemDetailView.swift` | M3 | todo |
 | Item detail: price per unit and total, admin only ("available after receipt upload" otherwise) | `Views/MainList/ItemDetailView.swift` | M7 | todo |
 | Item detail: "mark as purchased" while shopping | `Views/MainList/ItemDetailView.swift` | M5 | todo |
 | Error message banner for failed writes | `Views/MainList/MainListView.swift` | M3 | todo |
-| Automatic close of a list whose week has ended, then a new list for this week | `ViewModels/ListViewModel.swift` (`expireIfStale`) | — | todo |
+| Automatic close of a list whose week has ended (weekly cut, no purchase), then a new list for this week | `ViewModels/ListViewModel.swift` (`expireIfStale`) | M4 | todo |
 
 ## Lifecycle and approvals
 
@@ -77,9 +78,9 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Admin panel: list status card (week, status) | `Views/Admin/AdminPanelView.swift` | M4 | todo |
 | Items added after the list leaves `open` get `approvalStatus: "pending"` | `Services/ListService.swift` | M4 | todo |
 | Admin panel: pending approvals with approve and reject | `Views/Admin/AdminPanelView.swift` | M4 | todo |
-| Start shopping from the list (cart button, admin only, list not empty) | `Views/MainList/MainListView.swift` | M5 | todo |
+| Start shopping from the list (cart button, admin only, list `open` or `locked`, not empty) | `Views/MainList/MainListView.swift` | M5 | todo |
 | Lock and reopen the list (web feature; iOS never writes `locked`) | — | M4 | todo |
-| Admin panel: "items per person this week" bar chart with expandable item names | `Views/Admin/AdminPanelView.swift` (`WeeklyDashboardSection`) | — | todo |
+| Admin panel: "items per person this week" bar chart with expandable item names | `Views/Admin/AdminPanelView.swift` (`WeeklyDashboardSection`) | M4 | todo |
 
 ## Shopping mode
 
@@ -91,7 +92,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | The member who added a not-found item resolves it (web flow; iOS has none) | — (web `NotFoundModal.tsx`) | M5 | todo |
 | "Already picked up" section | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
 | Close list: weekly cut, then create the purchase record | `Views/Shopping/ShoppingModeView.swift` | M5 (cut), M7 (purchase record) | todo |
-| Abandon shopping with confirmation (list back to `open`) | `Views/Shopping/ShoppingModeView.swift` | — | todo |
+| Abandon shopping with confirmation (list back to `open`) | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
 | Members' waiting screen: week, what is happening, notification hint | `Views/Shopping/ShoppingWaitingView.swift` | M5 | todo |
 
 ## Push notifications
@@ -122,20 +123,17 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Privacy Policy link (in-app browser) | `Views/Common/AccountSettingsView.swift`, `Views/Common/SafariView.swift` | M8 | todo |
 | Delete account with confirmation; admin hand-off to another member; re-authentication error | `Views/Common/DeleteAccountView.swift`, `ViewModels/HouseholdViewModel.swift` | M8 | todo |
 
-## iOS features not covered by a milestone
+## Scope decisions
 
-These iOS features have no milestone in `CODEX_PLAN.md` yet. Each needs a decision: add it to a milestone
-or leave it out on purpose.
+Decided by the repository owner on 2026-10-03:
 
-| Feature | Notes |
-|---|---|
-| Sign in with Apple | Apple's provider is uncommon on Android. Firebase supports it through a web flow. Proposal: leave out. |
-| Add or replace an item photo after creation | Fits M3. |
-| Adding an item creates this week's list when there is none | Fits M3. The plan says only the admin creates the list. |
-| Automatic close of last week's list | Fits M4 or M5. iOS-only behaviour, not in the web. |
-| Abandon shopping | Fits M5. Writes `status: "open"`, an existing value. |
-| "Items per person this week" chart in the admin panel | Fits M4. |
-| Copy invite code to the clipboard | Fits M2 next to the share sheet. |
-
-Forgot password, the registration phone and photo, the Terms and Privacy links, account settings and
-account deletion were moved to the new milestone M8 (Account) on 2026-10-03. Release readiness is now M9.
+- **Sign in with Apple is out of scope on Android.** Android users sign in with email/password or Google.
+  Accounts created with Apple on iOS keep working on iOS. They can only sign in on Android if the same
+  Firebase account also has a password or Google sign-in.
+- **The business rules are the same as in the existing apps.** Every iOS feature that had no milestone now
+  has one and keeps the iOS rule: the list created when the first item is added (M3), replacing an item
+  photo (M3), the automatic close of last week's list (M4), the items-per-person chart (M4), starting
+  shopping from the list and abandoning shopping (M5), and copying the invite code (M2). The lock step from
+  the web stays in M4, next to the iOS shortcut.
+- Forgot password, the registration phone and photo, the Terms and Privacy links, account settings and
+  account deletion are in milestone M8 (Account). Release readiness is M9.
