@@ -14,9 +14,28 @@ Sources, read on 2026-10-03:
 When the two clients disagree, the web app's behaviour is the contract (see `AGENTS.md`). Every difference
 is listed in [Differences between the web and iOS clients](#differences-between-the-web-and-ios-clients).
 
-Neither repository contains `firestore.rules`, `storage.rules` or `firestore.indexes.json`. The security
-rules and composite indexes deployed in the Firebase project are not documented in code. See
-[Open questions](#open-questions).
+Neither repository contains `firestore.rules`, `storage.rules` or `firestore.indexes.json`. The repository
+owner will export the deployed rules and indexes from the Firebase console; they will be stored in `docs/`
+as a read-only reference. The Android app never changes them.
+
+## Decisions for the Android client
+
+Decided by the repository owner on 2026-10-03. Each one writes only fields and values that already exist.
+
+1. **`weekLabel` is written in Portuguese, like the web.** Format and month names are in
+   [Week calculation](#week-calculation). The UI never shows or parses the stored text: it formats the
+   label from `weekStart` (and `weekEnd`) with the device locale. Purchases have no `weekStart`, so the
+   history screen formats the label from the linked `lists/{listId}` and falls back to the stored
+   `purchases.weekLabel` only when that list cannot be read.
+2. **List document ids are deterministic, in the exact iOS format.** See
+   [List document id](#list-document-id).
+3. **"Item not found" follows the web.** The admin writes `status: "not_found"` (which triggers
+   `onItemNotFound`). The member who added the item later resolves it, which writes `status: "rolled_over"`
+   and `notFoundResolved: true`.
+4. **Prices follow the web: admin only.** Members never see the History tab, purchase totals, line prices
+   or the price in item detail.
+5. **The `onItemAdded` defect is recorded in [`backend-proposals.md`](backend-proposals.md).** The owner
+   fixes it in the web repository. Android does not write `householdMembers`.
 
 ## Firebase project
 
@@ -109,7 +128,7 @@ Reads:
 | Field | Type | Notes |
 |---|---|---|
 | `householdId` | string | |
-| `weekLabel` | string | Display label such as `"29 – 5 OUT"`. See [Week calculation](#week-calculation). |
+| `weekLabel` | string | Display label such as `"28 – 4 OUT"`. See [Week calculation](#week-calculation). |
 | `weekStart` | timestamp | Monday 00:00:00.000, device time zone. |
 | `weekEnd` | timestamp | Sunday 23:59:59.999 (web) or 23:59:59 (iOS), device time zone. |
 | `status` | `"open"`, `"locked"`, `"shopping"`, `"closed"` | |
@@ -144,6 +163,35 @@ Writes:
 - **Status change:** `updateDoc` `status` (plus `closedAt: serverTimestamp()` when the new status is
   `closed`).
 - **Weekly cut:** see [Weekly cut](#weekly-cut).
+
+#### List document id
+
+Android uses the iOS format (`ListService.createList` and `ListService.listId` in the iOS app):
+
+```
+{householdId}_{yyyy-MM-dd}
+```
+
+- `householdId`: the household document id, unchanged (20 characters from `[A-Za-z0-9]`).
+- `_`: one underscore.
+- `yyyy-MM-dd`: the date of `weekStart` (the Monday of the week) in the Gregorian calendar and the device
+  time zone, with a 4-digit year and zero-padded month and day, in ASCII digits.
+- Example: household `aB3dE5fG7hJ9kL1mN2pQ`, week of Monday 28 September 2026 →
+  `aB3dE5fG7hJ9kL1mN2pQ_2026-09-28`.
+
+On Android, format the date with a fixed locale (`Locale.ROOT` or `Locale.US`) so the digits are always
+ASCII. iOS formats with the device locale, which gives the same string for every locale that uses Latin
+digits.
+
+Create it in a transaction: read `lists/{id}`; if it exists, write nothing; otherwise `set` the fields
+listed above (`status: "open"`, `createdAt: serverTimestamp()`, `closedAt: null`). Then read the document
+back. Two devices that create the same week's list at the same time land on the same document.
+
+Lists created by the web keep their auto-ids. The current list is still found by the query above, never by
+building the id, so both kinds of id work side by side. Do not use the id to decide which list is current:
+a list closed early in the week and a new list created the same week would share the id. The transaction
+then finds the closed list and writes nothing, so the household has no current list until next Monday.
+iOS has the same limitation. See [Open questions](#open-questions).
 
 ### `items/{itemId}`
 
@@ -301,10 +349,11 @@ From `src/lib/utils.ts`, in the device time zone:
 - `weekStart`: Monday of the current week at 00:00:00.000. Sunday belongs to the week that started six
   days earlier.
 - `weekEnd`: `weekStart + 6 days` at 23:59:59.999.
-- `weekLabel`: `"{day of weekStart} – {day of weekEnd} {MONTH of weekEnd}"`, with an en dash and the
-  month abbreviation of `weekEnd`. Web months:
+- `weekLabel`: `"{day of weekStart} – {day of weekEnd} {MONTH of weekEnd}"`: days without zero padding,
+  a space, an en dash (U+2013), a space, and the month abbreviation of `weekEnd`. Web months:
   `JAN FEV MAR ABR MAI JUN JUL AGO SET OUT NOV DEZ`. iOS months:
   `JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC`.
+- Android writes the web months. Example: week of Monday 28 September 2026 → `"28 – 4 OUT"`.
 
 ## Push notifications
 
@@ -330,17 +379,19 @@ open a specific screen from the message content alone.
    because it only writes an existing status value.
 2. **"Members never see prices."** The web hides the History tab from members and shows prices in item
    detail only to the admin. iOS shows the History tab, with totals and line prices, to every member, and
-   hides only the item-detail price from members. AGENTS.md matches the web.
+   hides only the item-detail price from members. AGENTS.md matches the web. **Decision:** follow the web
+   (admin only).
 3. **M5 "Resolve not-found items (rolled_over + notFoundResolved)".** On the web the admin marks an item
    `not_found` (which notifies the person who added it), and that person later resolves it from a
    "not found" modal. On iOS, the admin's "Not available" button writes `rolled_over` +
    `notFoundResolved: true` directly and never writes `not_found`, so `onItemNotFound` never fires from iOS.
-   Android should follow the web.
+   **Decision:** follow the web.
 4. **M6 "register the device token where the Cloud Functions read it".** `onItemNotFound` reads
    `users/{uid}.fcmToken`, which works. `onItemAdded` reads the `householdMembers` collection, which no
    client writes, so it finds no recipients today. A single `fcmToken` field also cannot hold more than one
-   device. Both points need a backend change, so M6 must start with a proposal in
-   `docs/backend-proposals.md`, as the plan already allows.
+   device. Both points need a backend change. The `householdMembers` defect is proposal 1 in
+   [`backend-proposals.md`](backend-proposals.md), and the owner fixes it in the web repository. The
+   one-token-per-user limit is left for M6, which writes its own proposal if it needs one.
 5. **M7 "If price extraction depends on a backend function, call the existing one".** It does not: both
    clients run OCR on the device. Android needs an on-device OCR library (for example ML Kit text
    recognition) and the same parser.
@@ -388,16 +439,22 @@ open a specific screen from the message content alone.
 
 ## Open questions
 
-1. **Security rules and indexes.** They are not in either repository. Can the deployed `firestore.rules`
-   and `storage.rules` be exported into the web repository, so Android can check that every write it makes
-   is allowed?
-2. **`weekLabel` language.** Lists created by iOS have English month names and lists created by the web
-   have Portuguese ones. Which should Android write? Proposal: follow the web (Portuguese), because the web
-   is the contract.
-3. **List document id.** Should Android use the web's auto-id or the iOS deterministic id? Both satisfy
-   the contract (the current list is found by query). The deterministic id avoids duplicate lists when two
-   devices create the week's list at the same time.
-4. **Locked status.** Should Android expose "lock" as a separate admin step (web) or go straight to
-   shopping (iOS)? M4 asks for lock and reopen, so the plan follows the web.
-5. **Rolled-over items.** Should "next week" items be moved into the new list when it is created? No client
+1. **Security rules and indexes.** Waiting for the export from the Firebase console. Once received, store
+   them in `docs/` unchanged and check every Android write against them.
+2. **Locked status.** M4 asks for lock and reopen, so Android follows the web: `open → locked → shopping`.
+   Should Android also offer the iOS shortcut (start shopping straight from `open`) and abandon shopping
+   (`shopping → open`)? Both write existing values only.
+3. **Rolled-over items.** Should "next week" items be moved into the new list when it is created? No client
    does it today, and doing it is only a status/`listId` update with existing values.
+4. **A second list in the same week.** With deterministic ids, a list closed before Sunday blocks a new list
+   until the next Monday (see [List document id](#list-document-id)). Is that acceptable, or should the
+   "create this week's list" action be hidden once the week's list is closed?
+
+## Resolved questions
+
+Answered by the repository owner on 2026-10-03 and recorded in
+[Decisions for the Android client](#decisions-for-the-android-client):
+
+- `weekLabel` language: Portuguese, like the web; the UI formats the label from `weekStart`.
+- List document id: deterministic, in the iOS format.
+- "Item not found" and prices: follow the web.
