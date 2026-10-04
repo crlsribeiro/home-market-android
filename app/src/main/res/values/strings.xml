@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Home Market</string>
+    <string name="app_name" translatable="false">Home Market</string>
+    <string name="app_tagline">Family grocery shopping, together</string>
 </resources>
