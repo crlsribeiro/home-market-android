@@ -1,3 +1,34 @@
 <resources>
     <string name="app_tagline">As compras da família, juntas</string>
+
+    <string name="action_cancel">Cancelar</string>
+
+    <string name="auth_email">E-mail</string>
+    <string name="auth_password">Senha</string>
+    <string name="auth_password_hint">Senha (pelo menos %1$d caracteres)</string>
+    <string name="auth_confirm_password">Confirmar senha</string>
+    <string name="auth_first_name">Nome</string>
+    <string name="auth_last_name">Sobrenome</string>
+    <string name="auth_sign_in">Entrar</string>
+    <string name="auth_create_account">Criar conta</string>
+    <string name="auth_have_account">Já tenho uma conta</string>
+    <string name="auth_sign_out">Sair</string>
+    <string name="auth_sign_out_title">Sair da conta?</string>
+    <string name="auth_sign_out_message">Você vai sair da sua conta.</string>
+
+    <string name="auth_error_name_required">Preencha seu nome e sobrenome.</string>
+    <string name="auth_error_email_required">Preencha seu e-mail.</string>
+    <string name="auth_error_email_invalid">Digite um e-mail válido.</string>
+    <string name="auth_error_password_required">Preencha sua senha.</string>
+    <string name="auth_error_password_too_short">A senha precisa ter pelo menos 8 caracteres.</string>
+    <string name="auth_error_passwords_do_not_match">As senhas não conferem.</string>
+    <string name="auth_error_invalid_credentials">E-mail ou senha incorretos.</string>
+    <string name="auth_error_email_in_use">Já existe uma conta com este e-mail.</string>
+    <string name="auth_error_weak_password">Esta senha é muito fraca.</string>
+    <string name="auth_error_network">Sem conexão. Verifique sua internet e tente de novo.</string>
+    <string name="auth_error_unknown">Algo deu errado. Tente de novo.</string>
+
+    <string name="home_greeting">Olá, %1$s!</string>
+    <string name="home_signed_in_as">Conectado como %1$s</string>
+    <string name="home_next_steps">Próximo passo: criar ou entrar na sua casa e começar a lista da semana.</string>
 </resources>
