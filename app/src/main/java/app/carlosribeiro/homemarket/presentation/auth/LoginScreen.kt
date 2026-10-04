@@ -3,6 +3,7 @@ package app.carlosribeiro.homemarket.presentation.auth
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,6 +21,7 @@ import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.presentation.components.ErrorText
 import app.carlosribeiro.homemarket.presentation.components.FormTextField
 import app.carlosribeiro.homemarket.presentation.components.SubmitButton
+import app.carlosribeiro.homemarket.presentation.components.formKeyboard
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 
 @Composable
@@ -51,18 +53,16 @@ fun LoginScreen(
             value = state.email,
             onValueChange = { onEvent(LoginUiEvent.EmailChanged(it)) },
             label = stringResource(R.string.auth_email),
-            keyboardType = KeyboardType.Email,
-            enabled = !state.isLoading
+            enabled = !state.isLoading,
+            keyboardOptions = formKeyboard(type = KeyboardType.Email)
         )
         FormTextField(
             value = state.password,
             onValueChange = { onEvent(LoginUiEvent.PasswordChanged(it)) },
             label = stringResource(R.string.auth_password),
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done,
-            isPassword = true,
             enabled = !state.isLoading,
-            onImeAction = { onEvent(LoginUiEvent.Submit) }
+            keyboardOptions = formKeyboard(type = KeyboardType.Password, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onEvent(LoginUiEvent.Submit) })
         )
         state.error?.let { ErrorText(stringResource(it.messageRes())) }
         SubmitButton(

@@ -13,19 +13,18 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 
+/** Single-line form field. Fields with a password keyboard are masked. */
 @Composable
 fun FormTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Next,
-    isPassword: Boolean = false,
-    capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     enabled: Boolean = true,
-    onImeAction: () -> Unit = {}
+    keyboardOptions: KeyboardOptions = formKeyboard(),
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
+    val isPassword = keyboardOptions.keyboardType == KeyboardType.Password
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -33,13 +32,20 @@ fun FormTextField(
         singleLine = true,
         enabled = enabled,
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction,
-            capitalization = capitalization,
-            autoCorrectEnabled = false
-        ),
-        keyboardActions = KeyboardActions(onAny = { onImeAction() }),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         modifier = modifier.fillMaxWidth()
     )
 }
+
+/** Keyboard options for form fields: no autocorrect, "next" by default. */
+fun formKeyboard(
+    type: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Next,
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.None
+): KeyboardOptions = KeyboardOptions(
+    keyboardType = type,
+    imeAction = imeAction,
+    capitalization = capitalization,
+    autoCorrectEnabled = false
+)

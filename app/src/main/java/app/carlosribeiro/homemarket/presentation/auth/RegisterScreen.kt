@@ -1,6 +1,7 @@
 package app.carlosribeiro.homemarket.presentation.auth
 
 import android.content.res.Configuration
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -19,6 +20,7 @@ import app.carlosribeiro.homemarket.domain.validation.AuthValidation
 import app.carlosribeiro.homemarket.presentation.components.ErrorText
 import app.carlosribeiro.homemarket.presentation.components.FormTextField
 import app.carlosribeiro.homemarket.presentation.components.SubmitButton
+import app.carlosribeiro.homemarket.presentation.components.formKeyboard
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 
 @Composable
@@ -60,40 +62,37 @@ private fun RegisterFields(state: RegisterUiState, onEvent: (RegisterUiEvent) ->
         value = state.firstName,
         onValueChange = { onEvent(RegisterUiEvent.FirstNameChanged(it)) },
         label = stringResource(R.string.auth_first_name),
-        capitalization = KeyboardCapitalization.Words,
-        enabled = enabled
+        enabled = enabled,
+        keyboardOptions = formKeyboard(capitalization = KeyboardCapitalization.Words)
     )
     FormTextField(
         value = state.lastName,
         onValueChange = { onEvent(RegisterUiEvent.LastNameChanged(it)) },
         label = stringResource(R.string.auth_last_name),
-        capitalization = KeyboardCapitalization.Words,
-        enabled = enabled
+        enabled = enabled,
+        keyboardOptions = formKeyboard(capitalization = KeyboardCapitalization.Words)
     )
     FormTextField(
         value = state.email,
         onValueChange = { onEvent(RegisterUiEvent.EmailChanged(it)) },
         label = stringResource(R.string.auth_email),
-        keyboardType = KeyboardType.Email,
-        enabled = enabled
+        enabled = enabled,
+        keyboardOptions = formKeyboard(type = KeyboardType.Email)
     )
     FormTextField(
         value = state.password,
         onValueChange = { onEvent(RegisterUiEvent.PasswordChanged(it)) },
         label = stringResource(R.string.auth_password_hint, AuthValidation.MIN_PASSWORD_LENGTH),
-        keyboardType = KeyboardType.Password,
-        isPassword = true,
-        enabled = enabled
+        enabled = enabled,
+        keyboardOptions = formKeyboard(type = KeyboardType.Password)
     )
     FormTextField(
         value = state.confirmPassword,
         onValueChange = { onEvent(RegisterUiEvent.ConfirmPasswordChanged(it)) },
         label = stringResource(R.string.auth_confirm_password),
-        keyboardType = KeyboardType.Password,
-        imeAction = ImeAction.Done,
-        isPassword = true,
         enabled = enabled,
-        onImeAction = { onEvent(RegisterUiEvent.Submit) }
+        keyboardOptions = formKeyboard(type = KeyboardType.Password, imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { onEvent(RegisterUiEvent.Submit) })
     )
 }
 
