@@ -21,7 +21,7 @@ object HouseholdMapper {
         name = data[HouseholdFields.NAME] as? String ?: "",
         adminUid = data[HouseholdFields.ADMIN_UID] as? String ?: "",
         inviteToken = data[HouseholdFields.INVITE_TOKEN] as? String ?: "",
-        memberUids = (data[HouseholdFields.MEMBER_UIDS] as? List<*>)?.filterIsInstance<String>().orEmpty(),
+        memberUids = (data[HouseholdFields.MEMBER_UIDS] as? List<*>)?.filterIsInstance<String>().orEmpty()
     )
 
     fun entityToDomain(entity: HouseholdEntity): Household = Household(
@@ -29,7 +29,7 @@ object HouseholdMapper {
         name = entity.name,
         adminUid = entity.adminUid,
         inviteToken = entity.inviteToken,
-        memberUids = entity.memberUids,
+        memberUids = entity.memberUids
     )
 
     fun memberToEntity(householdId: String, user: AppUser): MemberEntity = MemberEntity(
@@ -38,7 +38,7 @@ object HouseholdMapper {
         displayName = user.displayName,
         email = user.email,
         photoUrl = user.photoUrl,
-        role = if (user.role == UserRole.ADMIN) UserFields.ROLE_ADMIN else UserFields.ROLE_MEMBER,
+        role = if (user.role == UserRole.ADMIN) UserFields.ROLE_ADMIN else UserFields.ROLE_MEMBER
     )
 
     fun memberToDomain(entity: MemberEntity): AppUser = AppUser(
@@ -47,6 +47,6 @@ object HouseholdMapper {
         email = entity.email,
         photoUrl = entity.photoUrl,
         householdId = entity.householdId,
-        role = if (entity.role == UserFields.ROLE_ADMIN) UserRole.ADMIN else UserRole.MEMBER,
+        role = if (entity.role == UserFields.ROLE_ADMIN) UserRole.ADMIN else UserRole.MEMBER
     )
 }

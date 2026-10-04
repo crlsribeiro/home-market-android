@@ -34,7 +34,7 @@ import kotlinx.coroutines.tasks.await
 @Singleton
 class FirebaseHouseholdRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val householdDao: HouseholdDao,
+    private val householdDao: HouseholdDao
 ) : HouseholdRepository {
 
     private fun householdDocument(id: String) = firestore.collection(HOUSEHOLDS).document(id)
@@ -96,7 +96,7 @@ class FirebaseHouseholdRepository @Inject constructor(
         householdId: String,
         name: String,
         inviteToken: String,
-        uid: String,
+        uid: String
     ): HouseholdResult = runHousehold {
         firestore.batch()
             .set(
@@ -106,10 +106,16 @@ class FirebaseHouseholdRepository @Inject constructor(
                     HouseholdFields.ADMIN_UID to uid,
                     HouseholdFields.INVITE_TOKEN to inviteToken,
                     HouseholdFields.MEMBER_UIDS to listOf(uid),
-                    HouseholdFields.CREATED_AT to FieldValue.serverTimestamp(),
-                ),
+                    HouseholdFields.CREATED_AT to FieldValue.serverTimestamp()
+                )
             )
-            .update(userDocument(uid), mapOf(UserFields.HOUSEHOLD_ID to householdId, UserFields.ROLE to UserFields.ROLE_ADMIN))
+            .update(
+                userDocument(uid),
+                mapOf(
+                    UserFields.HOUSEHOLD_ID to householdId,
+                    UserFields.ROLE to UserFields.ROLE_ADMIN
+                )
+            )
             .commit()
             .await()
         HouseholdResult.Success(householdId)
@@ -126,7 +132,13 @@ class FirebaseHouseholdRepository @Inject constructor(
             ?: return@runHousehold HouseholdResult.Failure(HouseholdError.TOKEN_NOT_FOUND)
         firestore.batch()
             .update(match.reference, HouseholdFields.MEMBER_UIDS, FieldValue.arrayUnion(uid))
-            .update(userDocument(uid), mapOf(UserFields.HOUSEHOLD_ID to match.id, UserFields.ROLE to UserFields.ROLE_MEMBER))
+            .update(
+                userDocument(uid),
+                mapOf(
+                    UserFields.HOUSEHOLD_ID to match.id,
+                    UserFields.ROLE to UserFields.ROLE_MEMBER
+                )
+            )
             .commit()
             .await()
         HouseholdResult.Success(match.id)
@@ -143,8 +155,10 @@ class FirebaseHouseholdRepository @Inject constructor(
 
     private fun Exception.toHouseholdError(): HouseholdError = when {
         this is FirebaseNetworkException -> HouseholdError.NETWORK
+
         this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE ->
             HouseholdError.NETWORK
+
         else -> HouseholdError.UNKNOWN
     }
 

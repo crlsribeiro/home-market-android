@@ -9,7 +9,7 @@ import javax.inject.Inject
 /** Creates a household with a 20-character id and an 8-character invite token; the creator becomes admin. */
 class CreateHouseholdUseCase @Inject constructor(
     private val householdRepository: HouseholdRepository,
-    private val tokenGenerator: TokenGenerator,
+    private val tokenGenerator: TokenGenerator
 ) {
     suspend operator fun invoke(name: String, uid: String): HouseholdResult {
         val trimmed = name.trim()
@@ -18,7 +18,7 @@ class CreateHouseholdUseCase @Inject constructor(
             householdId = tokenGenerator.generate(HOUSEHOLD_ID_LENGTH),
             name = trimmed,
             inviteToken = tokenGenerator.generate(INVITE_TOKEN_LENGTH),
-            uid = uid,
+            uid = uid
         )
     }
 

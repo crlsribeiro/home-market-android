@@ -12,10 +12,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.carlosribeiro.homemarket.presentation.navigation.SignedInNavHost
 import app.carlosribeiro.homemarket.presentation.navigation.SignedOutNavHost
+import app.carlosribeiro.homemarket.presentation.onboarding.OnboardingRoute
 import app.carlosribeiro.homemarket.presentation.session.SessionState
 import app.carlosribeiro.homemarket.presentation.session.SessionViewModel
 
-/** App root: shows the sign-in flow or the signed-in app depending on the Firebase session. */
+/**
+ * App root: the sign-in flow when signed out, the household onboarding when signed in without a
+ * household, and the household screens otherwise.
+ */
 @Composable
 fun HomeMarketApp(viewModel: SessionViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -27,7 +31,11 @@ fun HomeMarketApp(viewModel: SessionViewModel = hiltViewModel()) {
 
             SessionState.SignedOut -> SignedOutNavHost()
 
-            is SessionState.SignedIn -> SignedInNavHost(user = session.user, onSignOut = viewModel::onSignOut)
+            is SessionState.SignedIn -> if (session.user.householdId == null) {
+                OnboardingRoute()
+            } else {
+                SignedInNavHost(user = session.user, onSignOut = viewModel::onSignOut)
+            }
         }
     }
 }

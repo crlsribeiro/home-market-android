@@ -12,5 +12,5 @@ enum class HouseholdError {
     TOKEN_NOT_FOUND,
     NOT_SIGNED_IN,
     NETWORK,
-    UNKNOWN,
+    UNKNOWN
 }

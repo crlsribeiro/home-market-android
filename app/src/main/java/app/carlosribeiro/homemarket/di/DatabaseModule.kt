@@ -2,8 +2,8 @@ package app.carlosribeiro.homemarket.di
 
 import android.content.Context
 import androidx.room.Room
-import app.carlosribeiro.homemarket.data.local.HouseholdDao
 import app.carlosribeiro.homemarket.data.local.HomeMarketDatabase
+import app.carlosribeiro.homemarket.data.local.HouseholdDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -6,5 +6,5 @@ data class Household(
     val name: String,
     val adminUid: String,
     val inviteToken: String,
-    val memberUids: List<String>,
+    val memberUids: List<String>
 )

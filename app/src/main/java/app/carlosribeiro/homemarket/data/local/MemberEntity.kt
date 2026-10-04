@@ -9,5 +9,5 @@ data class MemberEntity(
     val displayName: String,
     val email: String,
     val photoUrl: String?,
-    val role: String,
+    val role: String
 )
