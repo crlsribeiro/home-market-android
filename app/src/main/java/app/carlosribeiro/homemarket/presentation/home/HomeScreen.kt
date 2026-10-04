@@ -154,6 +154,7 @@ private fun HomeScreenPreview() {
                 householdId = null,
                 role = UserRole.MEMBER
             ),
+            household = Household("h1", "Casa Silva", "preview", "ABC12345", listOf("preview", "u2")),
             onSignOut = {}
         )
     }
