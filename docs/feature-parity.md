@@ -14,8 +14,8 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Loading screen while the auth state resolves | `Views/Common/RootView.swift` | M1 | todo |
-| Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | todo |
+| Loading screen while the auth state resolves | `Views/Common/RootView.swift` | M1 | done |
+| Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | done |
 | Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | todo |
 | Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | todo |
 | Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme), later milestones (components) | in progress |
@@ -24,25 +24,25 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Login screen: email + password | `Views/Login/LoginView.swift` | M1 | todo |
+| Login screen: email + password | `Views/Login/LoginView.swift` | M1 | done |
 | Sign in with Google | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | M1 | todo |
 | Sign in with Apple | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | — | out of scope |
 | Forgot password sheet: send reset email, confirmation state | `Views/Login/ForgotPasswordView.swift` | M8 | todo |
-| Register screen: first name, last name, email, password, confirm password | `Views/Login/RegisterView.swift` | M1 | todo |
-| Register: validation (names and email required, password ≥ 8 characters, passwords match, complete phone or empty) | `Views/Login/RegisterView.swift` | M1 | todo |
+| Register screen: first name, last name, email, password, confirm password | `Views/Login/RegisterView.swift` | M1 | done |
+| Register: validation (names and email required, password ≥ 8 characters, passwords match, complete phone or empty) | `Views/Login/RegisterView.swift` | M1 | done |
 | Register: phone number with country picker and input mask (BR, US, PT, AR, ES) | `Views/Login/RegisterView.swift`, `Models/PhoneCountry.swift` | M8 | todo |
 | Register: optional profile photo from camera or gallery, uploaded to `users/{uid}/avatar` | `Views/Login/RegisterView.swift` | M8 | todo |
 | Register: links to Terms of Use and Privacy Policy | `Views/Login/RegisterView.swift` | M8 | todo |
-| Create `users/{uid}` on first sign-in; keep the session across restarts | `Services/AuthService.swift`, `ViewModels/AuthViewModel.swift` | M1 | todo |
-| Sign out with confirmation dialog | `Views/MainList/MainListView.swift` | M1 | todo |
+| Create `users/{uid}` on first sign-in; keep the session across restarts | `Services/AuthService.swift`, `ViewModels/AuthViewModel.swift` | M1 | done |
+| Sign out with confirmation dialog | `Views/MainList/MainListView.swift` | M1 | done |
 
 ## Household
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Onboarding: choose "create household" or "join with invite code" | `Views/Common/OnboardingView.swift` | M2 | todo |
-| Create household with a name; creator becomes admin | `Views/Common/OnboardingView.swift`, `Services/HouseholdService.swift` | M2 | todo |
-| Join household with an invite code; "invalid code" error | `Views/Common/OnboardingView.swift`, `ViewModels/HouseholdViewModel.swift` | M2 | todo |
+| Onboarding: choose "create household" or "join with invite code" | `Views/Common/OnboardingView.swift` | M2 | done |
+| Create household with a name; creator becomes admin | `Views/Common/OnboardingView.swift`, `Services/HouseholdService.swift` | M2 | done |
+| Join household with an invite code; "invalid code" error | `Views/Common/OnboardingView.swift`, `ViewModels/HouseholdViewModel.swift` | M2 | done |
 | Admin panel: household name and member list with admin badge | `Views/Admin/AdminPanelView.swift` | M2 | todo |
 | Admin panel: "you're the only one here" hint | `Views/Admin/AdminPanelView.swift` | M2 | todo |
 | Admin panel: show invite code, copy it to the clipboard and share it with the share sheet | `Views/Admin/AdminPanelView.swift` | M2 | todo |

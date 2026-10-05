@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import app.carlosribeiro.homemarket.presentation.navigation.HomeMarketNavHost
+import app.carlosribeiro.homemarket.presentation.HomeMarketApp
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             HomeMarketTheme {
-                HomeMarketNavHost()
+                HomeMarketApp()
             }
         }
     }
