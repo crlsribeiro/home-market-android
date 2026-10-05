@@ -141,4 +141,9 @@
     <string name="account_privacy_policy">Política de Privacidade</string>
     <string name="account_error_phone_incomplete">Digite o telefone completo ou deixe o campo vazio.</string>
     <string name="account_error_recent_login">Por segurança, saia e entre de novo na sua conta e tente outra vez.</string>
+    <string name="account_delete">Excluir conta</string>
+    <string name="account_delete_title">Excluir sua conta?</string>
+    <string name="account_delete_message">Isso exclui sua conta para sempre e remove você da sua casa. Não dá para desfazer.</string>
+    <string name="account_delete_confirm">Sim, excluir minha conta</string>
+    <string name="account_delete_keep">Não, manter minha conta</string>
 </resources>
