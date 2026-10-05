@@ -99,7 +99,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Ask for notification permission after sign-in and save the FCM token to `users/{uid}.fcmToken` | `Services/PushNotificationService.swift` | M6 | todo |
+| Ask for notification permission after sign-in and save the FCM token to `users/{uid}.fcmToken` | `Services/PushNotificationService.swift` | M6 | todo (waiting for backend proposal 2) |
 | Receive "item added" and "item not found" notifications | `functions/src/index.ts` (web repo) | M6 | todo |
 
 ## History
