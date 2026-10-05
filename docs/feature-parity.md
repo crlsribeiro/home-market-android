@@ -16,7 +16,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 |---|---|---|---|
 | Loading screen while the auth state resolves | `Views/Common/RootView.swift` | M1 | done |
 | Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | done |
-| Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | todo |
+| Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | in progress (List, Admin and a basic Account tab done; History in M7) |
 | Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | todo |
 | Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme), later milestones (components) | in progress |
 
@@ -52,12 +52,12 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Header: greeting with the user's name and avatar, list status badge, week label | `Views/MainList/MainListView.swift` | M3 | todo |
-| Summary cards: total, purchased, pending, urgent | `Views/MainList/MainListView.swift` | M3 | todo |
-| Current list items with thumbnail, urgent badge, quantity, author and status badge (pending, purchased, not found, awaiting approval) | `Views/MainList/MainListView.swift` | M3, M4 (awaiting approval) | todo |
-| Empty list message | `Views/MainList/MainListView.swift` | M3 | todo |
-| "Next week" section with `rolled_over` items | `Views/MainList/MainListView.swift` | M3 | todo |
-| No active list: admin can create this week's list; members see "wait for the admin" | `Views/MainList/MainListView.swift` | M3 | todo |
+| Header: greeting with the user's name and avatar, list status badge, week label | `Views/MainList/MainListView.swift` | M3 | done (initials avatar; the profile photo comes with M8) |
+| Summary cards: total, purchased, pending, urgent | `Views/MainList/MainListView.swift` | M3 | done |
+| Current list items with thumbnail, urgent badge, quantity, author and status badge (pending, purchased, not found, awaiting approval) | `Views/MainList/MainListView.swift` | M3, M4 (awaiting approval) | done |
+| Empty list message | `Views/MainList/MainListView.swift` | M3 | done |
+| "Next week" section with `rolled_over` items | `Views/MainList/MainListView.swift` | M3 | done |
+| No active list: admin can create this week's list; members see "wait for the admin" | `Views/MainList/MainListView.swift` | M3 | done |
 | Swipe to delete an item | `Views/MainList/MainListView.swift` | M3 | todo |
 | Add item sheet: name, quantity stepper (1–99), notes, urgent toggle | `Views/MainList/MainListView.swift` (`AddItemView`) | M3 | todo |
 | Add item: optional photo from camera or gallery, uploaded to Storage | `Views/MainList/MainListView.swift`, `Views/Common/CameraPicker.swift` | M3 | todo |
@@ -68,7 +68,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Item detail: remove from list with a confirmation step (hidden when the list is closed) | `Views/MainList/ItemDetailView.swift` | M3 | todo |
 | Item detail: price per unit and total, admin only ("available after receipt upload" otherwise) | `Views/MainList/ItemDetailView.swift` | M7 | todo |
 | Item detail: "mark as purchased" while shopping | `Views/MainList/ItemDetailView.swift` | M5 | todo |
-| Error message banner for failed writes | `Views/MainList/MainListView.swift` | M3 | todo |
+| Error message banner for failed writes | `Views/MainList/MainListView.swift` | M3 | in progress (snackbar for creating the list) |
 | Automatic close of a list whose week has ended (weekly cut, no purchase), then a new list for this week | `ViewModels/ListViewModel.swift` (`expireIfStale`) | M4 | todo |
 
 ## Lifecycle and approvals
