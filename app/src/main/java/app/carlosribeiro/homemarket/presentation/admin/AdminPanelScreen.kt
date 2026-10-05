@@ -18,11 +18,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,8 +82,18 @@ fun AdminPanelScreen(
     onShareCode: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val adminErrorMessage = state.adminError?.let { stringResource(it.messageRes()) }
+    LaunchedEffect(adminErrorMessage) {
+        if (adminErrorMessage != null) {
+            snackbarHostState.showSnackbar(adminErrorMessage)
+            onEvent(AdminPanelUiEvent.DismissAdminError)
+        }
+    }
+
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.admin_title)) },
@@ -103,6 +117,14 @@ fun AdminPanelScreen(
             }
             SectionCard(title = stringResource(R.string.admin_invite_code)) {
                 InviteCode(state = state, onEvent = onEvent, onCopyCode = onCopyCode, onShareCode = onShareCode)
+            }
+            state.currentList?.let { list ->
+                SectionCard(title = stringResource(R.string.admin_list_status_title)) {
+                    ListStatusSection(list = list, onEvent = onEvent)
+                }
+            }
+            SectionCard(title = stringResource(R.string.admin_pending_approvals)) {
+                PendingApprovalsSection(items = state.pendingApprovals, onEvent = onEvent)
             }
         }
     }
