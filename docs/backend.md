@@ -456,8 +456,10 @@ open a specific screen from the message content alone.
    them in `docs/` unchanged and check every Android write against them.
 2. **Adding an item after the week's list was closed early.** iOS then reuses the closed list's id, so the
    new item is written to the closed list and no one sees it. Copying that would lose items. Proposal:
-   Android shows "no active list" and disables adding until next Monday, which writes nothing new. To be
-   confirmed before M3.
+   Android shows "no active list" and disables adding until next Monday, which writes nothing new.
+   Waiting for the owner's confirmation. Until then, the Android "create this week's list" action
+   follows the proposal: when the transaction finds this week's list already closed, it writes nothing
+   and tells the admin that a new list can be created on Monday.
 
 ## Resolved questions
 
