@@ -16,9 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,17 +41,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.ApprovalStatus
 import app.carlosribeiro.homemarket.domain.model.ItemDetail
+import app.carlosribeiro.homemarket.domain.model.ItemPrice
 import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListStatus
 import app.carlosribeiro.homemarket.domain.model.WeekList
-import app.carlosribeiro.homemarket.presentation.components.rememberPhotoPicker
+import app.carlosribeiro.homemarket.presentation.components.PhotoSourceButtons
+import app.carlosribeiro.homemarket.presentation.history.MoneyFormatter
 import app.carlosribeiro.homemarket.presentation.list.WeekLabelFormatter
 import app.carlosribeiro.homemarket.presentation.list.messageRes
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import coil3.compose.AsyncImage
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 
 @Composable
 fun ItemDetailRoute(onBack: () -> Unit, viewModel: ItemDetailViewModel = hiltViewModel()) {
@@ -141,7 +141,6 @@ private fun PhotoSection(
     isUploading: Boolean,
     onPhotoPicked: (String) -> Unit
 ) {
-    val photoPicker = rememberPhotoPicker(onPhotoPicked)
     Column {
         Box(
             modifier = Modifier
@@ -169,23 +168,11 @@ private fun PhotoSection(
                 CircularProgressIndicator(modifier = Modifier.size(40.dp))
             }
         }
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedButton(onClick = photoPicker.takePhoto, enabled = !isUploading, modifier = Modifier.weight(1f)) {
-                Icon(painterResource(R.drawable.ic_photo_camera), contentDescription = null)
-                Text(stringResource(R.string.add_item_camera), modifier = Modifier.padding(start = 8.dp))
-            }
-            OutlinedButton(
-                onClick = photoPicker.pickFromGallery,
-                enabled = !isUploading,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(painterResource(R.drawable.ic_photo_library), contentDescription = null)
-                Text(stringResource(R.string.add_item_gallery), modifier = Modifier.padding(start = 8.dp))
-            }
-        }
+        PhotoSourceButtons(
+            onPhoto = onPhotoPicked,
+            enabled = !isUploading,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
     }
 }
 
@@ -203,6 +190,27 @@ private fun DetailRows(detail: ItemDetail, now: Instant) {
             stringResource(R.string.item_detail_week),
             stringResource(R.string.list_week, WeekLabelFormatter.format(list.weekStart, list.weekEnd, locale))
         )
+    }
+    detail.price?.let { price ->
+        HorizontalDivider()
+        PriceRows(price = price, locale = locale)
+    }
+}
+
+/** Admin only: the receipt price, or a hint until a receipt with this item is uploaded. */
+@Composable
+private fun PriceRows(price: ItemPrice, locale: Locale) {
+    val unitPrice = price.unitPrice
+    val total = price.total
+    if (unitPrice == null || total == null) {
+        DetailRow(stringResource(R.string.item_detail_price), stringResource(R.string.item_detail_price_unavailable))
+    } else {
+        DetailRow(
+            stringResource(R.string.item_detail_price),
+            stringResource(R.string.item_detail_price_per_unit, MoneyFormatter.format(unitPrice, locale))
+        )
+        HorizontalDivider()
+        DetailRow(stringResource(R.string.item_detail_price_total), MoneyFormatter.format(total, locale))
     }
 }
 
@@ -249,7 +257,8 @@ private fun ItemDetailPreview() {
                         Instant.parse("2026-10-05T02:59:59Z"),
                         ListStatus.OPEN,
                         null
-                    )
+                    ),
+                    price = ItemPrice(unitPrice = 8.99, quantity = 2)
                 )
             ),
             onEvent = {},

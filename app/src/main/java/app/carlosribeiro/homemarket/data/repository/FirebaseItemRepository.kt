@@ -65,6 +65,12 @@ class FirebaseItemRepository @Inject constructor(
         itemDocument(itemId).delete().await()
     }
 
+    override suspend fun resolveNotFound(itemId: String): ItemResult = write {
+        itemDocument(itemId)
+            .update(mapOf(ItemFields.STATUS to ItemFields.STATUS_ROLLED_OVER, ItemFields.NOT_FOUND_RESOLVED to true))
+            .await()
+    }
+
     override suspend fun replacePhoto(item: ListItem, photo: ByteArray): ItemResult {
         val result = write {
             val url = photoStorage.upload(item.householdId, item.id, photo)

@@ -24,6 +24,10 @@ data class ListItem(
         get() = status == ItemStatus.PENDING && approvalStatus != ApprovalStatus.PENDING
 
     val isUrgentToBuy: Boolean get() = urgent && status != ItemStatus.PURCHASED
+
+    /** Web: a not-found item its author still has to decide about. */
+    fun awaitsNotFoundDecisionBy(uid: String): Boolean =
+        status == ItemStatus.NOT_FOUND && addedByUid == uid && !notFoundResolved
 }
 
 enum class ItemStatus {

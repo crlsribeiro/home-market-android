@@ -16,8 +16,8 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 |---|---|---|---|
 | Loading screen while the auth state resolves | `Views/Common/RootView.swift` | M1 | done |
 | Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | done |
-| Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | in progress (List, Admin and a basic Account tab done; History in M7) |
-| Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | todo |
+| Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | in progress (List, Admin, History and a basic Account tab done) |
+| Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | done |
 | Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme), later milestones (components) | in progress |
 
 ## Authentication
@@ -66,7 +66,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Item detail: edit notes | `Views/MainList/ItemDetailView.swift` | M3 | done |
 | Item detail: add or replace the photo after creation | `Views/MainList/ItemDetailView.swift`, `Services/ListService.swift` | M3 | done |
 | Item detail: remove from list with a confirmation step (hidden when the list is closed) | `Views/MainList/ItemDetailView.swift` | M3 | done (next-week items stay removable) |
-| Item detail: price per unit and total, admin only ("available after receipt upload" otherwise) | `Views/MainList/ItemDetailView.swift` | M7 | todo |
+| Item detail: price per unit and total, admin only ("available after receipt upload" otherwise) | `Views/MainList/ItemDetailView.swift` | M7 | done |
 | Item detail: "mark as purchased" while shopping | `Views/MainList/ItemDetailView.swift` | M5 | todo |
 | Error message banner for failed writes | `Views/MainList/MainListView.swift` | M3 | in progress (snackbar for creating the list and adding items) |
 | Automatic close of a list whose week has ended (weekly cut, no purchase), then a new list for this week | `ViewModels/ListViewModel.swift` (`expireIfStale`) | M4 | done |
@@ -78,22 +78,22 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Admin panel: list status card (week, status) | `Views/Admin/AdminPanelView.swift` | M4 | done |
 | Items added after the list leaves `open` get `approvalStatus: "pending"` | `Services/ListService.swift` | M4 | done (with the add-item sheet, M3) |
 | Admin panel: pending approvals with approve and reject | `Views/Admin/AdminPanelView.swift` | M4 | done |
-| Start shopping from the list (cart button, admin only, list `open` or `locked`, not empty) | `Views/MainList/MainListView.swift` | M5 | todo |
+| Start shopping from the list (cart button, admin only, list `open` or `locked`, not empty) | `Views/MainList/MainListView.swift` | M5 | done |
 | Lock and reopen the list (web feature; iOS never writes `locked`) | — | M4 | done (admin panel) |
-| Admin panel: "items per person this week" bar chart with expandable item names | `Views/Admin/AdminPanelView.swift` (`WeeklyDashboardSection`) | M4 | todo |
+| Admin panel: "items per person this week" bar chart with expandable item names | `Views/Admin/AdminPanelView.swift` (`WeeklyDashboardSection`) | M4 | done |
 
 ## Shopping mode
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Progress card: week, "x of y items", progress bar | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| "To get" list with "got it" and "not available" actions. Android follows the web: "not available" writes `not_found` | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| "Not found" section ("notification sent") | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| The member who added a not-found item resolves it (web flow; iOS has none) | — (web `NotFoundModal.tsx`) | M5 | todo |
-| "Already picked up" section | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| Close list: weekly cut, then create the purchase record | `Views/Shopping/ShoppingModeView.swift` | M5 (cut), M7 (purchase record) | todo |
-| Abandon shopping with confirmation (list back to `open`) | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| Members' waiting screen: week, what is happening, notification hint | `Views/Shopping/ShoppingWaitingView.swift` | M5 | todo |
+| Progress card: week, "x of y items", progress bar | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| "To get" list with "got it" and "not available" actions. Android follows the web: "not available" writes `not_found` | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| "Not found" section ("notification sent") | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| The member who added a not-found item resolves it (web flow; iOS has none) | — (web `NotFoundModal.tsx`) | M5 | done |
+| "Already picked up" section | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| Close list: weekly cut, then create the purchase record | `Views/Shopping/ShoppingModeView.swift` | M5 (cut), M7 (purchase record) | done (reuses the purchase of the same list, like iOS) |
+| Abandon shopping with confirmation (list back to `open`) | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| Members' waiting screen: week, what is happening, notification hint | `Views/Shopping/ShoppingWaitingView.swift` | M5 | done |
 
 ## Push notifications
 
@@ -106,11 +106,11 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Purchase history list: week label, store name, total; empty state. Admin only on Android (web behaviour) | `Views/History/HistoryView.swift` | M7 | todo |
-| Purchase detail: total and line items (quantity, unit price, line total) | `Views/History/HistoryView.swift` | M7 | todo |
-| Upload or re-upload a receipt photo; on-device OCR and parsing replace the line items | `Views/History/HistoryView.swift`, `Services/HistoryService.swift` | M7 | todo |
-| Store name extracted from the receipt | `Services/HistoryService.swift` | M7 | todo |
-| Edit a line item's name and unit price; total recomputed | `Views/History/HistoryView.swift` (`EditPurchaseItemView`) | M7 | todo |
+| Purchase history list: week label, store name, total; empty state. Admin only on Android (web behaviour) | `Views/History/HistoryView.swift` | M7 | done (week label formatted from the linked list, stored label as fallback) |
+| Purchase detail: total and line items (quantity, unit price, line total) | `Views/History/HistoryView.swift` | M7 | done |
+| Upload or re-upload a receipt photo; on-device OCR and parsing replace the line items | `Views/History/HistoryView.swift`, `Services/HistoryService.swift` | M7 | done (ML Kit text recognition; camera or gallery) |
+| Store name extracted from the receipt | `Services/HistoryService.swift` | M7 | done |
+| Edit a line item's name and unit price; total recomputed | `Views/History/HistoryView.swift` (`EditPurchaseItemView`) | M7 | done |
 
 ## Account
 

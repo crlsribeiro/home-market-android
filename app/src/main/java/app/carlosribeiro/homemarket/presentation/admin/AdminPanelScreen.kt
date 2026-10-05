@@ -126,6 +126,9 @@ fun AdminPanelScreen(
             SectionCard(title = stringResource(R.string.admin_pending_approvals)) {
                 PendingApprovalsSection(items = state.pendingApprovals, onEvent = onEvent)
             }
+            SectionCard(title = stringResource(R.string.admin_items_per_person)) {
+                ItemsPerPersonSection(stats = personStats(state.items))
+            }
         }
     }
 }
