@@ -110,8 +110,8 @@ class FirebaseAuthRepository @Inject constructor(
                 UserFields.DISPLAY_NAME to displayName,
                 UserFields.FIRST_NAME to registration.firstName,
                 UserFields.LAST_NAME to registration.lastName,
-                UserFields.PHONE to "",
-                UserFields.PHONE_COUNTRY_CODE to DEFAULT_PHONE_COUNTRY_CODE,
+                UserFields.PHONE to registration.phone,
+                UserFields.PHONE_COUNTRY_CODE to registration.phoneCountryCode,
                 UserFields.PHOTO_URL to null,
                 UserFields.PROVIDER to PROVIDER_EMAIL,
                 UserFields.HOUSEHOLD_ID to null,
@@ -141,9 +141,6 @@ class FirebaseAuthRepository @Inject constructor(
     private companion object {
         const val USERS = "users"
         const val PROVIDER_EMAIL = "email"
-
-        /** The phone field is optional; the iOS form defaults its country picker to Brazil. */
-        const val DEFAULT_PHONE_COUNTRY_CODE = "+55"
     }
 }
 
