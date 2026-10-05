@@ -9,6 +9,7 @@ import app.carlosribeiro.homemarket.domain.model.PurchaseDetail
 import app.carlosribeiro.homemarket.domain.model.PurchaseItem
 import app.carlosribeiro.homemarket.domain.usecase.EditPurchaseItemUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObservePurchaseDetailUseCase
+import app.carlosribeiro.homemarket.domain.usecase.UploadReceiptUseCase
 import app.carlosribeiro.homemarket.domain.util.Money
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
@@ -34,6 +35,7 @@ data class PurchaseDetailUiState(
     /** The purchase no longer exists, or the user is no longer the admin. */
     val isGone: Boolean = false,
     val draft: PurchaseItemDraft? = null,
+    val isUploadingReceipt: Boolean = false,
     val error: AdminError? = null
 )
 
@@ -48,15 +50,18 @@ sealed interface PurchaseDetailUiEvent {
 
     data object SaveEdit : PurchaseDetailUiEvent
 
+    data class ReceiptPicked(val uri: String) : PurchaseDetailUiEvent
+
     data object DismissError : PurchaseDetailUiEvent
 }
 
-/** iOS `PurchaseDetailView`: the total and the receipt lines, each with an edit button. */
+/** iOS `PurchaseDetailView`: the total, the receipt lines with an edit button, and the receipt upload. */
 @HiltViewModel
 class PurchaseDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     observePurchaseDetail: ObservePurchaseDetailUseCase,
-    private val editPurchaseItem: EditPurchaseItemUseCase
+    private val editPurchaseItem: EditPurchaseItemUseCase,
+    private val uploadReceipt: UploadReceiptUseCase
 ) : ViewModel() {
 
     private val purchaseId: String = checkNotNull(savedStateHandle[PURCHASE_ID_KEY])
@@ -88,7 +93,19 @@ class PurchaseDetailViewModel @Inject constructor(
 
             PurchaseDetailUiEvent.SaveEdit -> save()
 
+            is PurchaseDetailUiEvent.ReceiptPicked -> upload(event.uri)
+
             PurchaseDetailUiEvent.DismissError -> ui.update { it.copy(error = null) }
+        }
+    }
+
+    /** iOS shows a spinner on the button until the lines are replaced. */
+    private fun upload(uri: String) {
+        if (ui.value.isUploadingReceipt) return
+        ui.update { it.copy(isUploadingReceipt = true) }
+        viewModelScope.launch {
+            val result = uploadReceipt(purchaseId, uri)
+            ui.update { it.copy(isUploadingReceipt = false, error = (result as? AdminResult.Failure)?.error) }
         }
     }
 
