@@ -13,5 +13,8 @@ enum class AuthError {
     WEAK_PASSWORD,
     INVALID_EMAIL,
     NETWORK,
+
+    /** Sign in with Google could not get an account from the device (none, or not configured). */
+    GOOGLE_UNAVAILABLE,
     UNKNOWN
 }

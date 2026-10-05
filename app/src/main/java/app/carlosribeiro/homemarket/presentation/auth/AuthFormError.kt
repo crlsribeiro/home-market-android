@@ -35,5 +35,6 @@ private fun AuthError.messageRes(): Int = when (this) {
     AuthError.WEAK_PASSWORD -> R.string.auth_error_weak_password
     AuthError.INVALID_EMAIL -> R.string.auth_error_email_invalid
     AuthError.NETWORK -> R.string.auth_error_network
+    AuthError.GOOGLE_UNAVAILABLE -> R.string.auth_error_google_unavailable
     AuthError.UNKNOWN -> R.string.auth_error_unknown
 }

@@ -42,7 +42,12 @@ jobs:
                     "package_name": "app.carlosribeiro.homemarket"
                   }
                 },
-                "oauth_client": [],
+                "oauth_client": [
+                  {
+                    "client_id": "000000000000-placeholder.apps.googleusercontent.com",
+                    "client_type": 3
+                  }
+                ],
                 "api_key": [
                   {
                     "current_key": "placeholder"

@@ -67,4 +67,11 @@ class AuthValidationTest {
             AuthValidation.validateRegistration(valid.copy(email = "maria.example.com"), "12345678")
         )
     }
+
+    @Test
+    fun validateEmail_requiresAValidEmail() {
+        assertEquals(ValidationError.EMAIL_REQUIRED, AuthValidation.validateEmail(" "))
+        assertEquals(ValidationError.EMAIL_INVALID, AuthValidation.validateEmail("maria"))
+        assertEquals(null, AuthValidation.validateEmail(" maria@example.com "))
+    }
 }
