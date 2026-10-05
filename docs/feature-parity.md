@@ -123,6 +123,12 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Privacy Policy link (in-app browser) | `Views/Common/AccountSettingsView.swift`, `Views/Common/SafariView.swift` | M8 | done (opens the browser) |
 | Delete account with confirmation; admin hand-off to another member; re-authentication error | `Views/Common/DeleteAccountView.swift`, `ViewModels/HouseholdViewModel.swift` | M8 | done (the re-authentication check runs before any write) |
 
+## Release readiness (Android only)
+
+| Item | Source | Milestone | Status |
+|---|---|---|---|
+| App icon and splash screen (from the iOS app icon) | `Assets.xcassets/AppIcon.appiconset` | M9 | done (adaptive and themed icon; Android 12+ system splash) |
+
 ## Scope decisions
 
 Decided by the repository owner on 2026-10-03:
