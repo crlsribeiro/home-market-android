@@ -1,4 +1,4 @@
-package app.carlosribeiro.homemarket.presentation.home
+package app.carlosribeiro.homemarket.presentation.account
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class AccountViewModel @Inject constructor(
     observeCurrentUser: ObserveCurrentUserUseCase,
     observeHousehold: ObserveHouseholdUseCase
 ) : ViewModel() {

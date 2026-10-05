@@ -45,7 +45,7 @@ import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun AdminPanelRoute(onBack: () -> Unit, viewModel: AdminPanelViewModel = hiltViewModel()) {
+fun AdminPanelRoute(onBack: (() -> Unit)? = null, viewModel: AdminPanelViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val clipboard = LocalClipboard.current
@@ -73,7 +73,7 @@ fun AdminPanelRoute(onBack: () -> Unit, viewModel: AdminPanelViewModel = hiltVie
 fun AdminPanelScreen(
     state: AdminPanelUiState,
     onEvent: (AdminPanelUiEvent) -> Unit,
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
     onCopyCode: (String) -> Unit,
     onShareCode: () -> Unit,
     modifier: Modifier = Modifier
@@ -83,7 +83,9 @@ fun AdminPanelScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.admin_title)) },
-                navigationIcon = { TextButton(onClick = onBack) { Text(stringResource(R.string.action_back)) } }
+                navigationIcon = {
+                    onBack?.let { TextButton(onClick = it) { Text(stringResource(R.string.action_back)) } }
+                }
             )
         }
     ) { innerPadding ->

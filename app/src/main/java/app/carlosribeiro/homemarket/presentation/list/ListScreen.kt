@@ -1,0 +1,211 @@
+package app.carlosribeiro.homemarket.presentation.list
+
+import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.carlosribeiro.homemarket.R
+import app.carlosribeiro.homemarket.domain.model.AppUser
+import app.carlosribeiro.homemarket.domain.model.ApprovalStatus
+import app.carlosribeiro.homemarket.domain.model.ItemStatus
+import app.carlosribeiro.homemarket.domain.model.ListItem
+import app.carlosribeiro.homemarket.domain.model.ListStatus
+import app.carlosribeiro.homemarket.domain.model.UserRole
+import app.carlosribeiro.homemarket.domain.model.WeekList
+import app.carlosribeiro.homemarket.presentation.components.SubmitButton
+import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
+import java.time.Instant
+
+@Composable
+fun ListRoute(viewModel: ListViewModel = hiltViewModel()) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    ListScreen(state = state, onEvent = viewModel::onEvent)
+}
+
+/** iOS `MainListView`: the household's current weekly list. */
+@Composable
+fun ListScreen(state: ListUiState, onEvent: (ListUiEvent) -> Unit, modifier: Modifier = Modifier) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val errorMessage = state.error?.let { stringResource(it.messageRes()) }
+    LaunchedEffect(errorMessage) {
+        if (errorMessage != null) {
+            snackbarHostState.showSnackbar(errorMessage)
+            onEvent(ListUiEvent.DismissError)
+        }
+    }
+
+    Scaffold(modifier = modifier, snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+        val contentModifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+        when {
+            state.isLoading -> Box(contentModifier, contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+
+            state.currentList == null -> NoActiveList(
+                isAdmin = state.isAdmin,
+                isCreating = state.isCreatingList,
+                onCreate = { onEvent(ListUiEvent.CreateList) },
+                modifier = contentModifier
+            )
+
+            else -> ListContent(state = state, list = state.currentList, modifier = contentModifier)
+        }
+    }
+}
+
+@Composable
+private fun ListContent(state: ListUiState, list: WeekList, modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        item { ListHeader(user = state.user, list = list) }
+        item { SummaryCards(state) }
+        item { SectionTitle(stringResource(R.string.list_this_week)) }
+        if (state.items.isEmpty()) {
+            item {
+                OutlinedCard(Modifier.fillMaxWidth()) {
+                    Text(
+                        text = stringResource(R.string.list_empty),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+        } else {
+            items(state.items, key = { it.id }) { ListItemRow(it) }
+        }
+        if (state.nextWeekItems.isNotEmpty()) {
+            item { SectionTitle(stringResource(R.string.list_next_week, state.nextWeekItems.size)) }
+            items(state.nextWeekItems, key = { "next-${it.id}" }) { ListItemRow(it) }
+        }
+    }
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 8.dp)
+    )
+}
+
+@Composable
+private fun NoActiveList(isAdmin: Boolean, isCreating: Boolean, onCreate: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_shopping_cart),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(48.dp)
+        )
+        Text(text = stringResource(R.string.list_no_active_title), style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = stringResource(if (isAdmin) R.string.list_no_active_admin else R.string.list_no_active_member),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        if (isAdmin) {
+            SubmitButton(
+                text = stringResource(R.string.list_create),
+                isLoading = isCreating,
+                onClick = onCreate
+            )
+        }
+    }
+}
+
+private val previewUser = AppUser("u1", "Maria Silva", "maria@example.com", null, "h1", UserRole.ADMIN)
+
+private fun previewItem(id: String, name: String, status: ItemStatus, urgent: Boolean = false) = ListItem(
+    id = id,
+    listId = "h1_2026-09-28",
+    householdId = "h1",
+    name = name,
+    quantity = 2,
+    notes = "",
+    urgent = urgent,
+    addedByUid = "u1",
+    addedByName = "Maria",
+    status = status,
+    approvalStatus = ApprovalStatus.NOT_REQUIRED,
+    notFoundResolved = false,
+    photoUrl = null,
+    createdAt = null
+)
+
+@Preview(name = "Light", showBackground = true)
+@Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ListScreenPreview() {
+    HomeMarketTheme(dynamicColor = false) {
+        ListScreen(
+            state = ListUiState(
+                isLoading = false,
+                user = previewUser,
+                currentList = WeekList(
+                    id = "h1_2026-09-28",
+                    householdId = "h1",
+                    weekStart = Instant.parse("2026-09-28T03:00:00Z"),
+                    weekEnd = Instant.parse("2026-10-05T02:59:59Z"),
+                    status = ListStatus.OPEN,
+                    createdAt = null
+                ),
+                items = listOf(
+                    previewItem("1", "Leite", ItemStatus.PENDING, urgent = true),
+                    previewItem("2", "Pão", ItemStatus.PURCHASED)
+                ),
+                nextWeekItems = listOf(previewItem("3", "Café", ItemStatus.ROLLED_OVER))
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(name = "No list, light", showBackground = true)
+@Preview(name = "No list, dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun NoActiveListPreview() {
+    HomeMarketTheme(dynamicColor = false) {
+        ListScreen(state = ListUiState(isLoading = false, user = previewUser), onEvent = {})
+    }
+}

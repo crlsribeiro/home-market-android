@@ -1,0 +1,107 @@
+package app.carlosribeiro.homemarket.presentation.list
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.carlosribeiro.homemarket.domain.model.AppUser
+import app.carlosribeiro.homemarket.domain.model.ItemStatus
+import app.carlosribeiro.homemarket.domain.model.ListError
+import app.carlosribeiro.homemarket.domain.model.ListItem
+import app.carlosribeiro.homemarket.domain.model.ListResult
+import app.carlosribeiro.homemarket.domain.model.UserRole
+import app.carlosribeiro.homemarket.domain.model.WeekList
+import app.carlosribeiro.homemarket.domain.model.WeeklyList
+import app.carlosribeiro.homemarket.domain.usecase.CreateWeekListUseCase
+import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
+import app.carlosribeiro.homemarket.domain.usecase.ObserveWeeklyListUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class ListUiState(
+    val isLoading: Boolean = true,
+    val user: AppUser? = null,
+    val currentList: WeekList? = null,
+    val items: List<ListItem> = emptyList(),
+    val nextWeekItems: List<ListItem> = emptyList(),
+    val isCreatingList: Boolean = false,
+    val error: ListError? = null
+) {
+    val isAdmin: Boolean get() = user?.role == UserRole.ADMIN
+    val purchasedCount: Int get() = items.count { it.status == ItemStatus.PURCHASED }
+    val pendingCount: Int get() = items.count { it.isPendingPurchase }
+    val urgentCount: Int get() = items.count { it.isUrgentToBuy }
+}
+
+sealed interface ListUiEvent {
+    data object CreateList : ListUiEvent
+
+    data object DismissError : ListUiEvent
+}
+
+@HiltViewModel
+class ListViewModel @Inject constructor(
+    observeCurrentUser: ObserveCurrentUserUseCase,
+    observeWeeklyList: ObserveWeeklyListUseCase,
+    private val createWeekList: CreateWeekListUseCase
+) : ViewModel() {
+
+    private val action = MutableStateFlow(ActionState())
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val content: Flow<Pair<AppUser?, WeeklyList>> = observeCurrentUser()
+        .distinctUntilChanged()
+        .flatMapLatest { user ->
+            val householdId = user?.householdId
+            if (householdId == null) {
+                flowOf(user to WeeklyList(null, emptyList(), emptyList()))
+            } else {
+                observeWeeklyList(householdId).map { user to it }
+            }
+        }
+
+    val state: StateFlow<ListUiState> = combine(content, action) { (user, weekly), action ->
+        ListUiState(
+            isLoading = false,
+            user = user,
+            currentList = weekly.currentList,
+            items = weekly.items,
+            nextWeekItems = weekly.nextWeekItems,
+            isCreatingList = action.isCreatingList,
+            error = action.error
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), ListUiState())
+
+    fun onEvent(event: ListUiEvent) {
+        when (event) {
+            ListUiEvent.CreateList -> createList()
+            ListUiEvent.DismissError -> action.update { it.copy(error = null) }
+        }
+    }
+
+    private fun createList() {
+        if (action.value.isCreatingList) return
+        action.value = ActionState(isCreatingList = true)
+        viewModelScope.launch {
+            val result = createWeekList()
+            action.value = ActionState(error = (result as? ListResult.Failure)?.error)
+        }
+    }
+
+    private data class ActionState(val isCreatingList: Boolean = false, val error: ListError? = null)
+
+    private companion object {
+        const val STOP_TIMEOUT_MILLIS = 5_000L
+    }
+}

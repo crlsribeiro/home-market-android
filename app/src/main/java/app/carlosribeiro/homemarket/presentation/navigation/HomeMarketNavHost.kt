@@ -7,10 +7,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import app.carlosribeiro.homemarket.domain.model.AppUser
-import app.carlosribeiro.homemarket.presentation.admin.AdminPanelRoute
 import app.carlosribeiro.homemarket.presentation.auth.LoginRoute
 import app.carlosribeiro.homemarket.presentation.auth.RegisterRoute
-import app.carlosribeiro.homemarket.presentation.home.HomeRoute
+import app.carlosribeiro.homemarket.presentation.main.MainScaffold
 
 /** Screens for a signed-out user. Signing in swaps this graph for [SignedInNavHost]. */
 @Composable
@@ -25,7 +24,7 @@ fun SignedOutNavHost(modifier: Modifier = Modifier, navController: NavHostContro
     }
 }
 
-/** Screens for a signed-in user. */
+/** Screens for a signed-in user with a household. Item detail (M3) and shopping mode (M5) join this graph. */
 @Composable
 fun SignedInNavHost(
     user: AppUser,
@@ -33,16 +32,9 @@ fun SignedInNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController()
 ) {
-    NavHost(navController = navController, startDestination = HomeDestination, modifier = modifier) {
-        composable<HomeDestination> {
-            HomeRoute(
-                user = user,
-                onSignOut = onSignOut,
-                onOpenAdmin = { navController.navigate(AdminPanelDestination) }
-            )
-        }
-        composable<AdminPanelDestination> {
-            AdminPanelRoute(onBack = { navController.popBackStack() })
+    NavHost(navController = navController, startDestination = MainDestination, modifier = modifier) {
+        composable<MainDestination> {
+            MainScaffold(user = user, onSignOut = onSignOut)
         }
     }
 }
