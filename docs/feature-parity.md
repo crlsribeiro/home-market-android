@@ -25,7 +25,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
 | Login screen: email + password | `Views/Login/LoginView.swift` | M1 | done |
-| Sign in with Google | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | M1 | todo |
+| Sign in with Google | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | M1 | done (Credential Manager) |
 | Sign in with Apple | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | — | out of scope |
 | Forgot password sheet: send reset email, confirmation state | `Views/Login/ForgotPasswordView.swift` | M8 | todo |
 | Register screen: first name, last name, email, password, confirm password | `Views/Login/RegisterView.swift` | M1 | done |
