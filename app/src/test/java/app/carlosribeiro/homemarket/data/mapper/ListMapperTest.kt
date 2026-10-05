@@ -104,4 +104,12 @@ class ListMapperTest {
         assertEquals(ListStatus.LOCKED, ListMapper.listStatus("locked"))
         assertEquals(ListStatus.CLOSED, ListMapper.listStatus("closed"))
     }
+
+    @Test
+    fun approvalStatus_isWrittenWithTheBackendValues() {
+        assertEquals("not_required", ListMapper.approvalStatusValue(ApprovalStatus.NOT_REQUIRED))
+        assertEquals("pending", ListMapper.approvalStatusValue(ApprovalStatus.PENDING))
+        assertEquals("approved", ListMapper.approvalStatusValue(ApprovalStatus.APPROVED))
+        assertEquals("rejected", ListMapper.approvalStatusValue(ApprovalStatus.REJECTED))
+    }
 }
