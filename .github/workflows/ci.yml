@@ -65,7 +65,7 @@ jobs:
           JSON
 
       - name: Build, test and check
-        run: ./gradlew assembleDebug testDebugUnitTest lint detekt ktlintCheck --stacktrace
+        run: ./gradlew assembleDebug assembleRelease testDebugUnitTest lint detekt ktlintCheck --stacktrace
 
       - name: Upload reports
         if: failure()

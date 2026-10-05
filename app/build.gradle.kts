@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -26,9 +28,32 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Release signing comes from a git-ignored keystore.properties (see docs/release.md) or from CI
+    // environment variables. Without either, assembleRelease builds an unsigned APK.
+    val keystoreProperties = Properties().apply {
+        val file = rootProject.file("keystore.properties")
+        if (file.exists()) file.inputStream().use(::load)
+    }
+    fun signingValue(key: String, env: String): String? =
+        keystoreProperties.getProperty(key) ?: System.getenv(env)
+    val releaseStoreFile = signingValue("storeFile", "HOMEMARKET_STORE_FILE")
+
+    signingConfigs {
+        if (releaseStoreFile != null) {
+            create("release") {
+                storeFile = rootProject.file(releaseStoreFile)
+                storePassword = signingValue("storePassword", "HOMEMARKET_STORE_PASSWORD")
+                keyAlias = signingValue("keyAlias", "HOMEMARKET_KEY_ALIAS")
+                keyPassword = signingValue("keyPassword", "HOMEMARKET_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
