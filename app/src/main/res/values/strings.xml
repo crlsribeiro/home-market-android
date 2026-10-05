@@ -173,4 +173,16 @@
     <string name="not_found_message">\"%1$s\" wasn\'t found at the store. What should we do?</string>
     <string name="not_found_keep">Keep for next week</string>
     <string name="not_found_discard">Discard</string>
+    <string name="tab_history">History</string>
+    <string name="history_title">Purchase history</string>
+    <string name="history_empty_title">No purchases recorded</string>
+    <string name="history_empty_message">Your purchase history will appear here</string>
+    <string name="history_unknown_store">Unknown store</string>
+    <string name="history_total">Total</string>
+    <string name="history_items">Items</string>
+    <string name="history_no_items">No items logged yet</string>
+    <string name="history_item_quantity_price">qty %1$d · %2$s each</string>
+    <string name="history_edit_item">Edit item</string>
+    <string name="history_item_name">Item name</string>
+    <string name="history_unit_price">Unit price</string>
 </resources>
