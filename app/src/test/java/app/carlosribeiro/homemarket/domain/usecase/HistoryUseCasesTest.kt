@@ -7,6 +7,9 @@ import app.carlosribeiro.homemarket.domain.model.Purchase
 import app.carlosribeiro.homemarket.domain.model.PurchaseDetail
 import app.carlosribeiro.homemarket.domain.model.PurchaseItem
 import app.carlosribeiro.homemarket.domain.model.UserRole
+import app.carlosribeiro.homemarket.domain.receipt.ReceiptLine
+import app.carlosribeiro.homemarket.domain.receipt.ReceiptTextRecognizer
+import app.carlosribeiro.homemarket.domain.receipt.TextToken
 import app.carlosribeiro.homemarket.domain.repository.AuthRepository
 import app.carlosribeiro.homemarket.domain.repository.PurchaseRepository
 import io.mockk.coEvery
@@ -93,5 +96,36 @@ class HistoryUseCasesTest {
         signedIn(UserRole.ADMIN)
         assertEquals(AdminResult.Failure(AdminError.INVALID_STATUS), edit("p1", "a", "Milk", -1.0))
         coVerify(exactly = 0) { repository.updateItem(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun uploadReceipt_parsesTheReceiptAndSavesTheLinesAndStoreName() = runTest {
+        signedIn(UserRole.ADMIN)
+        coEvery { repository.saveReceipt(any(), any(), any(), any()) } returns AdminResult.Success
+        val photo = byteArrayOf(1)
+        val recognizer = ReceiptTextRecognizer {
+            listOf(TextToken("H-E-B", 0, 0, 100, 20), TextToken("MILK 3.49", 0, 30, 100, 50))
+        }
+        val upload = UploadReceiptUseCase(AdminCheck(authRepository), recognizer, { photo }, repository)
+
+        assertEquals(AdminResult.Success, upload("p1", "content://receipt"))
+        coVerify { repository.saveReceipt("p1", photo, "H-E-B", listOf(ReceiptLine("MILK", 3.49))) }
+    }
+
+    @Test
+    fun uploadReceipt_unreadablePhotoSavesNothing() = runTest {
+        signedIn(UserRole.ADMIN)
+        val upload = UploadReceiptUseCase(AdminCheck(authRepository), { null }, { byteArrayOf(1) }, repository)
+
+        assertEquals(AdminResult.Failure(AdminError.UNKNOWN), upload("p1", "content://receipt"))
+        coVerify(exactly = 0) { repository.saveReceipt(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun uploadReceipt_membersCannotUpload() = runTest {
+        signedIn(UserRole.MEMBER)
+        val upload = UploadReceiptUseCase(AdminCheck(authRepository), { emptyList() }, { byteArrayOf(1) }, repository)
+
+        assertEquals(AdminResult.Failure(AdminError.NOT_ADMIN), upload("p1", "content://receipt"))
     }
 }
