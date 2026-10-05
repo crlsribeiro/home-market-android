@@ -1,12 +1,14 @@
 package app.carlosribeiro.homemarket.di
 
 import app.carlosribeiro.homemarket.data.media.AndroidPhotoCompressor
+import app.carlosribeiro.homemarket.data.media.MlKitReceiptTextRecognizer
 import app.carlosribeiro.homemarket.data.repository.FirebaseAuthRepository
 import app.carlosribeiro.homemarket.data.repository.FirebaseHouseholdRepository
 import app.carlosribeiro.homemarket.data.repository.FirebaseItemRepository
 import app.carlosribeiro.homemarket.data.repository.FirebaseListLifecycleRepository
 import app.carlosribeiro.homemarket.data.repository.FirebaseListRepository
 import app.carlosribeiro.homemarket.data.repository.FirebasePurchaseRepository
+import app.carlosribeiro.homemarket.domain.receipt.ReceiptTextRecognizer
 import app.carlosribeiro.homemarket.domain.repository.AuthRepository
 import app.carlosribeiro.homemarket.domain.repository.HouseholdRepository
 import app.carlosribeiro.homemarket.domain.repository.ItemRepository
@@ -45,6 +47,9 @@ object RepositoryModule {
 
     @Provides
     fun providePhotoCompressor(impl: AndroidPhotoCompressor): PhotoCompressor = impl
+
+    @Provides
+    fun provideReceiptTextRecognizer(impl: MlKitReceiptTextRecognizer): ReceiptTextRecognizer = impl
 
     @Provides
     fun provideClock(): Clock = Clock.systemDefaultZone()

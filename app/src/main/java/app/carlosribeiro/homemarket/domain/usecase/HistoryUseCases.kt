@@ -1,12 +1,17 @@
 package app.carlosribeiro.homemarket.domain.usecase
 
+import app.carlosribeiro.homemarket.domain.model.AdminError
 import app.carlosribeiro.homemarket.domain.model.AdminResult
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.domain.model.Purchase
 import app.carlosribeiro.homemarket.domain.model.PurchaseDetail
 import app.carlosribeiro.homemarket.domain.model.UserRole
+import app.carlosribeiro.homemarket.domain.receipt.ReceiptParser
+import app.carlosribeiro.homemarket.domain.receipt.ReceiptReadingOrder
+import app.carlosribeiro.homemarket.domain.receipt.ReceiptTextRecognizer
 import app.carlosribeiro.homemarket.domain.repository.AuthRepository
 import app.carlosribeiro.homemarket.domain.repository.PurchaseRepository
+import app.carlosribeiro.homemarket.domain.util.PhotoCompressor
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -69,4 +74,31 @@ class EditPurchaseItemUseCase @Inject constructor(
         adminCheck.guarded(unitPrice.isFinite() && unitPrice >= 0) {
             repository.updateItem(purchaseId, itemId, name.trim().ifEmpty { null }, unitPrice)
         }
+}
+
+/**
+ * iOS "Upload receipt": on-device OCR, the iOS parser, then the purchase lines are replaced. When no
+ * item is recognized, the single iOS placeholder line at price 0 is written so the admin can edit it.
+ */
+class UploadReceiptUseCase @Inject constructor(
+    private val adminCheck: AdminCheck,
+    private val recognizer: ReceiptTextRecognizer,
+    private val photoCompressor: PhotoCompressor,
+    private val repository: PurchaseRepository
+) {
+    suspend operator fun invoke(purchaseId: String, photoUri: String): AdminResult = adminCheck.guarded(true) {
+        val tokens = recognizer.recognize(photoUri)
+        val photo = tokens?.let { photoCompressor.compress(photoUri) }
+        if (tokens == null || photo == null) {
+            AdminResult.Failure(AdminError.UNKNOWN)
+        } else {
+            val text = ReceiptReadingOrder.text(tokens)
+            repository.saveReceipt(
+                purchaseId,
+                photo,
+                ReceiptParser.storeName(text),
+                ReceiptParser.itemsOrPlaceholder(text)
+            )
+        }
+    }
 }
