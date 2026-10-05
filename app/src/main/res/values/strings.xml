@@ -61,6 +61,9 @@
     <string name="admin_new_code">Generate new invite code</string>
     <string name="admin_new_code_hint">The old code stops working.</string>
     <string name="admin_share_message">Join %1$s on Home Market with the invite code %2$s</string>
+    <string name="auth_or">or</string>
+    <string name="auth_continue_with_google">Continue with Google</string>
+    <string name="auth_error_google_unavailable">Couldn\'t sign in with Google. Check that a Google account is added to this device.</string>
     <string name="tab_list">List</string>
     <string name="tab_admin">Admin</string>
     <string name="tab_account">Account</string>

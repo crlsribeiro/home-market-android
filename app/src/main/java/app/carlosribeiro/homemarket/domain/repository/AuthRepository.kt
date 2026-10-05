@@ -11,6 +11,9 @@ interface AuthRepository {
 
     suspend fun signIn(email: String, password: String): AuthResult
 
+    /** Signs in to Firebase with the ID token from Sign in with Google. */
+    suspend fun signInWithGoogle(idToken: String): AuthResult
+
     suspend fun register(registration: Registration): AuthResult
 
     suspend fun signOut()

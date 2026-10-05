@@ -3,6 +3,7 @@ package app.carlosribeiro.homemarket.presentation.auth
 import app.carlosribeiro.homemarket.domain.model.AuthError
 import app.carlosribeiro.homemarket.domain.model.AuthResult
 import app.carlosribeiro.homemarket.domain.usecase.SignInUseCase
+import app.carlosribeiro.homemarket.domain.usecase.SignInWithGoogleUseCase
 import app.carlosribeiro.homemarket.domain.validation.ValidationError
 import app.carlosribeiro.homemarket.testing.MainDispatcherRule
 import app.cash.turbine.test
@@ -24,8 +25,9 @@ class LoginViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val signIn = mockk<SignInUseCase>()
+    private val signInWithGoogle = mockk<SignInWithGoogleUseCase>()
 
-    private fun viewModel() = LoginViewModel(signIn)
+    private fun viewModel() = LoginViewModel(signIn, signInWithGoogle)
 
     @Test
     fun submit_withInvalidEmail_showsValidationErrorWithoutCallingFirebase() = runTest {
@@ -81,5 +83,46 @@ class LoginViewModelTest {
         viewModel.onEvent(LoginUiEvent.EmailChanged("m"))
 
         assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun googleToken_signsInToFirebase() = runTest {
+        coEvery { signInWithGoogle("token") } returns AuthResult.Success
+        val viewModel = viewModel()
+
+        viewModel.onEvent(LoginUiEvent.GoogleResult(GoogleSignInResult.Token("token")))
+
+        coVerify { signInWithGoogle("token") }
+        assertFalse(viewModel.state.value.isLoading)
+        assertNull(viewModel.state.value.error)
+    }
+
+    @Test
+    fun googleCancelled_showsNothing() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onEvent(LoginUiEvent.GoogleResult(GoogleSignInResult.Cancelled))
+
+        assertNull(viewModel.state.value.error)
+        coVerify(exactly = 0) { signInWithGoogle(any()) }
+    }
+
+    @Test
+    fun googleUnavailable_showsTheGoogleError() = runTest {
+        val viewModel = viewModel()
+
+        viewModel.onEvent(LoginUiEvent.GoogleResult(GoogleSignInResult.Unavailable))
+
+        assertEquals(AuthFormError.Auth(AuthError.GOOGLE_UNAVAILABLE), viewModel.state.value.error)
+    }
+
+    @Test
+    fun googleFirebaseFailure_isShown() = runTest {
+        coEvery { signInWithGoogle(any()) } returns AuthResult.Failure(AuthError.NETWORK)
+        val viewModel = viewModel()
+
+        viewModel.onEvent(LoginUiEvent.GoogleResult(GoogleSignInResult.Token("token")))
+
+        assertEquals(AuthFormError.Auth(AuthError.NETWORK), viewModel.state.value.error)
     }
 }
