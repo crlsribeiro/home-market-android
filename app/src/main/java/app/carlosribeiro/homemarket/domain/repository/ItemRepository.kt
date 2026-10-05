@@ -17,6 +17,9 @@ interface ItemRepository {
 
     suspend fun removeItem(itemId: String): ItemResult
 
+    /** Web `resolveNotFound`: `status: "rolled_over"` and `notFoundResolved: true`. */
+    suspend fun resolveNotFound(itemId: String): ItemResult
+
     /** Overwrites the photo at the item's Storage path and stores the new download URL. */
     suspend fun replacePhoto(item: ListItem, photo: ByteArray): ItemResult
 }
