@@ -24,7 +24,7 @@ class AdminCheck @Inject constructor(private val authRepository: AuthRepository)
     }
 }
 
-private suspend fun AdminCheck.guarded(allowed: Boolean, write: suspend () -> AdminResult): AdminResult {
+internal suspend fun AdminCheck.guarded(allowed: Boolean, write: suspend () -> AdminResult): AdminResult {
     val error = error() ?: if (allowed) null else AdminError.INVALID_STATUS
     return if (error == null) write() else AdminResult.Failure(error)
 }
