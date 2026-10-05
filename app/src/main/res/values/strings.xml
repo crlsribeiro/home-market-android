@@ -132,4 +132,14 @@
     <string name="forgot_send">Send</string>
     <string name="forgot_sent_title">Email sent</string>
     <string name="forgot_sent_message">Check your inbox at %1$s to reset your password.</string>
+    <string name="account_change_photo">Change profile photo</string>
+    <string name="account_country">Country</string>
+    <string name="account_phone">Phone number</string>
+    <string name="account_save">Save changes</string>
+    <string name="account_saved">Saved.</string>
+    <string name="account_check_new_email">Saved. Check %1$s to confirm your new email address.</string>
+    <string name="account_photo_updated">Profile photo updated.</string>
+    <string name="account_privacy_policy">Privacy Policy</string>
+    <string name="account_error_phone_incomplete">Please enter a complete phone number, or leave it empty.</string>
+    <string name="account_error_recent_login">For your security, please sign out and sign back in, then try again.</string>
 </resources>

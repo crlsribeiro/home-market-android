@@ -131,4 +131,14 @@
     <string name="forgot_send">Enviar</string>
     <string name="forgot_sent_title">E-mail enviado</string>
     <string name="forgot_sent_message">Confira sua caixa de entrada em %1$s para redefinir sua senha.</string>
+    <string name="account_change_photo">Trocar foto de perfil</string>
+    <string name="account_country">País</string>
+    <string name="account_phone">Telefone</string>
+    <string name="account_save">Salvar alterações</string>
+    <string name="account_saved">Salvo.</string>
+    <string name="account_check_new_email">Salvo. Confira %1$s para confirmar o seu novo e-mail.</string>
+    <string name="account_photo_updated">Foto de perfil atualizada.</string>
+    <string name="account_privacy_policy">Política de Privacidade</string>
+    <string name="account_error_phone_incomplete">Digite o telefone completo ou deixe o campo vazio.</string>
+    <string name="account_error_recent_login">Por segurança, saia e entre de novo na sua conta e tente outra vez.</string>
 </resources>

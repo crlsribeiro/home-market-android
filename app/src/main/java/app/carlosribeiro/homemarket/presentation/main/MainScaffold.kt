@@ -41,7 +41,7 @@ fun MainScaffold(user: AppUser, onSignOut: () -> Unit, onOpenItem: (String) -> U
         when (current) {
             MainTab.LIST -> ListRoute(onOpenItem = onOpenItem)
             MainTab.ADMIN -> AdminPanelRoute()
-            MainTab.ACCOUNT -> AccountRoute(user = user, onSignOut = onSignOut)
+            MainTab.ACCOUNT -> AccountRoute(onSignOut = onSignOut)
         }
     }
 }
