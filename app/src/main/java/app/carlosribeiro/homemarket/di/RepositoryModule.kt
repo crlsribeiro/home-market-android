@@ -5,10 +5,12 @@ import app.carlosribeiro.homemarket.data.repository.FirebaseAuthRepository
 import app.carlosribeiro.homemarket.data.repository.FirebaseHouseholdRepository
 import app.carlosribeiro.homemarket.data.repository.FirebaseItemRepository
 import app.carlosribeiro.homemarket.data.repository.FirebaseListRepository
+import app.carlosribeiro.homemarket.data.repository.FirebaseProfileRepository
 import app.carlosribeiro.homemarket.domain.repository.AuthRepository
 import app.carlosribeiro.homemarket.domain.repository.HouseholdRepository
 import app.carlosribeiro.homemarket.domain.repository.ItemRepository
 import app.carlosribeiro.homemarket.domain.repository.ListRepository
+import app.carlosribeiro.homemarket.domain.repository.ProfileRepository
 import app.carlosribeiro.homemarket.domain.util.PhotoCompressor
 import app.carlosribeiro.homemarket.domain.util.RandomTokenGenerator
 import app.carlosribeiro.homemarket.domain.util.TokenGenerator
@@ -32,6 +34,9 @@ object RepositoryModule {
 
     @Provides
     fun provideItemRepository(impl: FirebaseItemRepository): ItemRepository = impl
+
+    @Provides
+    fun provideProfileRepository(impl: FirebaseProfileRepository): ProfileRepository = impl
 
     @Provides
     fun providePhotoCompressor(impl: AndroidPhotoCompressor): PhotoCompressor = impl
