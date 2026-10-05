@@ -108,8 +108,8 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 |---|---|---|---|
 | Purchase history list: week label, store name, total; empty state. Admin only on Android (web behaviour) | `Views/History/HistoryView.swift` | M7 | done (week label formatted from the linked list, stored label as fallback) |
 | Purchase detail: total and line items (quantity, unit price, line total) | `Views/History/HistoryView.swift` | M7 | done |
-| Upload or re-upload a receipt photo; on-device OCR and parsing replace the line items | `Views/History/HistoryView.swift`, `Services/HistoryService.swift` | M7 | todo |
-| Store name extracted from the receipt | `Services/HistoryService.swift` | M7 | todo |
+| Upload or re-upload a receipt photo; on-device OCR and parsing replace the line items | `Views/History/HistoryView.swift`, `Services/HistoryService.swift` | M7 | done (ML Kit text recognition; camera or gallery) |
+| Store name extracted from the receipt | `Services/HistoryService.swift` | M7 | done |
 | Edit a line item's name and unit price; total recomputed | `Views/History/HistoryView.swift` (`EditPurchaseItemView`) | M7 | done |
 
 ## Account
