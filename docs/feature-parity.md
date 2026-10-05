@@ -43,10 +43,10 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Onboarding: choose "create household" or "join with invite code" | `Views/Common/OnboardingView.swift` | M2 | done |
 | Create household with a name; creator becomes admin | `Views/Common/OnboardingView.swift`, `Services/HouseholdService.swift` | M2 | done |
 | Join household with an invite code; "invalid code" error | `Views/Common/OnboardingView.swift`, `ViewModels/HouseholdViewModel.swift` | M2 | done |
-| Admin panel: household name and member list with admin badge | `Views/Admin/AdminPanelView.swift` | M2 | todo |
-| Admin panel: "you're the only one here" hint | `Views/Admin/AdminPanelView.swift` | M2 | todo |
-| Admin panel: show invite code, copy it to the clipboard and share it with the share sheet | `Views/Admin/AdminPanelView.swift` | M2 | todo |
-| Admin panel: generate a new invite code | `Views/Admin/AdminPanelView.swift` | M2 | todo |
+| Admin panel: household name and member list with admin badge | `Views/Admin/AdminPanelView.swift` | M2 | done |
+| Admin panel: "you're the only one here" hint | `Views/Admin/AdminPanelView.swift` | M2 | done |
+| Admin panel: show invite code, copy it to the clipboard and share it with the share sheet | `Views/Admin/AdminPanelView.swift` | M2 | done |
+| Admin panel: generate a new invite code | `Views/Admin/AdminPanelView.swift` | M2 | done |
 
 ## Weekly list
 

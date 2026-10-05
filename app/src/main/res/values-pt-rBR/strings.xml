@@ -52,4 +52,15 @@
         <item quantity="one">%1$s · %2$d membro</item>
         <item quantity="other">%1$s · %2$d membros</item>
     </plurals>
+
+    <string name="admin_title">Painel do admin</string>
+    <string name="admin_household">Casa</string>
+    <string name="admin_badge">ADMIN</string>
+    <string name="admin_only_member">Só você está aqui. Convide alguém para participar!</string>
+    <string name="admin_invite_code">Código de convite</string>
+    <string name="admin_copy_code">Copiar</string>
+    <string name="admin_share_code">Compartilhar</string>
+    <string name="admin_new_code">Gerar novo código de convite</string>
+    <string name="admin_new_code_hint">O código antigo deixa de funcionar.</string>
+    <string name="admin_share_message">Entre na casa %1$s no Home Market com o código de convite %2$s</string>
 </resources>

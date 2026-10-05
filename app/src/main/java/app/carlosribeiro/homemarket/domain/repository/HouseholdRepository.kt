@@ -17,4 +17,7 @@ interface HouseholdRepository {
 
     /** Finds the household with [inviteToken], adds [uid] as a member and links the user to it. */
     suspend fun joinHousehold(inviteToken: String, uid: String): HouseholdResult
+
+    /** Replaces the invite token; the old one stops working. */
+    suspend fun updateInviteToken(householdId: String, inviteToken: String): HouseholdResult
 }
