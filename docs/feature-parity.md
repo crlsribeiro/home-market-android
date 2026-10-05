@@ -17,7 +17,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Loading screen while the auth state resolves | `Views/Common/RootView.swift` | M1 | done |
 | Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | done |
 | Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | in progress (List, Admin and a basic Account tab done; History in M7) |
-| Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | todo |
+| Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | done |
 | Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme), later milestones (components) | in progress |
 
 ## Authentication
@@ -78,7 +78,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Admin panel: list status card (week, status) | `Views/Admin/AdminPanelView.swift` | M4 | done |
 | Items added after the list leaves `open` get `approvalStatus: "pending"` | `Services/ListService.swift` | M4 | done (with the add-item sheet, M3) |
 | Admin panel: pending approvals with approve and reject | `Views/Admin/AdminPanelView.swift` | M4 | done |
-| Start shopping from the list (cart button, admin only, list `open` or `locked`, not empty) | `Views/MainList/MainListView.swift` | M5 | todo |
+| Start shopping from the list (cart button, admin only, list `open` or `locked`, not empty) | `Views/MainList/MainListView.swift` | M5 | done |
 | Lock and reopen the list (web feature; iOS never writes `locked`) | — | M4 | done (admin panel) |
 | Admin panel: "items per person this week" bar chart with expandable item names | `Views/Admin/AdminPanelView.swift` (`WeeklyDashboardSection`) | M4 | done |
 
@@ -86,14 +86,14 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Progress card: week, "x of y items", progress bar | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| "To get" list with "got it" and "not available" actions. Android follows the web: "not available" writes `not_found` | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| "Not found" section ("notification sent") | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
+| Progress card: week, "x of y items", progress bar | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| "To get" list with "got it" and "not available" actions. Android follows the web: "not available" writes `not_found` | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| "Not found" section ("notification sent") | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
 | The member who added a not-found item resolves it (web flow; iOS has none) | — (web `NotFoundModal.tsx`) | M5 | todo |
-| "Already picked up" section | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| Close list: weekly cut, then create the purchase record | `Views/Shopping/ShoppingModeView.swift` | M5 (cut), M7 (purchase record) | todo |
-| Abandon shopping with confirmation (list back to `open`) | `Views/Shopping/ShoppingModeView.swift` | M5 | todo |
-| Members' waiting screen: week, what is happening, notification hint | `Views/Shopping/ShoppingWaitingView.swift` | M5 | todo |
+| "Already picked up" section | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| Close list: weekly cut, then create the purchase record | `Views/Shopping/ShoppingModeView.swift` | M5 (cut), M7 (purchase record) | in progress (weekly cut done; purchase record in M7) |
+| Abandon shopping with confirmation (list back to `open`) | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| Members' waiting screen: week, what is happening, notification hint | `Views/Shopping/ShoppingWaitingView.swift` | M5 | done |
 
 ## Push notifications
 

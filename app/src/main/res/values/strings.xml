@@ -144,4 +144,29 @@
         <item quantity="one">%1$s · %2$d item</item>
         <item quantity="other">%1$s · %2$d items</item>
     </plurals>
+    <string name="shopping_start">Start shopping</string>
+    <string name="shopping_title">Shopping mode 🛒</string>
+    <string name="shopping_abandon">Abandon</string>
+    <string name="shopping_abandon_title">Abandon shopping trip?</string>
+    <string name="shopping_abandon_message">The list goes back to open, without closing or creating a purchase record. Items already marked purchased or not found keep their status.</string>
+    <string name="shopping_abandon_confirm">Abandon</string>
+    <string name="shopping_keep_shopping">Keep shopping</string>
+    <string name="shopping_progress">%1$d of %2$d items</string>
+    <string name="shopping_percent">%1$d%%</string>
+    <string name="shopping_to_get">To get</string>
+    <string name="shopping_not_found">Not found</string>
+    <string name="shopping_picked">Already picked up</string>
+    <string name="shopping_no_items">No items on the list</string>
+    <string name="shopping_got_it">Got it</string>
+    <string name="shopping_not_available">Not available</string>
+    <string name="shopping_notification_sent">Notification sent</string>
+    <string name="shopping_quantity">qty %1$d</string>
+    <string name="shopping_undo">Undo</string>
+    <string name="shopping_close_list">Close list</string>
+    <string name="shopping_close_hint">Pending items will be moved to next week</string>
+    <string name="waiting_title">Shopping in progress</string>
+    <string name="waiting_message">Hi, %1$s! The admin is at the store right now 🛒</string>
+    <string name="waiting_info_picking">Your items are being picked up</string>
+    <string name="waiting_info_notified">You\'ll be notified if an item isn\'t found</string>
+    <string name="waiting_info_update">The list will update once shopping is done</string>
 </resources>

@@ -4,6 +4,7 @@ import app.carlosribeiro.homemarket.data.mapper.ItemFields
 import app.carlosribeiro.homemarket.data.mapper.ListFields
 import app.carlosribeiro.homemarket.domain.model.AdminError
 import app.carlosribeiro.homemarket.domain.model.AdminResult
+import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListStatus
 import app.carlosribeiro.homemarket.domain.repository.ListLifecycleRepository
 import com.google.firebase.FirebaseNetworkException
@@ -46,6 +47,10 @@ class FirebaseListLifecycleRepository @Inject constructor(private val firestore:
         batch.commit().await()
     }
 
+    override suspend fun setItemStatus(itemId: String, status: ItemStatus): AdminResult = write {
+        firestore.collection(ITEMS).document(itemId).update(ItemFields.STATUS, status.value()).await()
+    }
+
     override suspend fun approveItem(itemId: String): AdminResult = write {
         firestore.collection(ITEMS).document(itemId)
             .update(ItemFields.APPROVAL_STATUS, ItemFields.APPROVAL_APPROVED)
@@ -61,6 +66,13 @@ class FirebaseListLifecycleRepository @Inject constructor(private val firestore:
                 )
             )
             .await()
+    }
+
+    private fun ItemStatus.value(): String = when (this) {
+        ItemStatus.PENDING -> ItemFields.STATUS_PENDING
+        ItemStatus.PURCHASED -> ItemFields.STATUS_PURCHASED
+        ItemStatus.NOT_FOUND -> ItemFields.STATUS_NOT_FOUND
+        ItemStatus.ROLLED_OVER -> ItemFields.STATUS_ROLLED_OVER
     }
 
     private fun ListStatus.value(): String = when (this) {
