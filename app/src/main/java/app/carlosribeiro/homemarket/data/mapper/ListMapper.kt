@@ -130,6 +130,13 @@ object ListMapper {
         else -> ApprovalStatus.NOT_REQUIRED
     }
 
+    fun approvalStatusValue(status: ApprovalStatus): String = when (status) {
+        ApprovalStatus.NOT_REQUIRED -> ItemFields.APPROVAL_NOT_REQUIRED
+        ApprovalStatus.PENDING -> ItemFields.APPROVAL_PENDING
+        ApprovalStatus.APPROVED -> ItemFields.APPROVAL_APPROVED
+        ApprovalStatus.REJECTED -> ItemFields.APPROVAL_REJECTED
+    }
+
     private fun Any?.toEpochMillis(): Long? = when (this) {
         is Timestamp -> toDate().time
         is Date -> time
