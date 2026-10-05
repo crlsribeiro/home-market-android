@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -34,15 +35,26 @@ import app.carlosribeiro.homemarket.domain.model.UserRole
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 
 @Composable
-fun HomeRoute(user: AppUser, onSignOut: () -> Unit, viewModel: HomeViewModel = hiltViewModel()) {
+fun HomeRoute(
+    user: AppUser,
+    onSignOut: () -> Unit,
+    onOpenAdmin: () -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
     val household by viewModel.household.collectAsStateWithLifecycle()
-    HomeScreen(user = user, household = household, onSignOut = onSignOut)
+    HomeScreen(user = user, household = household, onSignOut = onSignOut, onOpenAdmin = onOpenAdmin)
 }
 
 /** Signed-in start screen. The weekly list (M3) replaces its body. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(user: AppUser, household: Household?, onSignOut: () -> Unit, modifier: Modifier = Modifier) {
+fun HomeScreen(
+    user: AppUser,
+    household: Household?,
+    onSignOut: () -> Unit,
+    modifier: Modifier = Modifier,
+    onOpenAdmin: () -> Unit = {}
+) {
     var showSignOutDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
@@ -62,6 +74,7 @@ fun HomeScreen(user: AppUser, household: Household?, onSignOut: () -> Unit, modi
             user = user,
             household = household,
             onSignOutClick = { showSignOutDialog = true },
+            onOpenAdmin = onOpenAdmin,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -82,6 +95,7 @@ private fun HomeContent(
     user: AppUser,
     household: Household?,
     onSignOutClick: () -> Unit,
+    onOpenAdmin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -123,7 +137,12 @@ private fun HomeContent(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 16.dp)
         )
-        OutlinedButton(onClick = onSignOutClick, modifier = Modifier.padding(top = 24.dp)) {
+        if (user.role == UserRole.ADMIN) {
+            FilledTonalButton(onClick = onOpenAdmin, modifier = Modifier.padding(top = 24.dp)) {
+                Text(stringResource(R.string.admin_title))
+            }
+        }
+        OutlinedButton(onClick = onSignOutClick, modifier = Modifier.padding(top = 8.dp)) {
             Text(stringResource(R.string.auth_sign_out))
         }
     }

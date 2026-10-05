@@ -53,4 +53,15 @@
         <item quantity="one">%1$s · %2$d member</item>
         <item quantity="other">%1$s · %2$d members</item>
     </plurals>
+
+    <string name="admin_title">Admin panel</string>
+    <string name="admin_household">Household</string>
+    <string name="admin_badge">ADMIN</string>
+    <string name="admin_only_member">You\'re the only one here. Invite someone to collaborate!</string>
+    <string name="admin_invite_code">Invite code</string>
+    <string name="admin_copy_code">Copy</string>
+    <string name="admin_share_code">Share</string>
+    <string name="admin_new_code">Generate new invite code</string>
+    <string name="admin_new_code_hint">The old code stops working.</string>
+    <string name="admin_share_message">Join %1$s on Home Market with the invite code %2$s</string>
 </resources>

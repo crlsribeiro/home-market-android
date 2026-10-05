@@ -144,11 +144,10 @@ class FirebaseHouseholdRepository @Inject constructor(
         HouseholdResult.Success(match.id)
     }
 
-    override suspend fun updateInviteToken(householdId: String, inviteToken: String): HouseholdResult =
-        runHousehold {
-            householdDocument(householdId).update(HouseholdFields.INVITE_TOKEN, inviteToken).await()
-            HouseholdResult.Success(householdId)
-        }
+    override suspend fun updateInviteToken(householdId: String, inviteToken: String): HouseholdResult = runHousehold {
+        householdDocument(householdId).update(HouseholdFields.INVITE_TOKEN, inviteToken).await()
+        HouseholdResult.Success(householdId)
+    }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun runHousehold(block: suspend () -> HouseholdResult): HouseholdResult = try {

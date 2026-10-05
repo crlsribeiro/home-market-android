@@ -135,7 +135,7 @@ private fun HouseholdError.messageRes(): Int = when (this) {
     HouseholdError.TOKEN_REQUIRED -> R.string.onboarding_error_code_required
     HouseholdError.TOKEN_NOT_FOUND -> R.string.onboarding_error_code_not_found
     HouseholdError.NETWORK -> R.string.auth_error_network
-    HouseholdError.NOT_SIGNED_IN, HouseholdError.UNKNOWN -> R.string.auth_error_unknown
+    HouseholdError.NOT_SIGNED_IN, HouseholdError.NOT_ADMIN, HouseholdError.UNKNOWN -> R.string.auth_error_unknown
 }
 
 @Preview(name = "Light", showBackground = true)

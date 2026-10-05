@@ -10,3 +10,6 @@ data object RegisterDestination
 
 @Serializable
 data object HomeDestination
+
+@Serializable
+data object AdminPanelDestination

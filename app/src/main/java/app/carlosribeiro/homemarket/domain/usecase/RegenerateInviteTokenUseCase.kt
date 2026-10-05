@@ -13,18 +13,20 @@ import kotlinx.coroutines.flow.first
 class RegenerateInviteTokenUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val householdRepository: HouseholdRepository,
-    private val tokenGenerator: TokenGenerator,
+    private val tokenGenerator: TokenGenerator
 ) {
     suspend operator fun invoke(): HouseholdResult {
         val user = authRepository.observeCurrentUser().first()
-            ?: return HouseholdResult.Failure(HouseholdError.NOT_SIGNED_IN)
-        val householdId = user.householdId
-        if (householdId == null || user.role != UserRole.ADMIN) {
-            return HouseholdResult.Failure(HouseholdError.NOT_ADMIN)
+        val householdId = user?.householdId
+        return when {
+            user == null -> HouseholdResult.Failure(HouseholdError.NOT_SIGNED_IN)
+
+            householdId == null || user.role != UserRole.ADMIN -> HouseholdResult.Failure(HouseholdError.NOT_ADMIN)
+
+            else -> householdRepository.updateInviteToken(
+                householdId = householdId,
+                inviteToken = tokenGenerator.generate(CreateHouseholdUseCase.INVITE_TOKEN_LENGTH)
+            )
         }
-        return householdRepository.updateInviteToken(
-            householdId = householdId,
-            inviteToken = tokenGenerator.generate(CreateHouseholdUseCase.INVITE_TOKEN_LENGTH),
-        )
     }
 }
