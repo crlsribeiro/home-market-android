@@ -144,8 +144,7 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch {
             val result = startShopping(list, current.items)
             if (result is AdminResult.Failure) {
-                val error = if (result.error == AdminError.NETWORK) ListError.NETWORK else ListError.NOT_ADMIN
-                action.update { it.copy(error = error) }
+                action.update { it.copy(error = result.error.toListError()) }
             }
         }
     }
@@ -166,4 +165,12 @@ class ListViewModel @Inject constructor(
     private companion object {
         const val STOP_TIMEOUT_MILLIS = 5_000L
     }
+}
+
+/** A list that changed in the meantime (another admin device) is not a role problem, so it gets the generic error. */
+private fun AdminError.toListError(): ListError = when (this) {
+    AdminError.NOT_ADMIN -> ListError.NOT_ADMIN
+    AdminError.NETWORK -> ListError.NETWORK
+    AdminError.NOT_SIGNED_IN -> ListError.NOT_SIGNED_IN
+    AdminError.INVALID_STATUS, AdminError.UNKNOWN -> ListError.UNKNOWN
 }
