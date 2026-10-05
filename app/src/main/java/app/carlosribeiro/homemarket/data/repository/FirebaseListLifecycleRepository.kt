@@ -26,6 +26,26 @@ class FirebaseListLifecycleRepository @Inject constructor(private val firestore:
         firestore.collection(LISTS).document(listId).update(fields).await()
     }
 
+    override suspend fun weeklyCut(listId: String): AdminResult = write {
+        val rollOverItemIds = firestore.collection(ITEMS)
+            .whereEqualTo(ItemFields.LIST_ID, listId)
+            .whereEqualTo(ItemFields.STATUS, ItemFields.STATUS_PENDING)
+            .get()
+            .await()
+            .documents
+            .filter { it.getString(ItemFields.APPROVAL_STATUS) != ItemFields.APPROVAL_PENDING }
+            .map { it.id }
+        val batch = firestore.batch()
+        batch.update(
+            firestore.collection(LISTS).document(listId),
+            mapOf(ListFields.STATUS to ListFields.STATUS_CLOSED, ListFields.CLOSED_AT to FieldValue.serverTimestamp())
+        )
+        rollOverItemIds.forEach { itemId ->
+            batch.update(firestore.collection(ITEMS).document(itemId), ItemFields.STATUS, ItemFields.STATUS_ROLLED_OVER)
+        }
+        batch.commit().await()
+    }
+
     override suspend fun approveItem(itemId: String): AdminResult = write {
         firestore.collection(ITEMS).document(itemId)
             .update(ItemFields.APPROVAL_STATUS, ItemFields.APPROVAL_APPROVED)

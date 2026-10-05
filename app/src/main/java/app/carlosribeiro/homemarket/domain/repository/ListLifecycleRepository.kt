@@ -8,6 +8,13 @@ interface ListLifecycleRepository {
     /** Writes `lists/{listId}.status`, plus `closedAt: serverTimestamp()` when the status is closed. */
     suspend fun updateStatus(listId: String, status: ListStatus): AdminResult
 
+    /**
+     * The weekly cut, as one batch (docs/backend.md): the list becomes `closed` with `closedAt`, and
+     * every item of the list that is still `pending` and not awaiting approval becomes `rolled_over`.
+     * The items are read from Firestore at cut time, not from the screen's cache.
+     */
+    suspend fun weeklyCut(listId: String): AdminResult
+
     /** `approvalStatus: "approved"`; the item stays pending to buy. */
     suspend fun approveItem(itemId: String): AdminResult
 
