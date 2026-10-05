@@ -4,6 +4,7 @@ import app.carlosribeiro.homemarket.domain.model.AdminError
 import app.carlosribeiro.homemarket.domain.model.AdminResult
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.domain.model.ApprovalStatus
+import app.carlosribeiro.homemarket.domain.model.ItemResult
 import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListStatus
@@ -15,6 +16,7 @@ import app.carlosribeiro.homemarket.domain.usecase.CloseShoppingListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.MarkNotFoundUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveWeeklyListUseCase
+import app.carlosribeiro.homemarket.domain.usecase.ResolveNotFoundUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ShoppingActions
 import app.carlosribeiro.homemarket.domain.usecase.TogglePurchasedUseCase
 import app.carlosribeiro.homemarket.testing.MainDispatcherRule
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -57,9 +60,14 @@ class ShoppingViewModelTest {
     private val close = mockk<CloseShoppingListUseCase>()
     private val toggle = mockk<TogglePurchasedUseCase>()
     private val notFound = mockk<MarkNotFoundUseCase>()
+    private val resolveNotFound = mockk<ResolveNotFoundUseCase>()
 
-    private fun viewModel() =
-        ShoppingViewModel(observeUser, observeWeeklyList, ShoppingActions(abandon, close, toggle, notFound))
+    private fun viewModel() = ShoppingViewModel(
+        observeUser,
+        observeWeeklyList,
+        ShoppingActions(abandon, close, toggle, notFound),
+        resolveNotFound
+    )
 
     @Test
     fun groupsItemsLikeIosShoppingMode() = runTest {
@@ -111,5 +119,25 @@ class ShoppingViewModelTest {
     fun emptyList_hasNoProgress() {
         assertEquals(0f, ShoppingUiState().progress)
         assertFalse(ShoppingUiState().isShopping)
+    }
+
+    @Test
+    fun notFoundDecision_isTheUsersOwnUnresolvedNotFoundItem() {
+        val mine = item("5", ItemStatus.NOT_FOUND).copy(addedByUid = "u1")
+        val state = ShoppingUiState(user = admin, items = items + mine)
+
+        // Item 4 is not found too, but it was added by someone else.
+        assertEquals(mine, state.notFoundDecision)
+        assertNull(state.copy(items = items).notFoundDecision)
+    }
+
+    @Test
+    fun resolveNotFound_callsTheUseCase() = runTest {
+        val mine = item("5", ItemStatus.NOT_FOUND).copy(addedByUid = "u1")
+        coEvery { resolveNotFound(mine) } returns ItemResult.Success
+
+        viewModel().onEvent(ShoppingUiEvent.ResolveNotFound(mine))
+
+        coVerify { resolveNotFound(mine) }
     }
 }
