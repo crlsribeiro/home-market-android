@@ -30,5 +30,26 @@
 
     <string name="home_greeting">Olá, %1$s!</string>
     <string name="home_signed_in_as">Conectado como %1$s</string>
-    <string name="home_next_steps">Próximo passo: criar ou entrar na sua casa e começar a lista da semana.</string>
+    <string name="home_next_steps">Em breve: a lista de compras da semana.</string>
+
+    <string name="action_back">Voltar</string>
+    <string name="onboarding_welcome">Bem-vindo!</string>
+    <string name="onboarding_subtitle">Como você quer começar?</string>
+    <string name="onboarding_create_title">Criar minha casa</string>
+    <string name="onboarding_create_subtitle">Serei o admin da casa</string>
+    <string name="onboarding_join_title">Entrar em uma casa</string>
+    <string name="onboarding_join_subtitle">Use um código de convite</string>
+    <string name="onboarding_name_label">Nome da casa</string>
+    <string name="onboarding_name_hint">Por exemplo: Família Silva, Casa dos Souza…</string>
+    <string name="onboarding_code_label">Código de convite</string>
+    <string name="onboarding_code_hint">Peça o código para o admin da casa.</string>
+    <string name="onboarding_create_action">Criar casa</string>
+    <string name="onboarding_join_action">Entrar na casa</string>
+    <string name="onboarding_error_name_required">Digite um nome para a casa.</string>
+    <string name="onboarding_error_code_required">Digite o código de convite.</string>
+    <string name="onboarding_error_code_not_found">Código inválido. Confira e tente de novo.</string>
+    <plurals name="home_household_members">
+        <item quantity="one">%1$s · %2$d membro</item>
+        <item quantity="other">%1$s · %2$d membros</item>
+    </plurals>
 </resources>

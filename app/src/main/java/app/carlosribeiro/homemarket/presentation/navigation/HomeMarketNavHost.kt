@@ -9,7 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.presentation.auth.LoginRoute
 import app.carlosribeiro.homemarket.presentation.auth.RegisterRoute
-import app.carlosribeiro.homemarket.presentation.home.HomeScreen
+import app.carlosribeiro.homemarket.presentation.home.HomeRoute
 
 /** Screens for a signed-out user. Signing in swaps this graph for [SignedInNavHost]. */
 @Composable
@@ -34,7 +34,7 @@ fun SignedInNavHost(
 ) {
     NavHost(navController = navController, startDestination = HomeDestination, modifier = modifier) {
         composable<HomeDestination> {
-            HomeScreen(user = user, onSignOut = onSignOut)
+            HomeRoute(user = user, onSignOut = onSignOut)
         }
     }
 }

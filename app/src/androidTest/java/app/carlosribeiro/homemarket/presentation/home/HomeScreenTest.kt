@@ -36,7 +36,7 @@ class HomeScreenTest {
 
     @Test
     fun showsGreetingAndEmail() {
-        composeRule.setContent { HomeMarketTheme { HomeScreen(user = user, onSignOut = {}) } }
+        composeRule.setContent { HomeMarketTheme { HomeScreen(user = user, household = null, onSignOut = {}) } }
 
         composeRule.onNodeWithText(context.getString(R.string.home_greeting, "Maria")).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.home_signed_in_as, user.email)).assertIsDisplayed()
@@ -45,7 +45,14 @@ class HomeScreenTest {
     @Test
     fun signOutAsksForConfirmation() {
         var signedOut = false
-        composeRule.setContent { HomeMarketTheme { HomeScreen(user = user, onSignOut = { signedOut = true }) } }
+        composeRule.setContent {
+            HomeMarketTheme {
+                HomeScreen(user = user, household = null, onSignOut = {
+                    signedOut =
+                        true
+                })
+            }
+        }
         val signOut = context.getString(R.string.auth_sign_out)
 
         composeRule.onAllNodesWithText(signOut).onFirst().performClick()

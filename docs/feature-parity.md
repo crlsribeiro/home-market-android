@@ -15,7 +15,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
 | Loading screen while the auth state resolves | `Views/Common/RootView.swift` | M1 | done |
-| Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | in progress |
+| Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | done |
 | Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | todo |
 | Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | todo |
 | Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme), later milestones (components) | in progress |
@@ -40,9 +40,9 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Onboarding: choose "create household" or "join with invite code" | `Views/Common/OnboardingView.swift` | M2 | todo |
-| Create household with a name; creator becomes admin | `Views/Common/OnboardingView.swift`, `Services/HouseholdService.swift` | M2 | todo |
-| Join household with an invite code; "invalid code" error | `Views/Common/OnboardingView.swift`, `ViewModels/HouseholdViewModel.swift` | M2 | todo |
+| Onboarding: choose "create household" or "join with invite code" | `Views/Common/OnboardingView.swift` | M2 | done |
+| Create household with a name; creator becomes admin | `Views/Common/OnboardingView.swift`, `Services/HouseholdService.swift` | M2 | done |
+| Join household with an invite code; "invalid code" error | `Views/Common/OnboardingView.swift`, `ViewModels/HouseholdViewModel.swift` | M2 | done |
 | Admin panel: household name and member list with admin badge | `Views/Admin/AdminPanelView.swift` | M2 | todo |
 | Admin panel: "you're the only one here" hint | `Views/Admin/AdminPanelView.swift` | M2 | todo |
 | Admin panel: show invite code, copy it to the clipboard and share it with the share sheet | `Views/Admin/AdminPanelView.swift` | M2 | todo |
