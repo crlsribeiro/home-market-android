@@ -13,6 +13,9 @@ interface PurchaseRepository {
 
     fun observePurchase(purchaseId: String): Flow<Purchase?>
 
+    /** The purchase recorded when [listId] was closed, if any. */
+    fun observePurchaseOfList(listId: String): Flow<Purchase?>
+
     fun observeItems(purchaseId: String): Flow<List<PurchaseItem>>
 
     /**

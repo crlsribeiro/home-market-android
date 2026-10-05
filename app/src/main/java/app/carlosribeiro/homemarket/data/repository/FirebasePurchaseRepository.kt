@@ -1,6 +1,7 @@
 package app.carlosribeiro.homemarket.data.repository
 
 import app.carlosribeiro.homemarket.data.local.PurchaseDao
+import app.carlosribeiro.homemarket.data.local.PurchaseItemDao
 import app.carlosribeiro.homemarket.data.mapper.PurchaseFields
 import app.carlosribeiro.homemarket.data.mapper.PurchaseItemFields
 import app.carlosribeiro.homemarket.data.mapper.PurchaseMapper
@@ -32,7 +33,8 @@ import kotlinx.coroutines.tasks.await
 class FirebasePurchaseRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val storage: FirebaseStorage,
-    private val purchaseDao: PurchaseDao
+    private val purchaseDao: PurchaseDao,
+    private val purchaseItemDao: PurchaseItemDao
 ) : PurchaseRepository {
 
     private val purchases get() = firestore.collection(PURCHASES)
@@ -71,15 +73,30 @@ class FirebasePurchaseRepository @Inject constructor(
         awaitClose { registration.remove() }
     }.distinctUntilChanged()
 
+    override fun observePurchaseOfList(listId: String): Flow<Purchase?> = channelFlow {
+        val registration = purchases.whereEqualTo(PurchaseFields.LIST_ID, listId)
+            .addSnapshotListener { snapshot, _ ->
+                snapshot ?: return@addSnapshotListener
+                val entities = snapshot.documents.map {
+                    PurchaseMapper.documentToPurchaseEntity(it.id, it.data.orEmpty())
+                }
+                launch { purchaseDao.upsertPurchases(entities) }
+            }
+        launch {
+            purchaseDao.observePurchaseOfList(listId).collect { send(it?.let(PurchaseMapper::toDomain)) }
+        }
+        awaitClose { registration.remove() }
+    }.distinctUntilChanged()
+
     override fun observeItems(purchaseId: String): Flow<List<PurchaseItem>> = channelFlow {
         val registration = purchaseItems.whereEqualTo(PurchaseItemFields.PURCHASE_ID, purchaseId)
             .addSnapshotListener { snapshot, _ ->
                 snapshot ?: return@addSnapshotListener
                 val entities = snapshot.documents.map { PurchaseMapper.documentToItemEntity(it.id, it.data.orEmpty()) }
-                launch { purchaseDao.replaceItems(purchaseId, entities) }
+                launch { purchaseItemDao.replaceItems(purchaseId, entities) }
             }
         launch {
-            purchaseDao.observeItems(purchaseId).collect { send(it.map(PurchaseMapper::itemToDomain)) }
+            purchaseItemDao.observeItems(purchaseId).collect { send(it.map(PurchaseMapper::itemToDomain)) }
         }
         awaitClose { registration.remove() }
     }.distinctUntilChanged()

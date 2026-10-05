@@ -21,8 +21,13 @@ interface PurchaseDao {
     )
     fun observePurchase(purchaseId: String): Flow<PurchaseWithWeek?>
 
-    @Query("SELECT * FROM purchase_items WHERE purchaseId = :purchaseId ORDER BY rowid ASC")
-    fun observeItems(purchaseId: String): Flow<List<PurchaseItemEntity>>
+    /** The purchase of a closed list. iOS reuses it when the list is closed again, so there is at most one. */
+    @Query(
+        "SELECT purchases.*, lists.weekStart AS listWeekStart, lists.weekEnd AS listWeekEnd FROM purchases " +
+            "LEFT JOIN lists ON lists.id = purchases.listId WHERE purchases.listId = :listId " +
+            "ORDER BY purchases.createdAt ASC LIMIT 1"
+    )
+    fun observePurchaseOfList(listId: String): Flow<PurchaseWithWeek?>
 
     @Query("DELETE FROM purchases WHERE id = :purchaseId")
     suspend fun deletePurchase(purchaseId: String)
@@ -37,17 +42,5 @@ interface PurchaseDao {
     suspend fun replacePurchases(householdId: String, purchases: List<PurchaseEntity>) {
         deletePurchases(householdId)
         upsertPurchases(purchases)
-    }
-
-    @Query("DELETE FROM purchase_items WHERE purchaseId = :purchaseId")
-    suspend fun deleteItems(purchaseId: String)
-
-    @Upsert
-    suspend fun upsertItems(items: List<PurchaseItemEntity>)
-
-    @Transaction
-    suspend fun replaceItems(purchaseId: String, items: List<PurchaseItemEntity>) {
-        deleteItems(purchaseId)
-        upsertItems(items)
     }
 }

@@ -25,4 +25,6 @@ abstract class HomeMarketDatabase : RoomDatabase() {
     abstract fun itemDao(): ItemDao
 
     abstract fun purchaseDao(): PurchaseDao
+
+    abstract fun purchaseItemDao(): PurchaseItemDao
 }
