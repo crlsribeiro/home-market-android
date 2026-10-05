@@ -61,6 +61,9 @@
     <string name="admin_new_code">Generate new invite code</string>
     <string name="admin_new_code_hint">The old code stops working.</string>
     <string name="admin_share_message">Join %1$s on Home Market with the invite code %2$s</string>
+    <string name="auth_or">or</string>
+    <string name="auth_continue_with_google">Continue with Google</string>
+    <string name="auth_error_google_unavailable">Couldn\'t sign in with Google. Check that a Google account is added to this device.</string>
     <string name="tab_list">List</string>
     <string name="tab_admin">Admin</string>
     <string name="tab_account">Account</string>
@@ -122,6 +125,13 @@
     <string name="time_ago_hours">%1$dh ago</string>
     <string name="time_ago_days">%1$dd ago</string>
     <string name="list_remove_item">Remove</string>
+    <string name="action_close">Close</string>
+    <string name="forgot_link">Forgot password?</string>
+    <string name="forgot_title">Reset password</string>
+    <string name="forgot_message">Enter your email to receive password reset instructions.</string>
+    <string name="forgot_send">Send</string>
+    <string name="forgot_sent_title">Email sent</string>
+    <string name="forgot_sent_message">Check your inbox at %1$s to reset your password.</string>
     <string name="admin_list_status_title">List status</string>
     <string name="admin_list_status">Status</string>
     <string name="admin_status_open">Open</string>

@@ -11,7 +11,13 @@ interface AuthRepository {
 
     suspend fun signIn(email: String, password: String): AuthResult
 
+    /** Signs in to Firebase with the ID token from Sign in with Google. */
+    suspend fun signInWithGoogle(idToken: String): AuthResult
+
     suspend fun register(registration: Registration): AuthResult
+
+    /** Sends the Firebase password reset email. */
+    suspend fun sendPasswordReset(email: String): AuthResult
 
     suspend fun signOut()
 }

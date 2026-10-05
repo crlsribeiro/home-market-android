@@ -51,4 +51,18 @@ class AuthUseCasesTest {
 
         coVerify { repository.signOut() }
     }
+
+    @Test
+    fun signInWithGoogle_passesTheIdTokenToTheRepository() = runTest {
+        coEvery { repository.signInWithGoogle("token") } returns AuthResult.Success
+
+        assertEquals(AuthResult.Success, SignInWithGoogleUseCase(repository)("token"))
+    }
+
+    @Test
+    fun sendPasswordReset_trimsTheEmail() = runTest {
+        coEvery { repository.sendPasswordReset("maria@example.com") } returns AuthResult.Success
+
+        assertEquals(AuthResult.Success, SendPasswordResetUseCase(repository)("  maria@example.com "))
+    }
 }
