@@ -69,7 +69,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Item detail: price per unit and total, admin only ("available after receipt upload" otherwise) | `Views/MainList/ItemDetailView.swift` | M7 | todo |
 | Item detail: "mark as purchased" while shopping | `Views/MainList/ItemDetailView.swift` | M5 | todo |
 | Error message banner for failed writes | `Views/MainList/MainListView.swift` | M3 | in progress (snackbar for creating the list and adding items) |
-| Automatic close of a list whose week has ended (weekly cut, no purchase), then a new list for this week | `ViewModels/ListViewModel.swift` (`expireIfStale`) | M4 | todo |
+| Automatic close of a list whose week has ended (weekly cut, no purchase), then a new list for this week | `ViewModels/ListViewModel.swift` (`expireIfStale`) | M4 | done |
 
 ## Lifecycle and approvals
 
