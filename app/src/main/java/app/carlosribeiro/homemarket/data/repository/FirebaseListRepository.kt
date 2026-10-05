@@ -23,7 +23,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.storage.FirebaseStorage
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -42,7 +41,7 @@ import kotlinx.coroutines.tasks.await
 @Singleton
 class FirebaseListRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage,
+    private val photoStorage: ItemPhotoStorage,
     private val listDao: ListDao,
     private val itemDao: ItemDao
 ) : ListRepository {
@@ -124,13 +123,10 @@ class FirebaseListRepository @Inject constructor(
         }
     }
 
-    /** Same Storage path as the other clients; a replaced photo overwrites the file. */
     private suspend fun uploadPhoto(householdId: String, document: DocumentReference, photo: ByteArray): ItemResult {
         val uploadError = runWrite {
-            val file = storage.reference.child("households/$householdId/items/${document.id}/photo")
-            file.putBytes(photo).await()
-            val url = file.downloadUrl.await()
-            document.update(ItemFields.PHOTO_URL, url.toString()).await()
+            val url = photoStorage.upload(householdId, document.id, photo)
+            document.update(ItemFields.PHOTO_URL, url).await()
         }
         return if (uploadError == null) ItemResult.Success else ItemResult.Failure(ItemError.PHOTO_UPLOAD)
     }
