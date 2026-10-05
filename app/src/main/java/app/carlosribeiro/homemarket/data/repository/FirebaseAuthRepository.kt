@@ -32,7 +32,8 @@ import kotlinx.coroutines.tasks.await
 @Singleton
 class FirebaseAuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val deletionGuard: AccountDeletionGuard
 ) : AuthRepository {
 
     private fun userDocument(uid: String) = firestore.collection(USERS).document(uid)
@@ -45,7 +46,7 @@ class FirebaseAuthRepository @Inject constructor(
     private fun userDocumentUpdates(firebaseUser: FirebaseUser): Flow<AppUser?> = callbackFlow {
         val registration = userDocument(firebaseUser.uid).addSnapshotListener { snapshot, _ ->
             val data = snapshot?.data
-            if (snapshot != null && data == null) {
+            if (snapshot != null && data == null && !deletionGuard.isDeleting(firebaseUser.uid)) {
                 // First sign-in from this account: create the document like the other clients do.
                 createUserDocumentIfMissing(firebaseUser)
             }

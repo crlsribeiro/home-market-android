@@ -23,7 +23,8 @@ import kotlinx.coroutines.tasks.await
 class FirebaseProfileRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val storage: FirebaseStorage,
+    private val deletionGuard: AccountDeletionGuard
 ) : ProfileRepository {
 
     override suspend fun updatePhone(phone: String, phoneCountryCode: String): ProfileResult = withUser { user ->
@@ -53,8 +54,10 @@ class FirebaseProfileRepository @Inject constructor(
     }
 
     override suspend fun deleteAccount(): ProfileResult = withUser { user ->
-        firestore.collection(USERS).document(user.uid).delete().await()
-        user.delete().await()
+        deletionGuard.deleting(user.uid) {
+            firestore.collection(USERS).document(user.uid).delete().await()
+            user.delete().await()
+        }
         ProfileResult.Success()
     }
 
