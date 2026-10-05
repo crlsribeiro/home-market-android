@@ -2,6 +2,8 @@ package app.carlosribeiro.homemarket.presentation.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.carlosribeiro.homemarket.domain.model.AdminError
+import app.carlosribeiro.homemarket.domain.model.AdminResult
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.domain.model.ItemError
 import app.carlosribeiro.homemarket.domain.model.ItemResult
@@ -13,6 +15,7 @@ import app.carlosribeiro.homemarket.domain.model.UserRole
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.domain.model.WeeklyList
 import app.carlosribeiro.homemarket.domain.usecase.CreateWeekListUseCase
+import app.carlosribeiro.homemarket.domain.usecase.ExpireStaleListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveWeeklyListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.RemoveItemUseCase
@@ -28,6 +31,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -60,10 +64,14 @@ class ListViewModel @Inject constructor(
     observeCurrentUser: ObserveCurrentUserUseCase,
     observeWeeklyList: ObserveWeeklyListUseCase,
     private val createWeekList: CreateWeekListUseCase,
-    private val removeItem: RemoveItemUseCase
+    private val removeItem: RemoveItemUseCase,
+    private val expireStaleList: ExpireStaleListUseCase
 ) : ViewModel() {
 
     private val action = MutableStateFlow(ActionState())
+
+    /** Lists this screen already tried to expire, so each stale list is cut at most once here. */
+    private val expiredListIds = mutableSetOf<String>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val content: Flow<Pair<AppUser?, WeeklyList>> = observeCurrentUser()
@@ -76,6 +84,7 @@ class ListViewModel @Inject constructor(
                 observeWeeklyList(householdId).map { user to it }
             }
         }
+        .onEach { (_, weekly) -> weekly.currentList?.let(::expireIfStale) }
 
     val state: StateFlow<ListUiState> = combine(content, action) { (user, weekly), action ->
         ListUiState(
@@ -113,6 +122,17 @@ class ListViewModel @Inject constructor(
             if (result is ItemResult.Failure) {
                 val error = if (result.error == ItemError.NETWORK) ListError.NETWORK else ListError.UNKNOWN
                 action.update { it.copy(error = error) }
+            }
+        }
+    }
+
+    private fun expireIfStale(list: WeekList) {
+        if (!expireStaleList.isStale(list) || !expiredListIds.add(list.id)) return
+        viewModelScope.launch {
+            val result = expireStaleList(list)
+            if (result is AdminResult.Failure && result.error == AdminError.NETWORK) {
+                // Try again the next time the list is shown with a connection.
+                expiredListIds.remove(list.id)
             }
         }
     }
