@@ -19,7 +19,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -47,7 +46,7 @@ import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.PurchaseDetail
 import app.carlosribeiro.homemarket.domain.model.PurchaseItem
 import app.carlosribeiro.homemarket.presentation.admin.messageRes
-import app.carlosribeiro.homemarket.presentation.components.rememberPhotoPicker
+import app.carlosribeiro.homemarket.presentation.components.PhotoSourceButtons
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import java.util.Locale
 
@@ -196,7 +195,6 @@ private fun PurchaseItemRow(item: PurchaseItem, locale: Locale, onEdit: () -> Un
 
 @Composable
 private fun ReceiptCard(isProcessed: Boolean, isUploading: Boolean, onPicked: (String) -> Unit) {
-    val photoPicker = rememberPhotoPicker(onPicked)
     OutlinedCard(Modifier.fillMaxWidth()) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -206,23 +204,11 @@ private fun ReceiptCard(isProcessed: Boolean, isUploading: Boolean, onPicked: (S
             )
             if (isUploading) CircularProgressIndicator(Modifier.size(24.dp))
         }
-        Row(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedButton(onClick = photoPicker.takePhoto, enabled = !isUploading, modifier = Modifier.weight(1f)) {
-                Icon(painterResource(R.drawable.ic_photo_camera), contentDescription = null)
-                Text(stringResource(R.string.add_item_camera), modifier = Modifier.padding(start = 8.dp))
-            }
-            OutlinedButton(
-                onClick = photoPicker.pickFromGallery,
-                enabled = !isUploading,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(painterResource(R.drawable.ic_photo_library), contentDescription = null)
-                Text(stringResource(R.string.add_item_gallery), modifier = Modifier.padding(start = 8.dp))
-            }
-        }
+        PhotoSourceButtons(
+            onPhoto = onPicked,
+            enabled = !isUploading,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+        )
     }
 }
 
