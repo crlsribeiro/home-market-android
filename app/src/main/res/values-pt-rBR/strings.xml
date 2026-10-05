@@ -184,4 +184,6 @@
     <string name="history_edit_item">Editar item</string>
     <string name="history_item_name">Nome do item</string>
     <string name="history_unit_price">Preço unitário</string>
+    <string name="history_receipt_upload">Enviar recibo</string>
+    <string name="history_receipt_reupload">Reenviar recibo (foto ilegível)</string>
 </resources>

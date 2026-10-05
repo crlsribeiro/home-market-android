@@ -3,6 +3,7 @@ package app.carlosribeiro.homemarket.domain.repository
 import app.carlosribeiro.homemarket.domain.model.AdminResult
 import app.carlosribeiro.homemarket.domain.model.Purchase
 import app.carlosribeiro.homemarket.domain.model.PurchaseItem
+import app.carlosribeiro.homemarket.domain.receipt.ReceiptLine
 import kotlinx.coroutines.flow.Flow
 
 /** `purchases` and `purchaseItems` (docs/backend.md). Reads come from the local cache, kept in sync with Firestore. */
@@ -25,4 +26,16 @@ interface PurchaseRepository {
      * [name] when it is not null, then recomputes the purchase `total` from every line.
      */
     suspend fun updateItem(purchaseId: String, itemId: String, name: String?, unitPrice: Double): AdminResult
+
+    /**
+     * iOS `HistoryService.uploadReceipt`: uploads [photo] to `receipts/{purchaseId}/{UUID}.jpg`, replaces every
+     * line of the purchase with [lines] (quantity 1), then writes `receiptUrl`, `receiptProcessed: true`, the
+     * rounded `total` and [storeName].
+     */
+    suspend fun saveReceipt(
+        purchaseId: String,
+        photo: ByteArray,
+        storeName: String?,
+        lines: List<ReceiptLine>
+    ): AdminResult
 }

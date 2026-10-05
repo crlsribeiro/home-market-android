@@ -8,12 +8,15 @@ import app.carlosribeiro.homemarket.domain.model.AdminError
 import app.carlosribeiro.homemarket.domain.model.AdminResult
 import app.carlosribeiro.homemarket.domain.model.Purchase
 import app.carlosribeiro.homemarket.domain.model.PurchaseItem
+import app.carlosribeiro.homemarket.domain.receipt.ReceiptLine
 import app.carlosribeiro.homemarket.domain.repository.PurchaseRepository
 import app.carlosribeiro.homemarket.domain.util.Money
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
@@ -28,6 +31,7 @@ import kotlinx.coroutines.tasks.await
 @Singleton
 class FirebasePurchaseRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
+    private val storage: FirebaseStorage,
     private val purchaseDao: PurchaseDao
 ) : PurchaseRepository {
 
@@ -113,6 +117,43 @@ class FirebasePurchaseRepository @Inject constructor(
                 .sumOf { (it.get(PurchaseItemFields.TOTAL_PRICE) as? Number)?.toDouble() ?: 0.0 }
             purchases.document(purchaseId).update(PurchaseFields.TOTAL, Money.round2(total)).await()
         }
+
+    /** One batch replaces the lines and updates the purchase, so the total always matches the lines. */
+    override suspend fun saveReceipt(
+        purchaseId: String,
+        photo: ByteArray,
+        storeName: String?,
+        lines: List<ReceiptLine>
+    ): AdminResult = write {
+        val file = storage.reference.child("receipts/$purchaseId/${UUID.randomUUID()}.jpg")
+        file.putBytes(photo).await()
+        val url = file.downloadUrl.await().toString()
+        val oldLines = purchaseItems.whereEqualTo(PurchaseItemFields.PURCHASE_ID, purchaseId).get().await()
+        val batch = firestore.batch()
+        oldLines.documents.forEach { batch.delete(it.reference) }
+        lines.forEach { line ->
+            batch.set(
+                purchaseItems.document(),
+                mapOf(
+                    PurchaseItemFields.PURCHASE_ID to purchaseId,
+                    PurchaseItemFields.NAME to line.name,
+                    PurchaseItemFields.QUANTITY to 1,
+                    PurchaseItemFields.UNIT_PRICE to line.price,
+                    PurchaseItemFields.TOTAL_PRICE to line.price
+                )
+            )
+        }
+        batch.update(
+            purchases.document(purchaseId),
+            mapOf(
+                PurchaseFields.RECEIPT_URL to url,
+                PurchaseFields.RECEIPT_PROCESSED to true,
+                PurchaseFields.TOTAL to Money.round2(lines.sumOf { it.price }),
+                PurchaseFields.STORE_NAME to storeName
+            )
+        )
+        batch.commit().await()
+    }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun write(block: suspend () -> Unit): AdminResult = try {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -45,6 +46,7 @@ import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.PurchaseDetail
 import app.carlosribeiro.homemarket.domain.model.PurchaseItem
 import app.carlosribeiro.homemarket.presentation.admin.messageRes
+import app.carlosribeiro.homemarket.presentation.components.PhotoSourceButtons
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import java.util.Locale
 
@@ -106,9 +108,16 @@ fun PurchaseDetailScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TotalCard(detail = detail, locale = locale)
-                ItemsCard(items = detail.items, locale = locale, onEdit = {
-                    onEvent(PurchaseDetailUiEvent.EditItem(it))
-                })
+                ItemsCard(
+                    items = detail.items,
+                    locale = locale,
+                    onEdit = { onEvent(PurchaseDetailUiEvent.EditItem(it)) }
+                )
+                ReceiptCard(
+                    isProcessed = detail.purchase.receiptProcessed,
+                    isUploading = state.isUploadingReceipt,
+                    onPicked = { onEvent(PurchaseDetailUiEvent.ReceiptPicked(it)) }
+                )
             }
         }
     }
@@ -181,6 +190,25 @@ private fun PurchaseItemRow(item: PurchaseItem, locale: Locale, onEdit: () -> Un
         IconButton(onClick = onEdit) {
             Icon(painterResource(R.drawable.ic_edit), contentDescription = stringResource(R.string.history_edit_item))
         }
+    }
+}
+
+@Composable
+private fun ReceiptCard(isProcessed: Boolean, isUploading: Boolean, onPicked: (String) -> Unit) {
+    OutlinedCard(Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                stringResource(if (isProcessed) R.string.history_receipt_reupload else R.string.history_receipt_upload),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f)
+            )
+            if (isUploading) CircularProgressIndicator(Modifier.size(24.dp))
+        }
+        PhotoSourceButtons(
+            onPhoto = onPicked,
+            enabled = !isUploading,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+        )
     }
 }
 

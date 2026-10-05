@@ -185,4 +185,6 @@
     <string name="history_edit_item">Edit item</string>
     <string name="history_item_name">Item name</string>
     <string name="history_unit_price">Unit price</string>
+    <string name="history_receipt_upload">Upload receipt</string>
+    <string name="history_receipt_reupload">Re-upload receipt (unreadable photo)</string>
 </resources>

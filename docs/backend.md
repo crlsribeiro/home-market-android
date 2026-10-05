@@ -323,7 +323,8 @@ Writes:
   `purchaseItems where purchaseId == X`, then `addDoc` one document per parsed line. There is no backend
   function involved: the web uses tesseract.js and iOS uses Apple Vision. When nothing is recognized, the
   web writes a single placeholder line with price 0 (`"Nenhum item reconhecido (Clique no lápis para
-  adicionar)"`); iOS writes nothing.
+  adicionar)"`); iOS writes the same kind of line in English (`"No items recognized (tap the pencil to add
+  one)"`, `HistoryService.swift`). Android writes the iOS line.
 - **Price edit:** `updateDoc` `unitPrice`, `totalPrice` and optionally `name`, then recompute the
   purchase `total`.
 
@@ -438,7 +439,7 @@ open a specific screen from the message content alone.
 | Purchase on weekly cut | Always creates a new purchase | Reuses an existing purchase for the same `listId` |
 | `purchases.storeName` | Not written | Written from OCR |
 | OCR | tesseract.js | Apple Vision, smarter line grouping |
-| Empty OCR result | Writes one placeholder line at price 0 | Writes no lines |
+| Empty OCR result | Writes one placeholder line at price 0, in Portuguese | Writes one placeholder line at price 0, in English |
 | Receipt file name | Original file name | `{UUID}.jpg` |
 | `households.createdAt` | Client `Date` | `serverTimestamp()` |
 | `memberUids` on join | Rewrites the array | `arrayUnion` |
