@@ -51,4 +51,11 @@ class AuthUseCasesTest {
 
         coVerify { repository.signOut() }
     }
+
+    @Test
+    fun signInWithGoogle_passesTheIdTokenToTheRepository() = runTest {
+        coEvery { repository.signInWithGoogle("token") } returns AuthResult.Success
+
+        assertEquals(AuthResult.Success, SignInWithGoogleUseCase(repository)("token"))
+    }
 }
