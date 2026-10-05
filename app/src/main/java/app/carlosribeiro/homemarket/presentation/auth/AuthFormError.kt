@@ -26,6 +26,7 @@ private fun ValidationError.messageRes(): Int = when (this) {
     ValidationError.PASSWORD_REQUIRED -> R.string.auth_error_password_required
     ValidationError.PASSWORD_TOO_SHORT -> R.string.auth_error_password_too_short
     ValidationError.PASSWORDS_DO_NOT_MATCH -> R.string.auth_error_passwords_do_not_match
+    ValidationError.PHONE_INCOMPLETE -> R.string.account_error_phone_incomplete
 }
 
 @StringRes

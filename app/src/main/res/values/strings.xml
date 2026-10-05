@@ -147,4 +147,10 @@
     <string name="account_delete_message">This permanently deletes your account and removes you from your household. This can\'t be undone.</string>
     <string name="account_delete_confirm">Yes, delete my account</string>
     <string name="account_delete_keep">No, keep my account</string>
+    <string name="register_add_photo">Add profile photo</string>
+    <string name="register_photo_optional">Photo (optional)</string>
+    <string name="register_phone_optional">Phone number (optional)</string>
+    <string name="register_legal_prefix">By creating an account, you agree to our</string>
+    <string name="register_terms">Terms of Use</string>
+    <string name="register_legal_and">and</string>
 </resources>
