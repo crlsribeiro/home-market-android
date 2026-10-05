@@ -106,4 +106,18 @@
     <string name="add_item_action">Adicionar</string>
     <string name="add_item_error_name_required">Digite o nome do item.</string>
     <string name="add_item_error_photo">O item foi adicionado, mas a foto não pôde ser enviada.</string>
+    <string name="action_save">Salvar</string>
+    <string name="item_detail_quantity">Quantidade</string>
+    <string name="item_detail_requested_by">Pedido por</string>
+    <string name="item_detail_added">Adicionado</string>
+    <string name="item_detail_week">Semana</string>
+    <string name="item_detail_no_notes">Sem descrição</string>
+    <string name="item_detail_notes_hint">Adicione uma descrição…</string>
+    <string name="item_detail_edit_notes">Editar descrição</string>
+    <string name="item_detail_remove">Remover da lista</string>
+    <string name="item_detail_confirm_remove">Confirmar remoção</string>
+    <string name="time_ago_now">agora</string>
+    <string name="time_ago_minutes">há %1$d min</string>
+    <string name="time_ago_hours">há %1$d h</string>
+    <string name="time_ago_days">há %1$d d</string>
 </resources>

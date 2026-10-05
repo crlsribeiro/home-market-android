@@ -46,14 +46,19 @@ import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import java.time.Instant
 
 @Composable
-fun ListRoute(viewModel: ListViewModel = hiltViewModel(), addItemViewModel: AddItemViewModel = hiltViewModel()) {
+fun ListRoute(
+    onOpenItem: (String) -> Unit,
+    viewModel: ListViewModel = hiltViewModel(),
+    addItemViewModel: AddItemViewModel = hiltViewModel()
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val addItemState by addItemViewModel.state.collectAsStateWithLifecycle()
     ListScreen(
         state = state,
         onEvent = viewModel::onEvent,
         addItemState = addItemState,
-        onAddItemEvent = addItemViewModel::onEvent
+        onAddItemEvent = addItemViewModel::onEvent,
+        onOpenItem = onOpenItem
     )
 }
 
@@ -64,7 +69,8 @@ fun ListScreen(
     onEvent: (ListUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     addItemState: AddItemUiState = AddItemUiState(),
-    onAddItemEvent: (AddItemUiEvent) -> Unit = {}
+    onAddItemEvent: (AddItemUiEvent) -> Unit = {},
+    onOpenItem: (String) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = state.error?.let { stringResource(it.messageRes()) }
@@ -110,7 +116,12 @@ fun ListScreen(
                 modifier = contentModifier
             )
 
-            else -> ListContent(state = state, list = state.currentList, modifier = contentModifier)
+            else -> ListContent(
+                state = state,
+                list = state.currentList,
+                onOpenItem = onOpenItem,
+                modifier = contentModifier
+            )
         }
     }
 
@@ -120,7 +131,12 @@ fun ListScreen(
 }
 
 @Composable
-private fun ListContent(state: ListUiState, list: WeekList, modifier: Modifier = Modifier) {
+private fun ListContent(
+    state: ListUiState,
+    list: WeekList,
+    onOpenItem: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = FabClearance),
@@ -141,11 +157,13 @@ private fun ListContent(state: ListUiState, list: WeekList, modifier: Modifier =
                 }
             }
         } else {
-            items(state.items, key = { it.id }) { ListItemRow(it) }
+            items(state.items, key = { it.id }) { ListItemRow(it, onClick = { onOpenItem(it.id) }) }
         }
         if (state.nextWeekItems.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.list_next_week, state.nextWeekItems.size)) }
-            items(state.nextWeekItems, key = { "next-${it.id}" }) { ListItemRow(it) }
+            items(state.nextWeekItems, key = { "next-${it.id}" }) {
+                ListItemRow(it, onClick = { onOpenItem(it.id) })
+            }
         }
     }
 }

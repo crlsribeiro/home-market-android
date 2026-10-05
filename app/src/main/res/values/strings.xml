@@ -107,4 +107,18 @@
     <string name="add_item_action">Add</string>
     <string name="add_item_error_name_required">Please enter the item name.</string>
     <string name="add_item_error_photo">The item was added, but its photo could not be uploaded.</string>
+    <string name="action_save">Save</string>
+    <string name="item_detail_quantity">Quantity</string>
+    <string name="item_detail_requested_by">Requested by</string>
+    <string name="item_detail_added">Added</string>
+    <string name="item_detail_week">Week</string>
+    <string name="item_detail_no_notes">No description</string>
+    <string name="item_detail_notes_hint">Add a description…</string>
+    <string name="item_detail_edit_notes">Edit description</string>
+    <string name="item_detail_remove">Remove from list</string>
+    <string name="item_detail_confirm_remove">Confirm removal</string>
+    <string name="time_ago_now">now</string>
+    <string name="time_ago_minutes">%1$dm ago</string>
+    <string name="time_ago_hours">%1$dh ago</string>
+    <string name="time_ago_days">%1$dd ago</string>
 </resources>
