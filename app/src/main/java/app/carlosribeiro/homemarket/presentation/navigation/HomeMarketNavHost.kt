@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.presentation.auth.LoginRoute
 import app.carlosribeiro.homemarket.presentation.auth.RegisterRoute
+import app.carlosribeiro.homemarket.presentation.item.ItemDetailRoute
 import app.carlosribeiro.homemarket.presentation.main.MainScaffold
 
 /** Screens for a signed-out user. Signing in swaps this graph for [SignedInNavHost]. */
@@ -34,7 +35,14 @@ fun SignedInNavHost(
 ) {
     NavHost(navController = navController, startDestination = MainDestination, modifier = modifier) {
         composable<MainDestination> {
-            MainScaffold(user = user, onSignOut = onSignOut)
+            MainScaffold(
+                user = user,
+                onSignOut = onSignOut,
+                onOpenItem = { itemId -> navController.navigate(ItemDetailDestination(itemId)) }
+            )
+        }
+        composable<ItemDetailDestination> {
+            ItemDetailRoute(onBack = { navController.popBackStack() })
         }
     }
 }

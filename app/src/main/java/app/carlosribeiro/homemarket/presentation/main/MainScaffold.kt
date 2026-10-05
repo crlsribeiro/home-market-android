@@ -20,7 +20,7 @@ import app.carlosribeiro.homemarket.presentation.list.ListRoute
  * Material 3 adaptive navigation: a navigation bar on phones, a navigation rail on wider windows.
  */
 @Composable
-fun MainScaffold(user: AppUser, onSignOut: () -> Unit, modifier: Modifier = Modifier) {
+fun MainScaffold(user: AppUser, onSignOut: () -> Unit, onOpenItem: (String) -> Unit, modifier: Modifier = Modifier) {
     val tabs = MainTab.visibleFor(user)
     var selected by rememberSaveable { mutableStateOf(MainTab.LIST) }
     val current = selected.takeIf { it in tabs } ?: MainTab.LIST
@@ -39,7 +39,7 @@ fun MainScaffold(user: AppUser, onSignOut: () -> Unit, modifier: Modifier = Modi
         }
     ) {
         when (current) {
-            MainTab.LIST -> ListRoute()
+            MainTab.LIST -> ListRoute(onOpenItem = onOpenItem)
             MainTab.ADMIN -> AdminPanelRoute()
             MainTab.ACCOUNT -> AccountRoute(user = user, onSignOut = onSignOut)
         }

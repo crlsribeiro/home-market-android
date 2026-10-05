@@ -15,6 +15,9 @@ interface ListDao {
     )
     fun observeCurrentList(householdId: String): Flow<WeekListEntity?>
 
+    @Query("SELECT * FROM lists WHERE id = :listId")
+    fun observeList(listId: String): Flow<WeekListEntity?>
+
     @Query("DELETE FROM lists WHERE householdId = :householdId")
     suspend fun deleteLists(householdId: String)
 
