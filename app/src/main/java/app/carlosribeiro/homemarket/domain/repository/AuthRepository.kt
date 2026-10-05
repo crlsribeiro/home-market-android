@@ -16,5 +16,8 @@ interface AuthRepository {
 
     suspend fun register(registration: Registration): AuthResult
 
+    /** Sends the Firebase password reset email. */
+    suspend fun sendPasswordReset(email: String): AuthResult
+
     suspend fun signOut()
 }

@@ -38,15 +38,9 @@ class FirebaseAuthRepository @Inject constructor(
     private fun userDocument(uid: String) = firestore.collection(USERS).document(uid)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun observeCurrentUser(): Flow<AppUser?> = authState()
+    override fun observeCurrentUser(): Flow<AppUser?> = auth.authStateFlow()
         .flatMapLatest { firebaseUser -> firebaseUser?.let(::userDocumentUpdates) ?: flowOf(null) }
         .distinctUntilChanged()
-
-    private fun authState(): Flow<FirebaseUser?> = callbackFlow {
-        val listener = FirebaseAuth.AuthStateListener { trySend(it.currentUser) }
-        auth.addAuthStateListener(listener)
-        awaitClose { auth.removeAuthStateListener(listener) }
-    }.distinctUntilChanged { old, new -> old?.uid == new?.uid }
 
     private fun userDocumentUpdates(firebaseUser: FirebaseUser): Flow<AppUser?> = callbackFlow {
         val registration = userDocument(firebaseUser.uid).addSnapshotListener { snapshot, _ ->
@@ -127,6 +121,11 @@ class FirebaseAuthRepository @Inject constructor(
         ).await()
     }
 
+    /** iOS `AuthService.resetPassword`. */
+    override suspend fun sendPasswordReset(email: String): AuthResult = runAuth {
+        auth.sendPasswordResetEmail(email).await()
+    }
+
     override suspend fun signOut() {
         auth.signOut()
     }
@@ -147,6 +146,12 @@ class FirebaseAuthRepository @Inject constructor(
         const val DEFAULT_PHONE_COUNTRY_CODE = "+55"
     }
 }
+
+private fun FirebaseAuth.authStateFlow(): Flow<FirebaseUser?> = callbackFlow {
+    val listener = FirebaseAuth.AuthStateListener { trySend(it.currentUser) }
+    addAuthStateListener(listener)
+    awaitClose { removeAuthStateListener(listener) }
+}.distinctUntilChanged { old, new -> old?.uid == new?.uid }
 
 private fun Exception.toAuthError(): AuthError = when (this) {
     is FirebaseAuthWeakPasswordException -> AuthError.WEAK_PASSWORD
