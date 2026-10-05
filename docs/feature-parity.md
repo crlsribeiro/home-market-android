@@ -116,11 +116,11 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Account tab: profile photo, name, email | `Views/Common/AccountSettingsView.swift` | M8 | todo |
-| Change profile photo from camera or gallery | `Views/Common/AccountSettingsView.swift` | M8 | todo |
-| Edit phone number with country picker | `Views/Common/AccountSettingsView.swift` | M8 | todo |
-| Change login email (verification link sent to the new address) | `Views/Common/AccountSettingsView.swift`, `Services/AuthService.swift` | M8 | todo |
-| Privacy Policy link (in-app browser) | `Views/Common/AccountSettingsView.swift`, `Views/Common/SafariView.swift` | M8 | todo |
+| Account tab: profile photo, name, email | `Views/Common/AccountSettingsView.swift` | M8 | done |
+| Change profile photo from camera or gallery | `Views/Common/AccountSettingsView.swift` | M8 | done |
+| Edit phone number with country picker | `Views/Common/AccountSettingsView.swift` | M8 | done |
+| Change login email (verification link sent to the new address) | `Views/Common/AccountSettingsView.swift`, `Services/AuthService.swift` | M8 | done |
+| Privacy Policy link (in-app browser) | `Views/Common/AccountSettingsView.swift`, `Views/Common/SafariView.swift` | M8 | done (opens the browser) |
 | Delete account with confirmation; admin hand-off to another member; re-authentication error | `Views/Common/DeleteAccountView.swift`, `ViewModels/HouseholdViewModel.swift` | M8 | todo |
 
 ## Scope decisions
