@@ -125,6 +125,13 @@
     <string name="time_ago_hours">%1$dh ago</string>
     <string name="time_ago_days">%1$dd ago</string>
     <string name="list_remove_item">Remove</string>
+    <string name="action_close">Close</string>
+    <string name="forgot_link">Forgot password?</string>
+    <string name="forgot_title">Reset password</string>
+    <string name="forgot_message">Enter your email to receive password reset instructions.</string>
+    <string name="forgot_send">Send</string>
+    <string name="forgot_sent_title">Email sent</string>
+    <string name="forgot_sent_message">Check your inbox at %1$s to reset your password.</string>
     <string name="admin_list_status_title">List status</string>
     <string name="admin_list_status">Status</string>
     <string name="admin_status_open">Open</string>

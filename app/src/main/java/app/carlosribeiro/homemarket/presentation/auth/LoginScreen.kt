@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -27,15 +28,24 @@ import app.carlosribeiro.homemarket.presentation.components.formKeyboard
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 
 @Composable
-fun LoginRoute(onCreateAccount: () -> Unit, viewModel: LoginViewModel = hiltViewModel()) {
+fun LoginRoute(
+    onCreateAccount: () -> Unit,
+    viewModel: LoginViewModel = hiltViewModel(),
+    forgotPasswordViewModel: ForgotPasswordViewModel = hiltViewModel()
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val forgotState by forgotPasswordViewModel.state.collectAsStateWithLifecycle()
     val googleSignIn = rememberGoogleSignIn { viewModel.onEvent(LoginUiEvent.GoogleResult(it)) }
     LoginScreen(
         state = state,
         onEvent = viewModel::onEvent,
         onCreateAccount = onCreateAccount,
-        onGoogleSignIn = googleSignIn
+        onGoogleSignIn = googleSignIn,
+        onForgotPassword = { forgotPasswordViewModel.onEvent(ForgotPasswordUiEvent.Open(state.email)) }
     )
+    if (forgotState.isOpen) {
+        ForgotPasswordDialog(state = forgotState, onEvent = forgotPasswordViewModel::onEvent)
+    }
 }
 
 @Composable
@@ -44,7 +54,8 @@ fun LoginScreen(
     onEvent: (LoginUiEvent) -> Unit,
     onCreateAccount: () -> Unit,
     modifier: Modifier = Modifier,
-    onGoogleSignIn: () -> Unit = {}
+    onGoogleSignIn: () -> Unit = {},
+    onForgotPassword: () -> Unit = {}
 ) {
     AuthFormLayout(modifier = modifier) {
         Text(
@@ -73,29 +84,41 @@ fun LoginScreen(
             keyboardOptions = formKeyboard(type = KeyboardType.Password, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { onEvent(LoginUiEvent.Submit) })
         )
+        TextButton(
+            onClick = onForgotPassword,
+            enabled = !state.isLoading,
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text(stringResource(R.string.forgot_link))
+        }
         state.error?.let { ErrorText(stringResource(it.messageRes())) }
         SubmitButton(
             text = stringResource(R.string.auth_sign_in),
             isLoading = state.isLoading,
             onClick = { onEvent(LoginUiEvent.Submit) }
         )
-        Text(
-            text = stringResource(R.string.auth_or),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        OutlinedButton(
-            onClick = onGoogleSignIn,
-            enabled = !state.isLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-        ) {
-            Text(stringResource(R.string.auth_continue_with_google))
-        }
+        GoogleSignInSection(enabled = !state.isLoading, onClick = onGoogleSignIn)
         TextButton(onClick = onCreateAccount, enabled = !state.isLoading) {
             Text(stringResource(R.string.auth_create_account))
         }
+    }
+}
+
+@Composable
+private fun GoogleSignInSection(enabled: Boolean, onClick: () -> Unit) {
+    Text(
+        text = stringResource(R.string.auth_or),
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    OutlinedButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+    ) {
+        Text(stringResource(R.string.auth_continue_with_google))
     }
 }
 

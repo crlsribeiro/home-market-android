@@ -23,6 +23,12 @@ object AuthValidation {
         else -> null
     }
 
+    fun validateEmail(email: String): ValidationError? = when {
+        email.isBlank() -> ValidationError.EMAIL_REQUIRED
+        !emailRegex.matches(email.trim()) -> ValidationError.EMAIL_INVALID
+        else -> null
+    }
+
     /** Same rules as the iOS registration form. */
     fun validateRegistration(registration: Registration, confirmPassword: String): ValidationError? = when {
         registration.firstName.isBlank() || registration.lastName.isBlank() -> ValidationError.NAME_REQUIRED

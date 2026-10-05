@@ -124,6 +124,13 @@
     <string name="time_ago_hours">há %1$d h</string>
     <string name="time_ago_days">há %1$d d</string>
     <string name="list_remove_item">Remover</string>
+    <string name="action_close">Fechar</string>
+    <string name="forgot_link">Esqueci a senha</string>
+    <string name="forgot_title">Redefinir senha</string>
+    <string name="forgot_message">Digite seu e-mail para receber as instruções de redefinição de senha.</string>
+    <string name="forgot_send">Enviar</string>
+    <string name="forgot_sent_title">E-mail enviado</string>
+    <string name="forgot_sent_message">Confira sua caixa de entrada em %1$s para redefinir sua senha.</string>
     <string name="admin_list_status_title">Status da lista</string>
     <string name="admin_list_status">Status</string>
     <string name="admin_status_open">Aberta</string>

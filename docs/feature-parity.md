@@ -27,7 +27,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Login screen: email + password | `Views/Login/LoginView.swift` | M1 | done |
 | Sign in with Google | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | M1 | done (Credential Manager) |
 | Sign in with Apple | `Views/Login/LoginView.swift`, `Services/AuthService.swift` | — | out of scope |
-| Forgot password sheet: send reset email, confirmation state | `Views/Login/ForgotPasswordView.swift` | M8 | todo |
+| Forgot password sheet: send reset email, confirmation state | `Views/Login/ForgotPasswordView.swift` | M8 | done |
 | Register screen: first name, last name, email, password, confirm password | `Views/Login/RegisterView.swift` | M1 | done |
 | Register: validation (names and email required, password ≥ 8 characters, passwords match, complete phone or empty) | `Views/Login/RegisterView.swift` | M1 | done |
 | Register: phone number with country picker and input mask (BR, US, PT, AR, ES) | `Views/Login/RegisterView.swift`, `Models/PhoneCountry.swift` | M8 | todo |
