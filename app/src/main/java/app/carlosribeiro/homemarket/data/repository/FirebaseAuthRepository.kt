@@ -32,7 +32,8 @@ import kotlinx.coroutines.tasks.await
 @Singleton
 class FirebaseAuthRepository @Inject constructor(
     private val auth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val deletionGuard: AccountDeletionGuard
 ) : AuthRepository {
 
     private fun userDocument(uid: String) = firestore.collection(USERS).document(uid)
@@ -45,7 +46,7 @@ class FirebaseAuthRepository @Inject constructor(
     private fun userDocumentUpdates(firebaseUser: FirebaseUser): Flow<AppUser?> = callbackFlow {
         val registration = userDocument(firebaseUser.uid).addSnapshotListener { snapshot, _ ->
             val data = snapshot?.data
-            if (snapshot != null && data == null) {
+            if (snapshot != null && data == null && !deletionGuard.isDeleting(firebaseUser.uid)) {
                 // First sign-in from this account: create the document like the other clients do.
                 createUserDocumentIfMissing(firebaseUser)
             }
@@ -110,8 +111,8 @@ class FirebaseAuthRepository @Inject constructor(
                 UserFields.DISPLAY_NAME to displayName,
                 UserFields.FIRST_NAME to registration.firstName,
                 UserFields.LAST_NAME to registration.lastName,
-                UserFields.PHONE to "",
-                UserFields.PHONE_COUNTRY_CODE to DEFAULT_PHONE_COUNTRY_CODE,
+                UserFields.PHONE to registration.phone,
+                UserFields.PHONE_COUNTRY_CODE to registration.phoneCountryCode,
                 UserFields.PHOTO_URL to null,
                 UserFields.PROVIDER to PROVIDER_EMAIL,
                 UserFields.HOUSEHOLD_ID to null,
@@ -141,9 +142,6 @@ class FirebaseAuthRepository @Inject constructor(
     private companion object {
         const val USERS = "users"
         const val PROVIDER_EMAIL = "email"
-
-        /** The phone field is optional; the iOS form defaults its country picker to Brazil. */
-        const val DEFAULT_PHONE_COUNTRY_CODE = "+55"
     }
 }
 

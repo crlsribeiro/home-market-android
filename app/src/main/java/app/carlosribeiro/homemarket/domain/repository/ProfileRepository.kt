@@ -12,4 +12,10 @@ interface ProfileRepository {
 
     /** Firebase verify-before-update: the login email changes only after the link sent to [newEmail]. */
     suspend fun requestEmailChange(newEmail: String): ProfileResult
+
+    /** Firebase only deletes an account soon after sign-in; checked before anything is written. */
+    fun hasRecentSignIn(): Boolean
+
+    /** iOS `AuthService.deleteAccount`: deletes `users/{uid}` while still signed in, then the Auth user. */
+    suspend fun deleteAccount(): ProfileResult
 }

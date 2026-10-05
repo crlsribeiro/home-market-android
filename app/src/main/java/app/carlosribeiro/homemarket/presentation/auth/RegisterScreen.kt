@@ -19,6 +19,7 @@ import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.validation.AuthValidation
 import app.carlosribeiro.homemarket.presentation.components.ErrorText
 import app.carlosribeiro.homemarket.presentation.components.FormTextField
+import app.carlosribeiro.homemarket.presentation.components.PhoneField
 import app.carlosribeiro.homemarket.presentation.components.SubmitButton
 import app.carlosribeiro.homemarket.presentation.components.formKeyboard
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
@@ -42,7 +43,21 @@ fun RegisterScreen(
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary
         )
+        RegisterPhoto(
+            photoUri = state.photoUri,
+            enabled = !state.isLoading,
+            onPhotoPicked = { onEvent(RegisterUiEvent.PhotoPicked(it)) },
+            onRemove = { onEvent(RegisterUiEvent.RemovePhoto) }
+        )
         RegisterFields(state = state, onEvent = onEvent)
+        PhoneField(
+            phone = state.phone,
+            country = state.country,
+            onPhoneChange = { onEvent(RegisterUiEvent.PhoneChanged(it)) },
+            onCountryChange = { onEvent(RegisterUiEvent.CountryChanged(it)) },
+            label = stringResource(R.string.register_phone_optional)
+        )
+        LegalLinks()
         state.error?.let { ErrorText(stringResource(it.messageRes())) }
         SubmitButton(
             text = stringResource(R.string.auth_create_account),
