@@ -60,4 +60,25 @@ class UserMapperTest {
 
         assertNull(user.householdId)
     }
+
+    @Test
+    fun profileFields_areRead() {
+        val user = UserMapper.fromDocument(
+            uid = "u1",
+            data = mapOf(
+                "firstName" to "Maria",
+                "lastName" to "Silva",
+                "phone" to "(415) 555-0100",
+                "phoneCountryCode" to "+1"
+            ),
+            authDisplayName = null,
+            authEmail = null
+        )
+
+        assertEquals("Maria", user.firstName)
+        assertEquals("Silva", user.lastName)
+        assertEquals("(415) 555-0100", user.phone)
+        assertEquals("+1", user.phoneCountryCode)
+        assertEquals("+55", UserMapper.fromDocument("u2", emptyMap(), null, null).phoneCountryCode)
+    }
 }

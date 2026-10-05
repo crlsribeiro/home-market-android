@@ -71,7 +71,7 @@ fun MainScaffold(
             MainTab.LIST -> ListRoute(onOpenItem = onOpenItem)
             MainTab.ADMIN -> AdminPanelRoute()
             MainTab.HISTORY -> HistoryRoute(onOpenPurchase = onOpenPurchase)
-            MainTab.ACCOUNT -> AccountRoute(user = user, onSignOut = onSignOut)
+            MainTab.ACCOUNT -> AccountRoute(onSignOut = onSignOut)
         }
     }
 }
