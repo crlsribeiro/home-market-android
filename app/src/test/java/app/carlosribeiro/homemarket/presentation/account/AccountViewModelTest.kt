@@ -5,6 +5,7 @@ import app.carlosribeiro.homemarket.domain.model.PhoneCountry
 import app.carlosribeiro.homemarket.domain.model.ProfileError
 import app.carlosribeiro.homemarket.domain.model.ProfileResult
 import app.carlosribeiro.homemarket.domain.model.UserRole
+import app.carlosribeiro.homemarket.domain.usecase.DeleteAccountUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveHouseholdUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ProfileInput
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 
@@ -42,10 +44,12 @@ class AccountViewModelTest {
     private val observeHousehold = mockk<ObserveHouseholdUseCase>()
     private val saveProfile = mockk<SaveProfileUseCase>()
     private val updateAvatar = mockk<UpdateAvatarUseCase>()
+    private val deleteAccount = mockk<DeleteAccountUseCase>()
     private val photo = byteArrayOf(1)
     private val compressor = PhotoCompressor { uri -> if (uri == "content://ok") photo else null }
 
-    private fun viewModel() = AccountViewModel(observeUser, observeHousehold, saveProfile, updateAvatar, compressor)
+    private fun viewModel() =
+        AccountViewModel(observeUser, observeHousehold, saveProfile, updateAvatar, compressor, deleteAccount)
 
     @Test
     fun form_startsFromTheStoredProfile() {
@@ -98,5 +102,27 @@ class AccountViewModelTest {
 
         assertEquals(AccountMessage.PhotoUpdated, viewModel.state.value.message)
         assertFalse(viewModel.state.value.isUploadingPhoto)
+    }
+
+    @Test
+    fun deleteDialog_opensAndCancels() {
+        val viewModel = viewModel()
+
+        viewModel.onEvent(AccountUiEvent.AskDelete)
+        assertEquals(DeleteAccountState(), viewModel.state.value.delete)
+        viewModel.onEvent(AccountUiEvent.CancelDelete)
+        assertNull(viewModel.state.value.delete)
+    }
+
+    @Test
+    fun deleteFailure_staysInTheDialog() = runTest {
+        coEvery { deleteAccount() } returns ProfileResult.Failure(ProfileError.REQUIRES_RECENT_LOGIN)
+        val viewModel = viewModel()
+        viewModel.onEvent(AccountUiEvent.AskDelete)
+
+        viewModel.onEvent(AccountUiEvent.ConfirmDelete)
+
+        assertEquals(DeleteAccountState(error = ProfileError.REQUIRES_RECENT_LOGIN), viewModel.state.value.delete)
+        coVerify { deleteAccount() }
     }
 }
