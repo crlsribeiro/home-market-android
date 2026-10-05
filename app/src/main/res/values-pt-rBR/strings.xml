@@ -120,4 +120,5 @@
     <string name="time_ago_minutes">há %1$d min</string>
     <string name="time_ago_hours">há %1$d h</string>
     <string name="time_ago_days">há %1$d d</string>
+    <string name="list_remove_item">Remover</string>
 </resources>

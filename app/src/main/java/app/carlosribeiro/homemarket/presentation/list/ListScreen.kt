@@ -119,6 +119,7 @@ fun ListScreen(
             else -> ListContent(
                 state = state,
                 list = state.currentList,
+                onEvent = onEvent,
                 onOpenItem = onOpenItem,
                 modifier = contentModifier
             )
@@ -134,6 +135,7 @@ fun ListScreen(
 private fun ListContent(
     state: ListUiState,
     list: WeekList,
+    onEvent: (ListUiEvent) -> Unit,
     onOpenItem: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -157,7 +159,11 @@ private fun ListContent(
                 }
             }
         } else {
-            items(state.items, key = { it.id }) { ListItemRow(it, onClick = { onOpenItem(it.id) }) }
+            items(state.items, key = { it.id }) { item ->
+                SwipeToRemove(onRemove = { onEvent(ListUiEvent.RemoveItem(item.id)) }) {
+                    ListItemRow(item, onClick = { onOpenItem(item.id) })
+                }
+            }
         }
         if (state.nextWeekItems.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.list_next_week, state.nextWeekItems.size)) }
