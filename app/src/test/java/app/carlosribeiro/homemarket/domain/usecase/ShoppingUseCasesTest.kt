@@ -11,11 +11,15 @@ import app.carlosribeiro.homemarket.domain.model.UserRole
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.domain.repository.AuthRepository
 import app.carlosribeiro.homemarket.domain.repository.ListLifecycleRepository
+import app.carlosribeiro.homemarket.domain.repository.PurchaseRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
+import java.time.Clock
 import java.time.Instant
+import java.time.ZoneId
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -29,7 +33,9 @@ class ShoppingUseCasesTest {
     private val adminCheck = AdminCheck(authRepository)
     private val start = StartShoppingUseCase(adminCheck, repository)
     private val abandon = AbandonShoppingUseCase(adminCheck, repository)
-    private val close = CloseShoppingListUseCase(adminCheck, repository)
+    private val purchaseRepository = mockk<PurchaseRepository>()
+    private val clock = Clock.fixed(Instant.EPOCH, ZoneId.of("America/Sao_Paulo"))
+    private val close = CloseShoppingListUseCase(adminCheck, repository, purchaseRepository, clock)
     private val toggle = TogglePurchasedUseCase(adminCheck, repository)
     private val notFound = MarkNotFoundUseCase(adminCheck, repository)
     private val invalid = AdminResult.Failure(AdminError.INVALID_STATUS)
@@ -50,6 +56,7 @@ class ShoppingUseCasesTest {
         coEvery { repository.updateStatus(any(), any()) } returns AdminResult.Success
         coEvery { repository.weeklyCut(any()) } returns AdminResult.Success
         coEvery { repository.setItemStatus(any(), any()) } returns AdminResult.Success
+        coEvery { purchaseRepository.createPurchaseForList(any(), any(), any()) } returns AdminResult.Success
     }
 
     @Test
@@ -127,5 +134,28 @@ class ShoppingUseCasesTest {
         coVerify(exactly = 0) { repository.updateStatus(any(), any()) }
         coVerify(exactly = 0) { repository.weeklyCut(any()) }
         coVerify(exactly = 0) { repository.setItemStatus(any(), any()) }
+    }
+
+    @Test
+    fun closeList_createsThePurchaseWithThePortugueseWeekLabelAfterTheCut() = runTest {
+        signedIn(UserRole.ADMIN)
+        val monday = Instant.parse("2026-09-28T03:00:00Z")
+        val list = WeekList("l1", "h1", monday, Instant.parse("2026-10-05T02:59:59Z"), ListStatus.SHOPPING, null)
+
+        assertEquals(AdminResult.Success, close(list))
+        coVerifyOrder {
+            repository.weeklyCut("l1")
+            purchaseRepository.createPurchaseForList("l1", "h1", "28 – 4 OUT")
+        }
+    }
+
+    @Test
+    fun closeList_failedCutCreatesNoPurchase() = runTest {
+        signedIn(UserRole.ADMIN)
+        val network = AdminResult.Failure(AdminError.NETWORK)
+        coEvery { repository.weeklyCut(any()) } returns network
+
+        assertEquals(network, close(list(ListStatus.SHOPPING)))
+        coVerify(exactly = 0) { purchaseRepository.createPurchaseForList(any(), any(), any()) }
     }
 }
