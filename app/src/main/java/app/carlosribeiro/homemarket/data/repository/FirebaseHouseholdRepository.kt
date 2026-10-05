@@ -144,6 +144,19 @@ class FirebaseHouseholdRepository @Inject constructor(
         HouseholdResult.Success(match.id)
     }
 
+    /** One batch with the same writes as iOS, so the household never ends up without an admin. */
+    override suspend fun leaveHousehold(householdId: String, uid: String, promoteMemberUid: String?): HouseholdResult =
+        runHousehold {
+            val batch = firestore.batch()
+            if (promoteMemberUid != null) {
+                batch.update(householdDocument(householdId), HouseholdFields.ADMIN_UID, promoteMemberUid)
+                batch.update(userDocument(promoteMemberUid), UserFields.ROLE, UserFields.ROLE_ADMIN)
+            }
+            batch.update(householdDocument(householdId), HouseholdFields.MEMBER_UIDS, FieldValue.arrayRemove(uid))
+            batch.commit().await()
+            HouseholdResult.Success(householdId)
+        }
+
     override suspend fun updateInviteToken(householdId: String, inviteToken: String): HouseholdResult = runHousehold {
         householdDocument(householdId).update(HouseholdFields.INVITE_TOKEN, inviteToken).await()
         HouseholdResult.Success(householdId)
@@ -158,17 +171,17 @@ class FirebaseHouseholdRepository @Inject constructor(
         HouseholdResult.Failure(e.toHouseholdError())
     }
 
-    private fun Exception.toHouseholdError(): HouseholdError = when {
-        this is FirebaseNetworkException -> HouseholdError.NETWORK
-
-        this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE ->
-            HouseholdError.NETWORK
-
-        else -> HouseholdError.UNKNOWN
-    }
-
     private companion object {
         const val HOUSEHOLDS = "households"
         const val USERS = "users"
     }
+}
+
+private fun Exception.toHouseholdError(): HouseholdError = when {
+    this is FirebaseNetworkException -> HouseholdError.NETWORK
+
+    this is FirebaseFirestoreException && code == FirebaseFirestoreException.Code.UNAVAILABLE ->
+        HouseholdError.NETWORK
+
+    else -> HouseholdError.UNKNOWN
 }
