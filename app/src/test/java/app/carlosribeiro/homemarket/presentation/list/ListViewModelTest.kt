@@ -1,5 +1,6 @@
 package app.carlosribeiro.homemarket.presentation.list
 
+import app.carlosribeiro.homemarket.domain.model.AdminError
 import app.carlosribeiro.homemarket.domain.model.AdminResult
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.domain.model.ApprovalStatus
@@ -186,5 +187,19 @@ class ListViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
         coVerify { startShopping(list, items) }
+    }
+
+    @Test
+    fun startShopping_listChangedOnAnotherDeviceIsNotARoleError() = runTest {
+        val items = listOf(item("1", ItemStatus.PENDING, approval = ApprovalStatus.NOT_REQUIRED))
+        every { observeWeeklyList("h1") } returns flowOf(WeeklyList(list, items, emptyList()))
+        coEvery { startShopping(list, items) } returns AdminResult.Failure(AdminError.INVALID_STATUS)
+        val viewModel = viewModel()
+
+        viewModel.state.test {
+            expectMostRecentItem()
+            viewModel.onEvent(ListUiEvent.StartShopping)
+            assertEquals(ListError.UNKNOWN, expectMostRecentItem().error)
+        }
     }
 }
