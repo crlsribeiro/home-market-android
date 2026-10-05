@@ -34,8 +34,7 @@ android {
         val file = rootProject.file("keystore.properties")
         if (file.exists()) file.inputStream().use(::load)
     }
-    fun signingValue(key: String, env: String): String? =
-        keystoreProperties.getProperty(key) ?: System.getenv(env)
+    fun signingValue(key: String, env: String): String? = keystoreProperties.getProperty(key) ?: System.getenv(env)
     val releaseStoreFile = signingValue("storeFile", "HOMEMARKET_STORE_FILE")
 
     signingConfigs {
