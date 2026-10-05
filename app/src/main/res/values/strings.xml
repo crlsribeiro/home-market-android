@@ -122,4 +122,18 @@
     <string name="time_ago_hours">%1$dh ago</string>
     <string name="time_ago_days">%1$dd ago</string>
     <string name="list_remove_item">Remove</string>
+    <string name="admin_list_status_title">List status</string>
+    <string name="admin_list_status">Status</string>
+    <string name="admin_status_open">Open</string>
+    <string name="admin_status_locked">Locked</string>
+    <string name="admin_status_shopping">Shopping</string>
+    <string name="admin_status_closed">Closed</string>
+    <string name="admin_lock_hint">After you lock the list, new items wait for your approval.</string>
+    <string name="admin_lock_list">Lock list</string>
+    <string name="admin_reopen_list">Reopen list</string>
+    <string name="admin_pending_approvals">Pending approvals</string>
+    <string name="admin_no_pending_approvals">No items awaiting approval</string>
+    <string name="admin_approve">Approve</string>
+    <string name="admin_reject">Reject</string>
+    <string name="admin_error_invalid_status">The list changed in the meantime. Please try again.</string>
 </resources>
