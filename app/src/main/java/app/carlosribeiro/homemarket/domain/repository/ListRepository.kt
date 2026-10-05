@@ -1,7 +1,9 @@
 package app.carlosribeiro.homemarket.domain.repository
 
+import app.carlosribeiro.homemarket.domain.model.ItemResult
 import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListResult
+import app.carlosribeiro.homemarket.domain.model.NewItem
 import app.carlosribeiro.homemarket.domain.model.Week
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import kotlinx.coroutines.flow.Flow
@@ -21,4 +23,10 @@ interface ListRepository {
      * exists, and returns the list stored under that id.
      */
     suspend fun createWeekList(householdId: String, week: Week): ListResult
+
+    /**
+     * Writes a new item with `status: "pending"`, then uploads [photo] (JPEG bytes) to
+     * `households/{householdId}/items/{itemId}/photo` and stores its download URL.
+     */
+    suspend fun addItem(item: NewItem, photo: ByteArray?): ItemResult
 }
