@@ -9,7 +9,4 @@ data object LoginDestination
 data object RegisterDestination
 
 @Serializable
-data object HomeDestination
-
-@Serializable
-data object AdminPanelDestination
+data object MainDestination

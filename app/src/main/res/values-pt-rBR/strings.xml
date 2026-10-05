@@ -28,9 +28,6 @@
     <string name="auth_error_network">Sem conexão. Verifique sua internet e tente de novo.</string>
     <string name="auth_error_unknown">Algo deu errado. Tente de novo.</string>
 
-    <string name="home_greeting">Olá, %1$s!</string>
-    <string name="home_signed_in_as">Conectado como %1$s</string>
-    <string name="home_next_steps">Em breve: a lista de compras da semana.</string>
 
     <string name="action_back">Voltar</string>
     <string name="onboarding_welcome">Bem-vindo!</string>
@@ -48,7 +45,7 @@
     <string name="onboarding_error_name_required">Digite um nome para a casa.</string>
     <string name="onboarding_error_code_required">Digite o código de convite.</string>
     <string name="onboarding_error_code_not_found">Código inválido. Confira e tente de novo.</string>
-    <plurals name="home_household_members">
+    <plurals name="account_household_members">
         <item quantity="one">%1$s · %2$d membro</item>
         <item quantity="other">%1$s · %2$d membros</item>
     </plurals>
@@ -63,4 +60,36 @@
     <string name="admin_new_code">Gerar novo código de convite</string>
     <string name="admin_new_code_hint">O código antigo deixa de funcionar.</string>
     <string name="admin_share_message">Entre na casa %1$s no Home Market com o código de convite %2$s</string>
+    <string name="tab_list">Lista</string>
+    <string name="tab_admin">Admin</string>
+    <string name="tab_account">Conta</string>
+
+    <string name="list_greeting">Olá,</string>
+    <string name="list_week">Semana %1$s</string>
+    <string name="list_status_open">ABERTA</string>
+    <string name="list_status_locked">BLOQUEADA</string>
+    <string name="list_status_shopping">EM COMPRAS</string>
+    <string name="list_status_closed">FECHADA</string>
+    <string name="list_summary_total">Total</string>
+    <string name="list_summary_purchased">Comprados</string>
+    <string name="list_summary_pending">Pendentes</string>
+    <string name="list_summary_urgent">Urgentes</string>
+    <string name="list_this_week">Lista da semana</string>
+    <string name="list_empty">A lista está vazia. Adicione alguns itens!</string>
+    <string name="list_next_week">Próxima semana (%1$d)</string>
+    <string name="list_no_active_title">Nenhuma lista ativa</string>
+    <string name="list_no_active_admin">Crie uma lista para começar a semana</string>
+    <string name="list_no_active_member">Aguarde o admin criar a lista</string>
+    <string name="list_create">Nova lista da semana</string>
+    <string name="list_error_closed_this_week">A lista desta semana já foi fechada. Você pode criar uma nova lista na segunda-feira.</string>
+    <string name="list_error_not_admin">Só o admin da casa pode fazer isso.</string>
+
+    <string name="item_quantity_author">qtd %1$d · %2$s</string>
+    <string name="item_badge_urgent">URGENTE</string>
+    <string name="item_badge_purchased">COMPRADO</string>
+    <string name="item_badge_not_found">NÃO ENCONTRADO</string>
+    <string name="item_badge_awaiting_approval">AGUARDANDO APROVAÇÃO</string>
+    <string name="item_badge_pending">PENDENTE</string>
+
+    <string name="account_title">Conta</string>
 </resources>
