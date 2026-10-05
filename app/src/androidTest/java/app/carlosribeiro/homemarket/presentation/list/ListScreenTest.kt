@@ -1,6 +1,7 @@
 package app.carlosribeiro.homemarket.presentation.list
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -82,5 +83,37 @@ class ListScreenTest {
         composeRule.onNodeWithText(context.getString(R.string.list_empty)).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.list_next_week, 1)).assertIsDisplayed()
         composeRule.onNodeWithText("Leite").assertIsDisplayed()
+    }
+
+    @Test
+    fun addItemButton_opensTheSheet() {
+        val events = mutableListOf<AddItemUiEvent>()
+        composeRule.setContent {
+            HomeMarketTheme {
+                ListScreen(
+                    state = ListUiState(isLoading = false, user = user(UserRole.MEMBER)),
+                    onEvent = {},
+                    onAddItemEvent = { events += it }
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.add_item_title)).performClick()
+        assertEquals(listOf(AddItemUiEvent.Open), events)
+    }
+
+    @Test
+    fun addItemSheet_addIsDisabledUntilANameIsTyped() {
+        composeRule.setContent {
+            HomeMarketTheme {
+                ListScreen(
+                    state = ListUiState(isLoading = false, user = user(UserRole.MEMBER)),
+                    onEvent = {},
+                    addItemState = AddItemUiState(isOpen = true)
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(context.getString(R.string.add_item_action)).assertIsNotEnabled()
     }
 }
