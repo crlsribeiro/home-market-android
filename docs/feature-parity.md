@@ -66,7 +66,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Item detail: edit notes | `Views/MainList/ItemDetailView.swift` | M3 | done |
 | Item detail: add or replace the photo after creation | `Views/MainList/ItemDetailView.swift`, `Services/ListService.swift` | M3 | done |
 | Item detail: remove from list with a confirmation step (hidden when the list is closed) | `Views/MainList/ItemDetailView.swift` | M3 | done (next-week items stay removable) |
-| Item detail: price per unit and total, admin only ("available after receipt upload" otherwise) | `Views/MainList/ItemDetailView.swift` | M7 | todo |
+| Item detail: price per unit and total, admin only ("available after receipt upload" otherwise) | `Views/MainList/ItemDetailView.swift` | M7 | done |
 | Item detail: "mark as purchased" while shopping | `Views/MainList/ItemDetailView.swift` | M5 | todo |
 | Error message banner for failed writes | `Views/MainList/MainListView.swift` | M3 | in progress (snackbar for creating the list and adding items) |
 | Automatic close of a list whose week has ended (weekly cut, no purchase), then a new list for this week | `ViewModels/ListViewModel.swift` (`expireIfStale`) | M4 | done |
