@@ -29,9 +29,12 @@ Decided by the repository owner on 2026-10-03. Each one writes only fields and v
    `purchases.weekLabel` only when that list cannot be read.
 2. **List document ids are deterministic, in the exact iOS format.** See
    [List document id](#list-document-id).
-3. **"Item not found" follows the web.** The admin writes `status: "not_found"` (which triggers
-   `onItemNotFound`). The member who added the item later resolves it, which writes `status: "rolled_over"`
-   and `notFoundResolved: true`.
+3. **"Item not found" follows iOS** (changed by the repository owner on 2026-10-05; it first followed the
+   web). In shopping mode the admin's "Not available" writes `status: "rolled_over"` and
+   `notFoundResolved: true` directly, so the item moves to next week at once and nobody has to resolve it.
+   Android never writes `not_found`, so `onItemNotFound` does not fire from Android (as on iOS). Items that
+   the web marked `not_found` still show the member's "keep / discard" dialog, which writes the same
+   resolution.
 4. **Prices follow the web: admin only.** Members never see the History tab, purchase totals, line prices
    or the price in item detail.
 5. **The `onItemAdded` defect is recorded in [`backend-proposals.md`](backend-proposals.md).** The owner
@@ -232,7 +235,7 @@ Writes:
   `households/{householdId}/items/{itemId}/photo` and then `updateDoc` `photoURL`. On iOS, adding an item
   when there is no current list creates this week's list first.
 - **Toggle purchased:** `status` becomes `"pending"` if it was `"purchased"`, otherwise `"purchased"`.
-- **Mark not found:** `status: "not_found"`. This triggers the `onItemNotFound` Cloud Function.
+- **Mark not found (web):** `status: "not_found"`. This triggers the `onItemNotFound` Cloud Function. iOS and Android write `status: "rolled_over"` and `notFoundResolved: true` instead (decision 3).
 - **Resolve not found:** `status: "rolled_over"`, `notFoundResolved: true`.
 - **Approve:** `approvalStatus: "approved"`. `status` stays `"pending"`.
 - **Reject:** `approvalStatus: "rejected"`, `status: "rolled_over"`.
@@ -399,7 +402,7 @@ open a specific screen from the message content alone.
    `not_found` (which notifies the person who added it), and that person later resolves it from a
    "not found" modal. On iOS, the admin's "Not available" button writes `rolled_over` +
    `notFoundResolved: true` directly and never writes `not_found`, so `onItemNotFound` never fires from iOS.
-   **Decision:** follow the web.
+   **Decision:** follow iOS (decision 3).
 4. **M6 "register the device token where the Cloud Functions read it".** `onItemNotFound` reads
    `users/{uid}.fcmToken`, which works. `onItemAdded` reads the `householdMembers` collection, which no
    client writes, so it finds no recipients today. A single `fcmToken` field also cannot hold more than one
@@ -469,7 +472,7 @@ Answered by the repository owner on 2026-10-03 and recorded in
 
 - `weekLabel` language: Portuguese, like the web; the UI formats the label from `weekStart`.
 - List document id: deterministic, in the iOS format.
-- "Item not found" and prices: follow the web.
+- "Item not found": follow iOS, straight to next week. Prices: follow the web.
 - Locked status, abandon shopping, rolled-over items and a second list in the same week: same business
   rules as the existing apps (decision 6).
 - Sign in with Apple: not on Android (decision 7).

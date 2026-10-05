@@ -87,9 +87,9 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
 | Progress card: week, "x of y items", progress bar | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
-| "To get" list with "got it" and "not available" actions. Android follows the web: "not available" writes `not_found` | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
+| "To get" list with "got it" and "not available" actions. Like iOS, "not available" moves the item to next week (`rolled_over` + `notFoundResolved: true`) | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
 | "Not found" section ("notification sent") | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
-| The member who added a not-found item resolves it (web flow; iOS has none) | — (web `NotFoundModal.tsx`) | M5 | done |
+| The member who added a not-found item resolves it (web flow; iOS has none) | — (web `NotFoundModal.tsx`) | M5 | done (only for items the web marked `not_found`; Android's "Not available" moves the item to next week at once, like iOS) |
 | "Already picked up" section | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
 | Close list: weekly cut, then create the purchase record | `Views/Shopping/ShoppingModeView.swift` | M5 (cut), M7 (purchase record) | done (reuses the purchase of the same list, like iOS) |
 | Abandon shopping with confirmation (list back to `open`) | `Views/Shopping/ShoppingModeView.swift` | M5 | done |
