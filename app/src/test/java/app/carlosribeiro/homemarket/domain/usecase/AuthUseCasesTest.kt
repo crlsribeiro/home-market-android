@@ -4,6 +4,7 @@ import app.carlosribeiro.homemarket.domain.model.AuthError
 import app.carlosribeiro.homemarket.domain.model.AuthResult
 import app.carlosribeiro.homemarket.domain.model.Registration
 import app.carlosribeiro.homemarket.domain.repository.AuthRepository
+import app.carlosribeiro.homemarket.domain.repository.ProfileRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -14,6 +15,7 @@ import org.junit.Test
 class AuthUseCasesTest {
 
     private val repository = mockk<AuthRepository>(relaxed = true)
+    private val profileRepository = mockk<ProfileRepository>(relaxed = true)
 
     @Test
     fun signIn_trimsEmailAndReturnsRepositoryResult() = runTest {
@@ -30,7 +32,7 @@ class AuthUseCasesTest {
     fun register_trimsNamesAndEmailButNotPassword() = runTest {
         coEvery { repository.register(any()) } returns AuthResult.Success
 
-        val result = RegisterUseCase(repository)(
+        val result = RegisterUseCase(repository, profileRepository)(
             Registration(
                 firstName = " Maria ",
                 lastName = " Silva",
@@ -64,5 +66,19 @@ class AuthUseCasesTest {
         coEvery { repository.sendPasswordReset("maria@example.com") } returns AuthResult.Success
 
         assertEquals(AuthResult.Success, SendPasswordResetUseCase(repository)("  maria@example.com "))
+    }
+
+    @Test
+    fun register_uploadsThePhotoOnlyAfterTheAccountExists() = runTest {
+        val photo = byteArrayOf(1)
+        val registration = Registration("Maria", "Silva", "maria@example.com", "12345678")
+        coEvery { repository.register(any()) } returns AuthResult.Failure(AuthError.EMAIL_ALREADY_IN_USE)
+
+        RegisterUseCase(repository, profileRepository)(registration, photo)
+        coVerify(exactly = 0) { profileRepository.updateAvatar(any()) }
+
+        coEvery { repository.register(any()) } returns AuthResult.Success
+        assertEquals(AuthResult.Success, RegisterUseCase(repository, profileRepository)(registration, photo))
+        coVerify { profileRepository.updateAvatar(photo) }
     }
 }

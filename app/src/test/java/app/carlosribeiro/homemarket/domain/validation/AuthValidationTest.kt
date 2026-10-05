@@ -74,4 +74,18 @@ class AuthValidationTest {
         assertEquals(ValidationError.EMAIL_INVALID, AuthValidation.validateEmail("maria"))
         assertEquals(null, AuthValidation.validateEmail(" maria@example.com "))
     }
+
+    @Test
+    fun registration_phoneMustBeCompleteOrEmpty() {
+        val registration = Registration("Maria", "Silva", "maria@example.com", "12345678")
+
+        assertNull(AuthValidation.validateRegistration(registration, "12345678"))
+        assertNull(
+            AuthValidation.validateRegistration(registration.copy(phone = "(11) 98765-4321"), "12345678")
+        )
+        assertEquals(
+            ValidationError.PHONE_INCOMPLETE,
+            AuthValidation.validateRegistration(registration.copy(phone = "(11) 9876"), "12345678")
+        )
+    }
 }
