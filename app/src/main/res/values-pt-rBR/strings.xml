@@ -143,4 +143,29 @@
         <item quantity="one">%1$s · %2$d item</item>
         <item quantity="other">%1$s · %2$d itens</item>
     </plurals>
+    <string name="shopping_start">Iniciar compras</string>
+    <string name="shopping_title">Modo compras 🛒</string>
+    <string name="shopping_abandon">Abandonar</string>
+    <string name="shopping_abandon_title">Abandonar as compras?</string>
+    <string name="shopping_abandon_message">A lista volta a ficar aberta, sem fechar e sem criar registro de compra. Os itens já marcados como comprados ou não encontrados continuam assim.</string>
+    <string name="shopping_abandon_confirm">Abandonar</string>
+    <string name="shopping_keep_shopping">Continuar comprando</string>
+    <string name="shopping_progress">%1$d de %2$d itens</string>
+    <string name="shopping_percent">%1$d%%</string>
+    <string name="shopping_to_get">Para pegar</string>
+    <string name="shopping_not_found">Não encontrados</string>
+    <string name="shopping_picked">Já no carrinho</string>
+    <string name="shopping_no_items">Nenhum item na lista</string>
+    <string name="shopping_got_it">Peguei</string>
+    <string name="shopping_not_available">Em falta</string>
+    <string name="shopping_notification_sent">Notificação enviada</string>
+    <string name="shopping_quantity">qtd %1$d</string>
+    <string name="shopping_undo">Desfazer</string>
+    <string name="shopping_close_list">Fechar lista</string>
+    <string name="shopping_close_hint">Os itens pendentes vão para a próxima semana</string>
+    <string name="waiting_title">Compras em andamento</string>
+    <string name="waiting_message">Olá, %1$s! O admin está no mercado agora 🛒</string>
+    <string name="waiting_info_picking">Seus itens estão sendo pegos</string>
+    <string name="waiting_info_notified">Você será avisado se um item não for encontrado</string>
+    <string name="waiting_info_update">A lista será atualizada quando as compras terminarem</string>
 </resources>

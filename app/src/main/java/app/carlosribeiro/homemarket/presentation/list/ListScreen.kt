@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -146,6 +147,17 @@ private fun ListContent(
     ) {
         item { ListHeader(user = state.user, list = list) }
         item { SummaryCards(state) }
+        if (state.canStartShopping) {
+            item {
+                FilledTonalButton(
+                    onClick = { onEvent(ListUiEvent.StartShopping) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(painterResource(R.drawable.ic_shopping_cart), contentDescription = null)
+                    Text(stringResource(R.string.shopping_start), modifier = Modifier.padding(start = 8.dp))
+                }
+            }
+        }
         item { SectionTitle(stringResource(R.string.list_this_week)) }
         if (state.items.isEmpty()) {
             item {

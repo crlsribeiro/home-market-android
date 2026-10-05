@@ -11,6 +11,7 @@ import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListError
 import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListResult
+import app.carlosribeiro.homemarket.domain.model.ListStatus
 import app.carlosribeiro.homemarket.domain.model.UserRole
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.domain.model.WeeklyList
@@ -19,6 +20,7 @@ import app.carlosribeiro.homemarket.domain.usecase.ExpireStaleListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveWeeklyListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.RemoveItemUseCase
+import app.carlosribeiro.homemarket.domain.usecase.StartShoppingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,6 +51,11 @@ data class ListUiState(
     val purchasedCount: Int get() = items.count { it.status == ItemStatus.PURCHASED }
     val pendingCount: Int get() = items.count { it.isPendingPurchase }
     val urgentCount: Int get() = items.count { it.isUrgentToBuy }
+
+    /** iOS cart button: admin only, list open or locked, and at least one item. */
+    val canStartShopping: Boolean
+        get() = isAdmin && items.isNotEmpty() &&
+            (currentList?.status == ListStatus.OPEN || currentList?.status == ListStatus.LOCKED)
 }
 
 sealed interface ListUiEvent {
@@ -57,6 +64,8 @@ sealed interface ListUiEvent {
     data object DismissError : ListUiEvent
 
     data class RemoveItem(val itemId: String) : ListUiEvent
+
+    data object StartShopping : ListUiEvent
 }
 
 @HiltViewModel
@@ -65,7 +74,8 @@ class ListViewModel @Inject constructor(
     observeWeeklyList: ObserveWeeklyListUseCase,
     private val createWeekList: CreateWeekListUseCase,
     private val removeItem: RemoveItemUseCase,
-    private val expireStaleList: ExpireStaleListUseCase
+    private val expireStaleList: ExpireStaleListUseCase,
+    private val startShopping: StartShoppingUseCase
 ) : ViewModel() {
 
     private val action = MutableStateFlow(ActionState())
@@ -103,6 +113,7 @@ class ListViewModel @Inject constructor(
             ListUiEvent.CreateList -> createList()
             ListUiEvent.DismissError -> action.update { it.copy(error = null) }
             is ListUiEvent.RemoveItem -> remove(event.itemId)
+            ListUiEvent.StartShopping -> start()
         }
     }
 
@@ -121,6 +132,19 @@ class ListViewModel @Inject constructor(
             val result = removeItem(itemId)
             if (result is ItemResult.Failure) {
                 val error = if (result.error == ItemError.NETWORK) ListError.NETWORK else ListError.UNKNOWN
+                action.update { it.copy(error = error) }
+            }
+        }
+    }
+
+    /** The status change switches the whole app to shopping mode; only a failure needs this screen. */
+    private fun start() {
+        val current = state.value
+        val list = current.currentList ?: return
+        viewModelScope.launch {
+            val result = startShopping(list, current.items)
+            if (result is AdminResult.Failure) {
+                val error = if (result.error == AdminError.NETWORK) ListError.NETWORK else ListError.NOT_ADMIN
                 action.update { it.copy(error = error) }
             }
         }
