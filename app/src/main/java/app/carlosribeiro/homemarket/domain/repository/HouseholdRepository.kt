@@ -18,6 +18,12 @@ interface HouseholdRepository {
     /** Finds the household with [inviteToken], adds [uid] as a member and links the user to it. */
     suspend fun joinHousehold(inviteToken: String, uid: String): HouseholdResult
 
+    /**
+     * iOS `HouseholdService.leaveHousehold`: when [promoteMemberUid] is set, that member becomes the
+     * admin first; then [uid] is removed from `memberUids`.
+     */
+    suspend fun leaveHousehold(householdId: String, uid: String, promoteMemberUid: String?): HouseholdResult
+
     /** Replaces the invite token; the old one stops working. */
     suspend fun updateInviteToken(householdId: String, inviteToken: String): HouseholdResult
 }

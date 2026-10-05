@@ -23,7 +23,8 @@ import kotlinx.coroutines.tasks.await
 class FirebaseProfileRepository @Inject constructor(
     private val auth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val storage: FirebaseStorage
+    private val storage: FirebaseStorage,
+    private val deletionGuard: AccountDeletionGuard
 ) : ProfileRepository {
 
     override suspend fun updatePhone(phone: String, phoneCountryCode: String): ProfileResult = withUser { user ->
@@ -47,6 +48,19 @@ class FirebaseProfileRepository @Inject constructor(
         ProfileResult.Success(emailVerificationSentTo = newEmail)
     }
 
+    override fun hasRecentSignIn(): Boolean {
+        val lastSignIn = auth.currentUser?.metadata?.lastSignInTimestamp ?: return false
+        return System.currentTimeMillis() - lastSignIn < RECENT_SIGN_IN_MILLIS
+    }
+
+    override suspend fun deleteAccount(): ProfileResult = withUser { user ->
+        deletionGuard.deleting(user.uid) {
+            firestore.collection(USERS).document(user.uid).delete().await()
+            user.delete().await()
+        }
+        ProfileResult.Success()
+    }
+
     @Suppress("TooGenericExceptionCaught")
     private suspend fun withUser(block: suspend (FirebaseUser) -> ProfileResult): ProfileResult {
         val user = auth.currentUser ?: return ProfileResult.Failure(ProfileError.NOT_SIGNED_IN)
@@ -61,6 +75,9 @@ class FirebaseProfileRepository @Inject constructor(
 
     private companion object {
         const val USERS = "users"
+
+        /** Firebase asks for a new sign-in for sensitive changes after about five minutes. */
+        const val RECENT_SIGN_IN_MILLIS = 5 * 60 * 1000L
     }
 }
 

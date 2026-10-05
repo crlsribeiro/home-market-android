@@ -142,6 +142,11 @@
     <string name="account_privacy_policy">Privacy Policy</string>
     <string name="account_error_phone_incomplete">Please enter a complete phone number, or leave it empty.</string>
     <string name="account_error_recent_login">For your security, please sign out and sign back in, then try again.</string>
+    <string name="account_delete">Delete account</string>
+    <string name="account_delete_title">Delete your account?</string>
+    <string name="account_delete_message">This permanently deletes your account and removes you from your household. This can\'t be undone.</string>
+    <string name="account_delete_confirm">Yes, delete my account</string>
+    <string name="account_delete_keep">No, keep my account</string>
     <string name="admin_list_status_title">List status</string>
     <string name="admin_list_status">Status</string>
     <string name="admin_status_open">Open</string>

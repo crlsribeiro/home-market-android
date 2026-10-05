@@ -7,6 +7,7 @@ import app.carlosribeiro.homemarket.domain.model.Household
 import app.carlosribeiro.homemarket.domain.model.PhoneCountry
 import app.carlosribeiro.homemarket.domain.model.ProfileError
 import app.carlosribeiro.homemarket.domain.model.ProfileResult
+import app.carlosribeiro.homemarket.domain.usecase.DeleteAccountUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveHouseholdUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ProfileInput
@@ -45,8 +46,12 @@ data class AccountUiState(
     val isUploadingPhoto: Boolean = false,
     val pendingPhotoUri: String? = null,
     val message: AccountMessage? = null,
-    val error: ProfileError? = null
+    val error: ProfileError? = null,
+    val delete: DeleteAccountState? = null
 )
+
+/** The open delete-account dialog. */
+data class DeleteAccountState(val isDeleting: Boolean = false, val error: ProfileError? = null)
 
 sealed interface AccountUiEvent {
     data class EmailChanged(val value: String) : AccountUiEvent
@@ -58,6 +63,12 @@ sealed interface AccountUiEvent {
     data object Save : AccountUiEvent
 
     data class PhotoPicked(val uri: String) : AccountUiEvent
+
+    data object AskDelete : AccountUiEvent
+
+    data object CancelDelete : AccountUiEvent
+
+    data object ConfirmDelete : AccountUiEvent
 }
 
 /** iOS `AccountSettingsView`: photo, read-only names, email, phone, privacy policy and sign-out. */
@@ -68,7 +79,8 @@ class AccountViewModel @Inject constructor(
     observeHousehold: ObserveHouseholdUseCase,
     private val saveProfile: SaveProfileUseCase,
     private val updateAvatar: UpdateAvatarUseCase,
-    private val photoCompressor: PhotoCompressor
+    private val photoCompressor: PhotoCompressor,
+    private val deleteAccount: DeleteAccountUseCase
 ) : ViewModel() {
 
     private val mutableState = MutableStateFlow(AccountUiState())
@@ -109,6 +121,14 @@ class AccountViewModel @Inject constructor(
             AccountUiEvent.Save -> save()
 
             is AccountUiEvent.PhotoPicked -> uploadPhoto(event.uri)
+
+            AccountUiEvent.AskDelete -> mutableState.update { it.copy(delete = DeleteAccountState()) }
+
+            AccountUiEvent.CancelDelete -> mutableState.update { state ->
+                state.copy(delete = state.delete?.takeIf { it.isDeleting })
+            }
+
+            AccountUiEvent.ConfirmDelete -> confirmDelete()
         }
     }
 
@@ -128,6 +148,18 @@ class AccountViewModel @Inject constructor(
 
                     is ProfileResult.Failure -> it.copy(isSaving = false, error = result.error)
                 }
+            }
+        }
+    }
+
+    /** On success Firebase signs the user out, and the app goes back to the login screen. */
+    private fun confirmDelete() {
+        if (mutableState.value.delete?.isDeleting == true) return
+        mutableState.update { it.copy(delete = DeleteAccountState(isDeleting = true)) }
+        viewModelScope.launch {
+            val result = deleteAccount()
+            if (result is ProfileResult.Failure) {
+                mutableState.update { it.copy(delete = DeleteAccountState(error = result.error)) }
             }
         }
     }
