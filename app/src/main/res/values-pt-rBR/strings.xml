@@ -168,4 +168,8 @@
     <string name="waiting_info_picking">Seus itens estão sendo pegos</string>
     <string name="waiting_info_notified">Você será avisado se um item não for encontrado</string>
     <string name="waiting_info_update">A lista será atualizada quando as compras terminarem</string>
+    <string name="not_found_title">Item não encontrado 😕</string>
+    <string name="not_found_message">\"%1$s\" não foi encontrado no mercado. O que fazemos?</string>
+    <string name="not_found_keep">Manter para a próxima semana</string>
+    <string name="not_found_discard">Descartar</string>
 </resources>

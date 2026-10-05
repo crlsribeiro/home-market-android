@@ -169,4 +169,8 @@
     <string name="waiting_info_picking">Your items are being picked up</string>
     <string name="waiting_info_notified">You\'ll be notified if an item isn\'t found</string>
     <string name="waiting_info_update">The list will update once shopping is done</string>
+    <string name="not_found_title">Item not found 😕</string>
+    <string name="not_found_message">\"%1$s\" wasn\'t found at the store. What should we do?</string>
+    <string name="not_found_keep">Keep for next week</string>
+    <string name="not_found_discard">Discard</string>
 </resources>

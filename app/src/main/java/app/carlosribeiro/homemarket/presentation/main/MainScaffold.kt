@@ -17,7 +17,9 @@ import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.presentation.account.AccountRoute
 import app.carlosribeiro.homemarket.presentation.admin.AdminPanelRoute
 import app.carlosribeiro.homemarket.presentation.list.ListRoute
+import app.carlosribeiro.homemarket.presentation.shopping.NotFoundDialog
 import app.carlosribeiro.homemarket.presentation.shopping.ShoppingModeScreen
+import app.carlosribeiro.homemarket.presentation.shopping.ShoppingUiEvent
 import app.carlosribeiro.homemarket.presentation.shopping.ShoppingViewModel
 import app.carlosribeiro.homemarket.presentation.shopping.ShoppingWaitingScreen
 
@@ -35,6 +37,9 @@ fun MainScaffold(
     val shopping by shoppingViewModel.state.collectAsStateWithLifecycle()
     // iOS takeover: while the list is being shopped, the whole app is shopping mode (admin) or the
     // waiting screen (members) instead of the tabs.
+    shopping.notFoundDecision?.takeUnless { shopping.isShopping && shopping.isAdmin }?.let { item ->
+        NotFoundDialog(item = item, onResolve = { shoppingViewModel.onEvent(ShoppingUiEvent.ResolveNotFound(item)) })
+    }
     if (shopping.isShopping) {
         if (shopping.isAdmin) {
             ShoppingModeScreen(state = shopping, onEvent = shoppingViewModel::onEvent, modifier = modifier)

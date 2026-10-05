@@ -13,6 +13,7 @@ import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.domain.model.WeeklyList
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveWeeklyListUseCase
+import app.carlosribeiro.homemarket.domain.usecase.ResolveNotFoundUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ShoppingActions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -44,6 +45,11 @@ data class ShoppingUiState(
     val notFound: List<ListItem> get() = items.filter { it.status == ItemStatus.NOT_FOUND }
     val picked: List<ListItem> get() = items.filter { it.status == ItemStatus.PURCHASED }
 
+    /** The first of the user's own not-found items that still needs their decision (web `NotFoundModal`). */
+    val notFoundDecision: ListItem? get() = user?.uid?.let { uid ->
+        items.firstOrNull { it.awaitsNotFoundDecisionBy(uid) }
+    }
+
     /** iOS progress: purchased items over every item of the list. */
     val progress: Float get() = if (items.isEmpty()) 0f else picked.size.toFloat() / items.size
 }
@@ -58,13 +64,16 @@ sealed interface ShoppingUiEvent {
     data object Abandon : ShoppingUiEvent
 
     data object DismissError : ShoppingUiEvent
+
+    data class ResolveNotFound(val item: ListItem) : ShoppingUiEvent
 }
 
 @HiltViewModel
 class ShoppingViewModel @Inject constructor(
     observeCurrentUser: ObserveCurrentUserUseCase,
     observeWeeklyList: ObserveWeeklyListUseCase,
-    private val actions: ShoppingActions
+    private val actions: ShoppingActions,
+    private val resolveNotFound: ResolveNotFoundUseCase
 ) : ViewModel() {
 
     private val action = MutableStateFlow(ActionState())
@@ -99,6 +108,7 @@ class ShoppingViewModel @Inject constructor(
             ShoppingUiEvent.CloseList -> list?.let(::close)
             ShoppingUiEvent.Abandon -> list?.let { launchAction { actions.abandon(it) } }
             ShoppingUiEvent.DismissError -> action.update { it.copy(error = null) }
+            is ShoppingUiEvent.ResolveNotFound -> viewModelScope.launch { resolveNotFound(event.item) }
         }
     }
 
