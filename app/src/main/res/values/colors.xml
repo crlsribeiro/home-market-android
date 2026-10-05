@@ -7,4 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Middle of the app icon gradient, used behind the splash screen icon. -->
+    <color name="splash_background">#FF247AEC</color>
 </resources>
