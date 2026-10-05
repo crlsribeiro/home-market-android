@@ -44,17 +44,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.ApprovalStatus
 import app.carlosribeiro.homemarket.domain.model.ItemDetail
+import app.carlosribeiro.homemarket.domain.model.ItemPrice
 import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListStatus
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.presentation.components.rememberPhotoPicker
+import app.carlosribeiro.homemarket.presentation.history.MoneyFormatter
 import app.carlosribeiro.homemarket.presentation.list.WeekLabelFormatter
 import app.carlosribeiro.homemarket.presentation.list.messageRes
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import coil3.compose.AsyncImage
 import java.time.Duration
 import java.time.Instant
+import java.util.Locale
 
 @Composable
 fun ItemDetailRoute(onBack: () -> Unit, viewModel: ItemDetailViewModel = hiltViewModel()) {
@@ -204,6 +207,27 @@ private fun DetailRows(detail: ItemDetail, now: Instant) {
             stringResource(R.string.list_week, WeekLabelFormatter.format(list.weekStart, list.weekEnd, locale))
         )
     }
+    detail.price?.let { price ->
+        HorizontalDivider()
+        PriceRows(price = price, locale = locale)
+    }
+}
+
+/** Admin only: the receipt price, or a hint until a receipt with this item is uploaded. */
+@Composable
+private fun PriceRows(price: ItemPrice, locale: Locale) {
+    val unitPrice = price.unitPrice
+    val total = price.total
+    if (unitPrice == null || total == null) {
+        DetailRow(stringResource(R.string.item_detail_price), stringResource(R.string.item_detail_price_unavailable))
+    } else {
+        DetailRow(
+            stringResource(R.string.item_detail_price),
+            stringResource(R.string.item_detail_price_per_unit, MoneyFormatter.format(unitPrice, locale))
+        )
+        HorizontalDivider()
+        DetailRow(stringResource(R.string.item_detail_price_total), MoneyFormatter.format(total, locale))
+    }
 }
 
 @Composable
@@ -249,7 +273,8 @@ private fun ItemDetailPreview() {
                         Instant.parse("2026-10-05T02:59:59Z"),
                         ListStatus.OPEN,
                         null
-                    )
+                    ),
+                    price = ItemPrice(unitPrice = 8.99, quantity = 2)
                 )
             ),
             onEvent = {},

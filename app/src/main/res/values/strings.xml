@@ -187,4 +187,8 @@
     <string name="history_unit_price">Unit price</string>
     <string name="history_receipt_upload">Upload receipt</string>
     <string name="history_receipt_reupload">Re-upload receipt (unreadable photo)</string>
+    <string name="item_detail_price">Price</string>
+    <string name="item_detail_price_per_unit">%1$s per unit</string>
+    <string name="item_detail_price_total">Total</string>
+    <string name="item_detail_price_unavailable">Available after receipt upload</string>
 </resources>

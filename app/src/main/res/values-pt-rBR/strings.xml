@@ -186,4 +186,8 @@
     <string name="history_unit_price">Preço unitário</string>
     <string name="history_receipt_upload">Enviar recibo</string>
     <string name="history_receipt_reupload">Reenviar recibo (foto ilegível)</string>
+    <string name="item_detail_price">Preço</string>
+    <string name="item_detail_price_per_unit">%1$s por unidade</string>
+    <string name="item_detail_price_total">Total</string>
+    <string name="item_detail_price_unavailable">Disponível após enviar o recibo</string>
 </resources>
