@@ -18,6 +18,7 @@ import app.carlosribeiro.homemarket.domain.usecase.ExpireStaleListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveWeeklyListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.RemoveItemUseCase
+import app.carlosribeiro.homemarket.domain.usecase.StartShoppingUseCase
 import app.carlosribeiro.homemarket.testing.MainDispatcherRule
 import app.cash.turbine.test
 import io.mockk.coEvery
@@ -47,9 +48,16 @@ class ListViewModelTest {
     private val createWeekList = mockk<CreateWeekListUseCase>()
     private val removeItem = mockk<RemoveItemUseCase>()
     private val expireStaleList = mockk<ExpireStaleListUseCase> { every { isStale(any()) } returns false }
+    private val startShopping = mockk<StartShoppingUseCase>()
 
-    private fun viewModel() =
-        ListViewModel(observeCurrentUser, observeWeeklyList, createWeekList, removeItem, expireStaleList)
+    private fun viewModel() = ListViewModel(
+        observeCurrentUser,
+        observeWeeklyList,
+        createWeekList,
+        removeItem,
+        expireStaleList,
+        startShopping
+    )
 
     private fun item(id: String, status: ItemStatus, urgent: Boolean = false, approval: ApprovalStatus) = ListItem(
         id, "l1", "h1", "Item $id", 1, "", urgent, "u1", "Maria", status, approval, false, null, null
@@ -151,5 +159,32 @@ class ListViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
         coVerify(exactly = 1) { expireStaleList(list) }
+    }
+
+    @Test
+    fun canStartShopping_onlyForTheAdminWithItemsOnAnOpenOrLockedList() {
+        val item = item("1", ItemStatus.PENDING, approval = ApprovalStatus.NOT_REQUIRED)
+        val base = ListUiState(isLoading = false, user = admin, currentList = list, items = listOf(item))
+
+        assertTrue(base.canStartShopping)
+        assertTrue(base.copy(currentList = list.copy(status = ListStatus.LOCKED)).canStartShopping)
+        assertFalse(base.copy(items = emptyList()).canStartShopping)
+        assertFalse(base.copy(currentList = list.copy(status = ListStatus.SHOPPING)).canStartShopping)
+        assertFalse(base.copy(user = admin.copy(role = UserRole.MEMBER)).canStartShopping)
+    }
+
+    @Test
+    fun startShopping_callsTheUseCaseWithTheListAndItems() = runTest {
+        val items = listOf(item("1", ItemStatus.PENDING, approval = ApprovalStatus.NOT_REQUIRED))
+        every { observeWeeklyList("h1") } returns flowOf(WeeklyList(list, items, emptyList()))
+        coEvery { startShopping(list, items) } returns AdminResult.Success
+        val viewModel = viewModel()
+
+        viewModel.state.test {
+            expectMostRecentItem()
+            viewModel.onEvent(ListUiEvent.StartShopping)
+            cancelAndIgnoreRemainingEvents()
+        }
+        coVerify { startShopping(list, items) }
     }
 }
