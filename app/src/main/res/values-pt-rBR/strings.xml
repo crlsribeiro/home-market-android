@@ -135,4 +135,12 @@
     <string name="admin_approve">Aprovar</string>
     <string name="admin_reject">Rejeitar</string>
     <string name="admin_error_invalid_status">A lista mudou nesse meio tempo. Tente de novo.</string>
+    <string name="admin_items_per_person">Itens por pessoa (esta semana)</string>
+    <string name="admin_no_items_this_week">Nenhum item nesta semana ainda</string>
+    <string name="admin_no_name">Sem nome</string>
+    <string name="admin_show_items">Mostrar itens</string>
+    <plurals name="admin_person_items">
+        <item quantity="one">%1$s · %2$d item</item>
+        <item quantity="other">%1$s · %2$d itens</item>
+    </plurals>
 </resources>
