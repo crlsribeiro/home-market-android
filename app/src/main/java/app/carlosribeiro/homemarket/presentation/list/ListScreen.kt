@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -45,14 +46,32 @@ import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import java.time.Instant
 
 @Composable
-fun ListRoute(viewModel: ListViewModel = hiltViewModel()) {
+fun ListRoute(
+    onOpenItem: (String) -> Unit,
+    viewModel: ListViewModel = hiltViewModel(),
+    addItemViewModel: AddItemViewModel = hiltViewModel()
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ListScreen(state = state, onEvent = viewModel::onEvent)
+    val addItemState by addItemViewModel.state.collectAsStateWithLifecycle()
+    ListScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        addItemState = addItemState,
+        onAddItemEvent = addItemViewModel::onEvent,
+        onOpenItem = onOpenItem
+    )
 }
 
 /** iOS `MainListView`: the household's current weekly list. */
 @Composable
-fun ListScreen(state: ListUiState, onEvent: (ListUiEvent) -> Unit, modifier: Modifier = Modifier) {
+fun ListScreen(
+    state: ListUiState,
+    onEvent: (ListUiEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    addItemState: AddItemUiState = AddItemUiState(),
+    onAddItemEvent: (AddItemUiEvent) -> Unit = {},
+    onOpenItem: (String) -> Unit = {}
+) {
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = state.error?.let { stringResource(it.messageRes()) }
     LaunchedEffect(errorMessage) {
@@ -61,8 +80,27 @@ fun ListScreen(state: ListUiState, onEvent: (ListUiEvent) -> Unit, modifier: Mod
             onEvent(ListUiEvent.DismissError)
         }
     }
+    val addItemError = addItemState.error?.let { stringResource(it.messageRes()) }
+    LaunchedEffect(addItemError) {
+        if (addItemError != null) {
+            snackbarHostState.showSnackbar(addItemError)
+            onAddItemEvent(AddItemUiEvent.DismissError)
+        }
+    }
 
-    Scaffold(modifier = modifier, snackbarHost = { SnackbarHost(snackbarHostState) }) { innerPadding ->
+    Scaffold(
+        modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = {
+            if (!state.isLoading) {
+                ExtendedFloatingActionButton(
+                    onClick = { onAddItemEvent(AddItemUiEvent.Open) },
+                    icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
+                    text = { Text(stringResource(R.string.add_item_title)) }
+                )
+            }
+        }
+    ) { innerPadding ->
         val contentModifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
@@ -78,16 +116,32 @@ fun ListScreen(state: ListUiState, onEvent: (ListUiEvent) -> Unit, modifier: Mod
                 modifier = contentModifier
             )
 
-            else -> ListContent(state = state, list = state.currentList, modifier = contentModifier)
+            else -> ListContent(
+                state = state,
+                list = state.currentList,
+                onEvent = onEvent,
+                onOpenItem = onOpenItem,
+                modifier = contentModifier
+            )
         }
+    }
+
+    if (addItemState.isOpen) {
+        AddItemSheet(state = addItemState, onEvent = onAddItemEvent)
     }
 }
 
 @Composable
-private fun ListContent(state: ListUiState, list: WeekList, modifier: Modifier = Modifier) {
+private fun ListContent(
+    state: ListUiState,
+    list: WeekList,
+    onEvent: (ListUiEvent) -> Unit,
+    onOpenItem: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = FabClearance),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item { ListHeader(user = state.user, list = list) }
@@ -105,11 +159,17 @@ private fun ListContent(state: ListUiState, list: WeekList, modifier: Modifier =
                 }
             }
         } else {
-            items(state.items, key = { it.id }) { ListItemRow(it) }
+            items(state.items, key = { it.id }) { item ->
+                SwipeToRemove(onRemove = { onEvent(ListUiEvent.RemoveItem(item.id)) }) {
+                    ListItemRow(item, onClick = { onOpenItem(item.id) })
+                }
+            }
         }
         if (state.nextWeekItems.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.list_next_week, state.nextWeekItems.size)) }
-            items(state.nextWeekItems, key = { "next-${it.id}" }) { ListItemRow(it) }
+            items(state.nextWeekItems, key = { "next-${it.id}" }) {
+                ListItemRow(it, onClick = { onOpenItem(it.id) })
+            }
         }
     }
 }
@@ -153,6 +213,9 @@ private fun NoActiveList(isAdmin: Boolean, isCreating: Boolean, onCreate: () -> 
         }
     }
 }
+
+/** Keeps the last item visible above the floating action button. */
+private val FabClearance = 88.dp
 
 private val previewUser = AppUser("u1", "Maria Silva", "maria@example.com", null, "h1", UserRole.ADMIN)
 

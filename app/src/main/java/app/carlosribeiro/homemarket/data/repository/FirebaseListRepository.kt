@@ -5,15 +5,19 @@ import app.carlosribeiro.homemarket.data.local.ListDao
 import app.carlosribeiro.homemarket.data.mapper.ItemFields
 import app.carlosribeiro.homemarket.data.mapper.ListFields
 import app.carlosribeiro.homemarket.data.mapper.ListMapper
+import app.carlosribeiro.homemarket.domain.model.ItemError
+import app.carlosribeiro.homemarket.domain.model.ItemResult
 import app.carlosribeiro.homemarket.domain.model.ListError
 import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListResult
+import app.carlosribeiro.homemarket.domain.model.NewItem
 import app.carlosribeiro.homemarket.domain.model.Week
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.domain.repository.ListRepository
 import app.carlosribeiro.homemarket.domain.week.WeekCalendar
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,6 +41,7 @@ import kotlinx.coroutines.tasks.await
 @Singleton
 class FirebaseListRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
+    private val photoStorage: ItemPhotoStorage,
     private val listDao: ListDao,
     private val itemDao: ItemDao
 ) : ListRepository {
@@ -107,12 +112,24 @@ class FirebaseListRepository @Inject constructor(
         ListResult.Success(ListMapper.listEntityToDomain(ListMapper.documentToListEntity(document.id, data)))
     }
 
-    /** Pending server timestamps read as the local estimate, so a new list sorts as the newest at once. */
-    private fun DocumentSnapshot.estimatedData(): Map<String, Any?> =
-        getData(DocumentSnapshot.ServerTimestampBehavior.ESTIMATE).orEmpty()
+    /** iOS `ListService.addItem`: create the document, then upload the photo and store its URL. */
+    override suspend fun addItem(item: NewItem, photo: ByteArray?): ItemResult {
+        val document = items.document()
+        val saveError = runWrite { document.set(item.toDocument()).await() }
+        return when {
+            saveError != null -> ItemResult.Failure(saveError.toItemError())
+            photo == null -> ItemResult.Success
+            else -> uploadPhoto(item.householdId, document, photo)
+        }
+    }
 
-    private fun QuerySnapshot.documentsData(): List<Pair<String, Map<String, Any?>>> =
-        documents.map { it.id to it.estimatedData() }
+    private suspend fun uploadPhoto(householdId: String, document: DocumentReference, photo: ByteArray): ItemResult {
+        val uploadError = runWrite {
+            val url = photoStorage.upload(householdId, document.id, photo)
+            document.update(ItemFields.PHOTO_URL, url).await()
+        }
+        return if (uploadError == null) ItemResult.Success else ItemResult.Failure(ItemError.PHOTO_UPLOAD)
+    }
 
     @Suppress("TooGenericExceptionCaught")
     private suspend fun runList(block: suspend () -> ListResult): ListResult = try {
@@ -122,6 +139,20 @@ class FirebaseListRepository @Inject constructor(
     } catch (e: Exception) {
         ListResult.Failure(e.toListError())
     }
+
+    /** Runs a write and returns its error, or null when it succeeded. */
+    @Suppress("TooGenericExceptionCaught")
+    private suspend fun runWrite(block: suspend () -> Unit): ListError? = try {
+        block()
+        null
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        e.toListError()
+    }
+
+    private fun ListError.toItemError(): ItemError =
+        if (this == ListError.NETWORK) ItemError.NETWORK else ItemError.UNKNOWN
 
     private fun Exception.toListError(): ListError = when {
         this is FirebaseNetworkException -> ListError.NETWORK
@@ -137,3 +168,26 @@ class FirebaseListRepository @Inject constructor(
         const val ITEMS = "items"
     }
 }
+
+private fun NewItem.toDocument(): Map<String, Any?> = mapOf(
+    ItemFields.LIST_ID to listId,
+    ItemFields.HOUSEHOLD_ID to householdId,
+    ItemFields.NAME to name,
+    ItemFields.QUANTITY to quantity,
+    ItemFields.NOTES to notes,
+    ItemFields.URGENT to urgent,
+    ItemFields.ADDED_BY_UID to addedByUid,
+    ItemFields.ADDED_BY_NAME to addedByName,
+    ItemFields.STATUS to ItemFields.STATUS_PENDING,
+    ItemFields.APPROVAL_STATUS to ListMapper.approvalStatusValue(approvalStatus),
+    ItemFields.NOT_FOUND_RESOLVED to false,
+    ItemFields.PHOTO_URL to null,
+    ItemFields.CREATED_AT to FieldValue.serverTimestamp()
+)
+
+/** Pending server timestamps read as the local estimate, so a new list sorts as the newest at once. */
+private fun DocumentSnapshot.estimatedData(): Map<String, Any?> =
+    getData(DocumentSnapshot.ServerTimestampBehavior.ESTIMATE).orEmpty()
+
+private fun QuerySnapshot.documentsData(): List<Pair<String, Map<String, Any?>>> =
+    documents.map { it.id to it.estimatedData() }

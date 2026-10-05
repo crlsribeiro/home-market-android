@@ -3,6 +3,8 @@ package app.carlosribeiro.homemarket.presentation.list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.carlosribeiro.homemarket.domain.model.AppUser
+import app.carlosribeiro.homemarket.domain.model.ItemError
+import app.carlosribeiro.homemarket.domain.model.ItemResult
 import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListError
 import app.carlosribeiro.homemarket.domain.model.ListItem
@@ -13,6 +15,7 @@ import app.carlosribeiro.homemarket.domain.model.WeeklyList
 import app.carlosribeiro.homemarket.domain.usecase.CreateWeekListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveWeeklyListUseCase
+import app.carlosribeiro.homemarket.domain.usecase.RemoveItemUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,13 +51,16 @@ sealed interface ListUiEvent {
     data object CreateList : ListUiEvent
 
     data object DismissError : ListUiEvent
+
+    data class RemoveItem(val itemId: String) : ListUiEvent
 }
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
     observeCurrentUser: ObserveCurrentUserUseCase,
     observeWeeklyList: ObserveWeeklyListUseCase,
-    private val createWeekList: CreateWeekListUseCase
+    private val createWeekList: CreateWeekListUseCase,
+    private val removeItem: RemoveItemUseCase
 ) : ViewModel() {
 
     private val action = MutableStateFlow(ActionState())
@@ -87,6 +93,7 @@ class ListViewModel @Inject constructor(
         when (event) {
             ListUiEvent.CreateList -> createList()
             ListUiEvent.DismissError -> action.update { it.copy(error = null) }
+            is ListUiEvent.RemoveItem -> remove(event.itemId)
         }
     }
 
@@ -96,6 +103,17 @@ class ListViewModel @Inject constructor(
         viewModelScope.launch {
             val result = createWeekList()
             action.value = ActionState(error = (result as? ListResult.Failure)?.error)
+        }
+    }
+
+    /** iOS context-menu "Remove" on the current list: no confirmation step. */
+    private fun remove(itemId: String) {
+        viewModelScope.launch {
+            val result = removeItem(itemId)
+            if (result is ItemResult.Failure) {
+                val error = if (result.error == ItemError.NETWORK) ListError.NETWORK else ListError.UNKNOWN
+                action.update { it.copy(error = error) }
+            }
         }
     }
 

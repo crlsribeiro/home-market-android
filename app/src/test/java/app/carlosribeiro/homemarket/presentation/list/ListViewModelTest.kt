@@ -2,6 +2,8 @@ package app.carlosribeiro.homemarket.presentation.list
 
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.domain.model.ApprovalStatus
+import app.carlosribeiro.homemarket.domain.model.ItemError
+import app.carlosribeiro.homemarket.domain.model.ItemResult
 import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListError
 import app.carlosribeiro.homemarket.domain.model.ListItem
@@ -13,9 +15,11 @@ import app.carlosribeiro.homemarket.domain.model.WeeklyList
 import app.carlosribeiro.homemarket.domain.usecase.CreateWeekListUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveCurrentUserUseCase
 import app.carlosribeiro.homemarket.domain.usecase.ObserveWeeklyListUseCase
+import app.carlosribeiro.homemarket.domain.usecase.RemoveItemUseCase
 import app.carlosribeiro.homemarket.testing.MainDispatcherRule
 import app.cash.turbine.test
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import java.time.Instant
@@ -39,8 +43,9 @@ class ListViewModelTest {
     private val observeCurrentUser = mockk<ObserveCurrentUserUseCase> { every { this@mockk() } returns flowOf(admin) }
     private val observeWeeklyList = mockk<ObserveWeeklyListUseCase>()
     private val createWeekList = mockk<CreateWeekListUseCase>()
+    private val removeItem = mockk<RemoveItemUseCase>()
 
-    private fun viewModel() = ListViewModel(observeCurrentUser, observeWeeklyList, createWeekList)
+    private fun viewModel() = ListViewModel(observeCurrentUser, observeWeeklyList, createWeekList, removeItem)
 
     private fun item(id: String, status: ItemStatus, urgent: Boolean = false, approval: ApprovalStatus) = ListItem(
         id, "l1", "h1", "Item $id", 1, "", urgent, "u1", "Maria", status, approval, false, null, null
@@ -101,6 +106,28 @@ class ListViewModelTest {
 
             viewModel.onEvent(ListUiEvent.DismissError)
             assertNull(awaitItem().error)
+        }
+    }
+
+    @Test
+    fun removeItem_deletesItWithoutConfirmation() = runTest {
+        every { observeWeeklyList("h1") } returns flowOf(WeeklyList(list, emptyList(), emptyList()))
+        coEvery { removeItem("i1") } returns ItemResult.Success
+
+        viewModel().onEvent(ListUiEvent.RemoveItem("i1"))
+
+        coVerify { removeItem("i1") }
+    }
+
+    @Test
+    fun removeItemOffline_showsTheNetworkError() = runTest {
+        every { observeWeeklyList("h1") } returns flowOf(WeeklyList(list, emptyList(), emptyList()))
+        coEvery { removeItem("i1") } returns ItemResult.Failure(ItemError.NETWORK)
+        val viewModel = viewModel()
+
+        viewModel.state.test {
+            viewModel.onEvent(ListUiEvent.RemoveItem("i1"))
+            assertEquals(ListError.NETWORK, expectMostRecentItem().error)
         }
     }
 }

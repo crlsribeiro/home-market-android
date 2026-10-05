@@ -31,8 +31,8 @@ import coil3.compose.AsyncImage
 
 /** iOS `ItemRow`: thumbnail, name, urgent badge, quantity, author and status badge. */
 @Composable
-fun ListItemRow(item: ListItem, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth()) {
+fun ListItemRow(item: ListItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    Card(onClick = onClick, modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),

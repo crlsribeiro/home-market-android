@@ -8,6 +8,12 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ItemDao {
+    @Query("SELECT * FROM items WHERE id = :itemId")
+    fun observeItem(itemId: String): Flow<ItemEntity?>
+
+    @Query("DELETE FROM items WHERE id = :itemId")
+    suspend fun deleteItem(itemId: String)
+
     @Query(
         "SELECT * FROM items WHERE listId = :listId AND status IN ('pending', 'purchased', 'not_found') " +
             "ORDER BY createdAt ASC"
