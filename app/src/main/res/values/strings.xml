@@ -142,4 +142,18 @@
     <string name="account_privacy_policy">Privacy Policy</string>
     <string name="account_error_phone_incomplete">Please enter a complete phone number, or leave it empty.</string>
     <string name="account_error_recent_login">For your security, please sign out and sign back in, then try again.</string>
+    <string name="admin_list_status_title">List status</string>
+    <string name="admin_list_status">Status</string>
+    <string name="admin_status_open">Open</string>
+    <string name="admin_status_locked">Locked</string>
+    <string name="admin_status_shopping">Shopping</string>
+    <string name="admin_status_closed">Closed</string>
+    <string name="admin_lock_hint">After you lock the list, new items wait for your approval.</string>
+    <string name="admin_lock_list">Lock list</string>
+    <string name="admin_reopen_list">Reopen list</string>
+    <string name="admin_pending_approvals">Pending approvals</string>
+    <string name="admin_no_pending_approvals">No items awaiting approval</string>
+    <string name="admin_approve">Approve</string>
+    <string name="admin_reject">Reject</string>
+    <string name="admin_error_invalid_status">The list changed in the meantime. Please try again.</string>
 </resources>
