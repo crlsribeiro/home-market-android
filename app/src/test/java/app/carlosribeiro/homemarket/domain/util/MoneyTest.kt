@@ -7,8 +7,9 @@ import org.junit.Test
 class MoneyTest {
 
     @Test
-    fun round2_roundsHalfUpToCents() {
-        assertEquals(1.01, Money.round2(1.005), 0.0)
+    fun round2_usesTheSameFloatingPointFormulaAsIosAndWeb() {
+        assertEquals(1.0, Money.round2(1.005), 0.0)
+        assertEquals(1.13, Money.round2(1.125), 0.0)
         assertEquals(10.47, Money.round2(3.49 * 3), 0.0)
         assertEquals(0.3, Money.round2(0.1 + 0.2), 0.0)
     }
