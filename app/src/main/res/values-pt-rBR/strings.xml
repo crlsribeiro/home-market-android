@@ -92,4 +92,18 @@
     <string name="item_badge_pending">PENDENTE</string>
 
     <string name="account_title">Conta</string>
+    <string name="add_item_title">Novo item</string>
+    <string name="add_item_name">Nome do item</string>
+    <string name="add_item_notes">Observações (opcional)</string>
+    <string name="add_item_urgent">Urgente</string>
+    <string name="add_item_quantity_value">Quantidade: %1$d</string>
+    <string name="add_item_decrease">Diminuir quantidade</string>
+    <string name="add_item_increase">Aumentar quantidade</string>
+    <string name="add_item_photo_preview">Foto do item</string>
+    <string name="add_item_remove_photo">Remover foto</string>
+    <string name="add_item_camera">Câmera</string>
+    <string name="add_item_gallery">Galeria</string>
+    <string name="add_item_action">Adicionar</string>
+    <string name="add_item_error_name_required">Digite o nome do item.</string>
+    <string name="add_item_error_photo">O item foi adicionado, mas a foto não pôde ser enviada.</string>
 </resources>

@@ -93,4 +93,18 @@
     <string name="item_badge_pending">PENDING</string>
 
     <string name="account_title">Account</string>
+    <string name="add_item_title">New item</string>
+    <string name="add_item_name">Item name</string>
+    <string name="add_item_notes">Notes (optional)</string>
+    <string name="add_item_urgent">Urgent</string>
+    <string name="add_item_quantity_value">Quantity: %1$d</string>
+    <string name="add_item_decrease">Decrease quantity</string>
+    <string name="add_item_increase">Increase quantity</string>
+    <string name="add_item_photo_preview">Item photo</string>
+    <string name="add_item_remove_photo">Remove photo</string>
+    <string name="add_item_camera">Camera</string>
+    <string name="add_item_gallery">Gallery</string>
+    <string name="add_item_action">Add</string>
+    <string name="add_item_error_name_required">Please enter the item name.</string>
+    <string name="add_item_error_photo">The item was added, but its photo could not be uploaded.</string>
 </resources>

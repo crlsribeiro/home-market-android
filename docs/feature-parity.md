@@ -59,16 +59,16 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | "Next week" section with `rolled_over` items | `Views/MainList/MainListView.swift` | M3 | done |
 | No active list: admin can create this week's list; members see "wait for the admin" | `Views/MainList/MainListView.swift` | M3 | done |
 | Swipe to delete an item | `Views/MainList/MainListView.swift` | M3 | todo |
-| Add item sheet: name, quantity stepper (1–99), notes, urgent toggle | `Views/MainList/MainListView.swift` (`AddItemView`) | M3 | todo |
-| Add item: optional photo from camera or gallery, uploaded to Storage | `Views/MainList/MainListView.swift`, `Views/Common/CameraPicker.swift` | M3 | todo |
-| Adding an item with no active list creates this week's list first | `ViewModels/ListViewModel.swift` | M3 | todo |
+| Add item sheet: name, quantity stepper (1–99), notes, urgent toggle | `Views/MainList/MainListView.swift` (`AddItemView`) | M3 | done |
+| Add item: optional photo from camera or gallery, uploaded to Storage | `Views/MainList/MainListView.swift`, `Views/Common/CameraPicker.swift` | M3 | done |
+| Adding an item with no active list creates this week's list first | `ViewModels/ListViewModel.swift` | M3 | done |
 | Item detail: photo, name, notes, quantity, requested by, time added, week | `Views/MainList/ItemDetailView.swift` | M3 | todo |
 | Item detail: edit notes | `Views/MainList/ItemDetailView.swift` | M3 | todo |
 | Item detail: add or replace the photo after creation | `Views/MainList/ItemDetailView.swift`, `Services/ListService.swift` | M3 | todo |
 | Item detail: remove from list with a confirmation step (hidden when the list is closed) | `Views/MainList/ItemDetailView.swift` | M3 | todo |
 | Item detail: price per unit and total, admin only ("available after receipt upload" otherwise) | `Views/MainList/ItemDetailView.swift` | M7 | todo |
 | Item detail: "mark as purchased" while shopping | `Views/MainList/ItemDetailView.swift` | M5 | todo |
-| Error message banner for failed writes | `Views/MainList/MainListView.swift` | M3 | in progress (snackbar for creating the list) |
+| Error message banner for failed writes | `Views/MainList/MainListView.swift` | M3 | in progress (snackbar for creating the list and adding items) |
 | Automatic close of a list whose week has ended (weekly cut, no purchase), then a new list for this week | `ViewModels/ListViewModel.swift` (`expireIfStale`) | M4 | todo |
 
 ## Lifecycle and approvals
