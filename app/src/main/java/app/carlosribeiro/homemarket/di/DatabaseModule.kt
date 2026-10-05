@@ -6,6 +6,7 @@ import app.carlosribeiro.homemarket.data.local.HomeMarketDatabase
 import app.carlosribeiro.homemarket.data.local.HouseholdDao
 import app.carlosribeiro.homemarket.data.local.ItemDao
 import app.carlosribeiro.homemarket.data.local.ListDao
+import app.carlosribeiro.homemarket.data.local.PurchaseDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,4 +33,7 @@ object DatabaseModule {
 
     @Provides
     fun provideItemDao(database: HomeMarketDatabase): ItemDao = database.itemDao()
+
+    @Provides
+    fun providePurchaseDao(database: HomeMarketDatabase): PurchaseDao = database.purchaseDao()
 }
