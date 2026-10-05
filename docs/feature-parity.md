@@ -58,7 +58,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Empty list message | `Views/MainList/MainListView.swift` | M3 | done |
 | "Next week" section with `rolled_over` items | `Views/MainList/MainListView.swift` | M3 | done |
 | No active list: admin can create this week's list; members see "wait for the admin" | `Views/MainList/MainListView.swift` | M3 | done |
-| Swipe to delete an item | `Views/MainList/MainListView.swift` | M3 | todo |
+| Swipe to delete an item | `Views/MainList/MainListView.swift` | M3 | done (swipe left, also a TalkBack action) |
 | Add item sheet: name, quantity stepper (1–99), notes, urgent toggle | `Views/MainList/MainListView.swift` (`AddItemView`) | M3 | done |
 | Add item: optional photo from camera or gallery, uploaded to Storage | `Views/MainList/MainListView.swift`, `Views/Common/CameraPicker.swift` | M3 | done |
 | Adding an item with no active list creates this week's list first | `ViewModels/ListViewModel.swift` | M3 | done |
