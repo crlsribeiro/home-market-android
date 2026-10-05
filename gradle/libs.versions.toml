@@ -22,7 +22,8 @@ coroutines = "1.11.0"
 mockk = "1.14.11"
 turbine = "1.2.1"
 hiltAndroidx = "1.4.0"
-coil = "3.6.3"
+# Coil 3.5+ is built with Kotlin 2.4 and needs the Kotlin 2.4 compiler. Upgrade together with kotlin.
+coil = "3.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
