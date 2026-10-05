@@ -30,9 +30,9 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Forgot password sheet: send reset email, confirmation state | `Views/Login/ForgotPasswordView.swift` | M8 | done |
 | Register screen: first name, last name, email, password, confirm password | `Views/Login/RegisterView.swift` | M1 | done |
 | Register: validation (names and email required, password ≥ 8 characters, passwords match, complete phone or empty) | `Views/Login/RegisterView.swift` | M1 | done |
-| Register: phone number with country picker and input mask (BR, US, PT, AR, ES) | `Views/Login/RegisterView.swift`, `Models/PhoneCountry.swift` | M8 | todo |
-| Register: optional profile photo from camera or gallery, uploaded to `users/{uid}/avatar` | `Views/Login/RegisterView.swift` | M8 | todo |
-| Register: links to Terms of Use and Privacy Policy | `Views/Login/RegisterView.swift` | M8 | todo |
+| Register: phone number with country picker and input mask (BR, US, PT, AR, ES) | `Views/Login/RegisterView.swift`, `Models/PhoneCountry.swift` | M8 | done |
+| Register: optional profile photo from camera or gallery, uploaded to `users/{uid}/avatar` | `Views/Login/RegisterView.swift` | M8 | done |
+| Register: links to Terms of Use and Privacy Policy | `Views/Login/RegisterView.swift` | M8 | done |
 | Create `users/{uid}` on first sign-in; keep the session across restarts | `Services/AuthService.swift`, `ViewModels/AuthViewModel.swift` | M1 | done |
 | Sign out with confirmation dialog | `Views/MainList/MainListView.swift` | M1 | done |
 
