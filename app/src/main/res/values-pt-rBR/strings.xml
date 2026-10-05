@@ -131,4 +131,18 @@
     <string name="forgot_send">Enviar</string>
     <string name="forgot_sent_title">E-mail enviado</string>
     <string name="forgot_sent_message">Confira sua caixa de entrada em %1$s para redefinir sua senha.</string>
+    <string name="admin_list_status_title">Status da lista</string>
+    <string name="admin_list_status">Status</string>
+    <string name="admin_status_open">Aberta</string>
+    <string name="admin_status_locked">Bloqueada</string>
+    <string name="admin_status_shopping">Em compras</string>
+    <string name="admin_status_closed">Fechada</string>
+    <string name="admin_lock_hint">Depois de bloquear a lista, os novos itens aguardam a sua aprovação.</string>
+    <string name="admin_lock_list">Bloquear lista</string>
+    <string name="admin_reopen_list">Reabrir lista</string>
+    <string name="admin_pending_approvals">Aprovações pendentes</string>
+    <string name="admin_no_pending_approvals">Nenhum item aguardando aprovação</string>
+    <string name="admin_approve">Aprovar</string>
+    <string name="admin_reject">Rejeitar</string>
+    <string name="admin_error_invalid_status">A lista mudou nesse meio tempo. Tente de novo.</string>
 </resources>
