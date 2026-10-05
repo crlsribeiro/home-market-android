@@ -1,6 +1,7 @@
 package app.carlosribeiro.homemarket.data.mapper
 
 import app.carlosribeiro.homemarket.domain.model.AppUser
+import app.carlosribeiro.homemarket.domain.model.PhoneCountry
 import app.carlosribeiro.homemarket.domain.model.UserRole
 
 /** Field names of `users/{uid}`, see docs/backend.md. */
@@ -39,6 +40,11 @@ object UserMapper {
             email = (data[UserFields.EMAIL] as? String) ?: authEmail.orEmpty(),
             photoUrl = data[UserFields.PHOTO_URL] as? String,
             householdId = (data[UserFields.HOUSEHOLD_ID] as? String)?.takeIf { it.isNotBlank() },
-            role = if (data[UserFields.ROLE] == UserFields.ROLE_ADMIN) UserRole.ADMIN else UserRole.MEMBER
+            role = if (data[UserFields.ROLE] == UserFields.ROLE_ADMIN) UserRole.ADMIN else UserRole.MEMBER,
+            firstName = data[UserFields.FIRST_NAME] as? String ?: "",
+            lastName = data[UserFields.LAST_NAME] as? String ?: "",
+            phone = data[UserFields.PHONE] as? String ?: "",
+            phoneCountryCode = (data[UserFields.PHONE_COUNTRY_CODE] as? String)?.takeIf { it.isNotBlank() }
+                ?: PhoneCountry.BRAZIL.dialCode
         )
 }
