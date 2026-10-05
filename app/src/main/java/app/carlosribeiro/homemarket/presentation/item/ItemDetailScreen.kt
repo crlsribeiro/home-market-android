@@ -16,9 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -34,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,7 +46,7 @@ import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListStatus
 import app.carlosribeiro.homemarket.domain.model.WeekList
-import app.carlosribeiro.homemarket.presentation.components.rememberPhotoPicker
+import app.carlosribeiro.homemarket.presentation.components.PhotoSourceButtons
 import app.carlosribeiro.homemarket.presentation.history.MoneyFormatter
 import app.carlosribeiro.homemarket.presentation.list.WeekLabelFormatter
 import app.carlosribeiro.homemarket.presentation.list.messageRes
@@ -144,7 +141,6 @@ private fun PhotoSection(
     isUploading: Boolean,
     onPhotoPicked: (String) -> Unit
 ) {
-    val photoPicker = rememberPhotoPicker(onPhotoPicked)
     Column {
         Box(
             modifier = Modifier
@@ -172,23 +168,11 @@ private fun PhotoSection(
                 CircularProgressIndicator(modifier = Modifier.size(40.dp))
             }
         }
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedButton(onClick = photoPicker.takePhoto, enabled = !isUploading, modifier = Modifier.weight(1f)) {
-                Icon(painterResource(R.drawable.ic_photo_camera), contentDescription = null)
-                Text(stringResource(R.string.add_item_camera), modifier = Modifier.padding(start = 8.dp))
-            }
-            OutlinedButton(
-                onClick = photoPicker.pickFromGallery,
-                enabled = !isUploading,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(painterResource(R.drawable.ic_photo_library), contentDescription = null)
-                Text(stringResource(R.string.add_item_gallery), modifier = Modifier.padding(start = 8.dp))
-            }
-        }
+        PhotoSourceButtons(
+            onPhoto = onPhotoPicked,
+            enabled = !isUploading,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
     }
 }
 
