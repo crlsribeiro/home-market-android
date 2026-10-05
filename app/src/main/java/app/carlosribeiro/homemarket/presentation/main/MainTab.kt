@@ -6,14 +6,19 @@ import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.domain.model.UserRole
 
-/** Top-level destinations, in the iOS tab order. History arrives with milestone M7. */
+/** Top-level destinations, in the iOS tab order. */
 enum class MainTab(@StringRes val label: Int, @DrawableRes val icon: Int) {
     LIST(R.string.tab_list, R.drawable.ic_list),
     ADMIN(R.string.tab_admin, R.drawable.ic_admin_panel_settings),
+    HISTORY(R.string.tab_history, R.drawable.ic_history),
     ACCOUNT(R.string.tab_account, R.drawable.ic_account_circle);
 
     companion object {
-        /** The Admin tab is for the household admin only, as on iOS. */
-        fun visibleFor(user: AppUser): List<MainTab> = if (user.role == UserRole.ADMIN) entries else entries - ADMIN
+        /**
+         * The Admin tab is for the household admin only, as on iOS. History is admin only too, like the
+         * web (docs/backend.md, decision 4).
+         */
+        fun visibleFor(user: AppUser): List<MainTab> =
+            if (user.role == UserRole.ADMIN) entries else entries - setOf(ADMIN, HISTORY)
     }
 }

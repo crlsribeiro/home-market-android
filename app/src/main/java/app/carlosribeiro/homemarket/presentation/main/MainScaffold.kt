@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.presentation.account.AccountRoute
 import app.carlosribeiro.homemarket.presentation.admin.AdminPanelRoute
+import app.carlosribeiro.homemarket.presentation.history.HistoryRoute
 import app.carlosribeiro.homemarket.presentation.list.ListRoute
 import app.carlosribeiro.homemarket.presentation.shopping.NotFoundDialog
 import app.carlosribeiro.homemarket.presentation.shopping.ShoppingModeScreen
@@ -31,6 +32,7 @@ fun MainScaffold(
     user: AppUser,
     onSignOut: () -> Unit,
     onOpenItem: (String) -> Unit,
+    onOpenPurchase: (String) -> Unit,
     modifier: Modifier = Modifier,
     shoppingViewModel: ShoppingViewModel = hiltViewModel()
 ) {
@@ -68,6 +70,7 @@ fun MainScaffold(
         when (current) {
             MainTab.LIST -> ListRoute(onOpenItem = onOpenItem)
             MainTab.ADMIN -> AdminPanelRoute()
+            MainTab.HISTORY -> HistoryRoute(onOpenPurchase = onOpenPurchase)
             MainTab.ACCOUNT -> AccountRoute(user = user, onSignOut = onSignOut)
         }
     }

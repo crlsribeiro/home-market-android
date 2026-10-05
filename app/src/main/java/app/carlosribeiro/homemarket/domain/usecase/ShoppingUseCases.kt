@@ -6,6 +6,9 @@ import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListStatus
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.domain.repository.ListLifecycleRepository
+import app.carlosribeiro.homemarket.domain.repository.PurchaseRepository
+import app.carlosribeiro.homemarket.domain.week.WeekCalendar
+import java.time.Clock
 import javax.inject.Inject
 
 /** iOS cart button: the admin starts shopping from an open or locked list that has items. */
@@ -30,15 +33,24 @@ class AbandonShoppingUseCase @Inject constructor(
 }
 
 /**
- * "Close list" at the end of shopping: the weekly cut (docs/backend.md). The purchase record that
- * follows it on the other clients comes with milestone M7.
+ * iOS "Close list" at the end of shopping: the weekly cut (docs/backend.md), then the purchase record.
+ * The record copies the Portuguese week label the list was created with (decision 1).
  */
 class CloseShoppingListUseCase @Inject constructor(
     private val adminCheck: AdminCheck,
-    private val repository: ListLifecycleRepository
+    private val repository: ListLifecycleRepository,
+    private val purchaseRepository: PurchaseRepository,
+    private val clock: Clock
 ) {
     suspend operator fun invoke(list: WeekList): AdminResult = adminCheck.guarded(list.status == ListStatus.SHOPPING) {
-        repository.weeklyCut(list.id)
+        when (val cut = repository.weeklyCut(list.id)) {
+            AdminResult.Success -> {
+                val weekLabel = WeekCalendar.weekOf(list.weekStart, clock.zone).label
+                purchaseRepository.createPurchaseForList(list.id, list.householdId, weekLabel)
+            }
+
+            is AdminResult.Failure -> cut
+        }
     }
 }
 

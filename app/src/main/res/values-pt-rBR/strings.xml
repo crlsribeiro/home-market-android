@@ -172,4 +172,16 @@
     <string name="not_found_message">\"%1$s\" não foi encontrado no mercado. O que fazemos?</string>
     <string name="not_found_keep">Manter para a próxima semana</string>
     <string name="not_found_discard">Descartar</string>
+    <string name="tab_history">Histórico</string>
+    <string name="history_title">Histórico de compras</string>
+    <string name="history_empty_title">Nenhuma compra registrada</string>
+    <string name="history_empty_message">Seu histórico de compras aparecerá aqui</string>
+    <string name="history_unknown_store">Loja desconhecida</string>
+    <string name="history_total">Total</string>
+    <string name="history_items">Itens</string>
+    <string name="history_no_items">Nenhum item registrado ainda</string>
+    <string name="history_item_quantity_price">qtd %1$d · %2$s cada</string>
+    <string name="history_edit_item">Editar item</string>
+    <string name="history_item_name">Nome do item</string>
+    <string name="history_unit_price">Preço unitário</string>
 </resources>

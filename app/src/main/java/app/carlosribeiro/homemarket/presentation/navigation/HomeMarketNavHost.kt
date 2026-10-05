@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.presentation.auth.LoginRoute
 import app.carlosribeiro.homemarket.presentation.auth.RegisterRoute
+import app.carlosribeiro.homemarket.presentation.history.PurchaseDetailRoute
 import app.carlosribeiro.homemarket.presentation.item.ItemDetailRoute
 import app.carlosribeiro.homemarket.presentation.main.MainScaffold
 
@@ -38,11 +39,15 @@ fun SignedInNavHost(
             MainScaffold(
                 user = user,
                 onSignOut = onSignOut,
-                onOpenItem = { itemId -> navController.navigate(ItemDetailDestination(itemId)) }
+                onOpenItem = { itemId -> navController.navigate(ItemDetailDestination(itemId)) },
+                onOpenPurchase = { purchaseId -> navController.navigate(PurchaseDetailDestination(purchaseId)) }
             )
         }
         composable<ItemDetailDestination> {
             ItemDetailRoute(onBack = { navController.popBackStack() })
+        }
+        composable<PurchaseDetailDestination> {
+            PurchaseDetailRoute(onBack = { navController.popBackStack() })
         }
     }
 }
