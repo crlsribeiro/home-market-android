@@ -2,9 +2,11 @@ package app.carlosribeiro.homemarket.presentation.auth
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -27,7 +29,13 @@ import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 @Composable
 fun LoginRoute(onCreateAccount: () -> Unit, viewModel: LoginViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    LoginScreen(state = state, onEvent = viewModel::onEvent, onCreateAccount = onCreateAccount)
+    val googleSignIn = rememberGoogleSignIn { viewModel.onEvent(LoginUiEvent.GoogleResult(it)) }
+    LoginScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onCreateAccount = onCreateAccount,
+        onGoogleSignIn = googleSignIn
+    )
 }
 
 @Composable
@@ -35,7 +43,8 @@ fun LoginScreen(
     state: LoginUiState,
     onEvent: (LoginUiEvent) -> Unit,
     onCreateAccount: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onGoogleSignIn: () -> Unit = {}
 ) {
     AuthFormLayout(modifier = modifier) {
         Text(
@@ -70,6 +79,20 @@ fun LoginScreen(
             isLoading = state.isLoading,
             onClick = { onEvent(LoginUiEvent.Submit) }
         )
+        Text(
+            text = stringResource(R.string.auth_or),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        OutlinedButton(
+            onClick = onGoogleSignIn,
+            enabled = !state.isLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+        ) {
+            Text(stringResource(R.string.auth_continue_with_google))
+        }
         TextButton(onClick = onCreateAccount, enabled = !state.isLoading) {
             Text(stringResource(R.string.auth_create_account))
         }
