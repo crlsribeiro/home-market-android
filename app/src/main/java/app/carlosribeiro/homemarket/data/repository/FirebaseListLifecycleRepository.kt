@@ -51,6 +51,12 @@ class FirebaseListLifecycleRepository @Inject constructor(private val firestore:
         firestore.collection(ITEMS).document(itemId).update(ItemFields.STATUS, status.value()).await()
     }
 
+    override suspend fun moveNotFoundToNextWeek(itemId: String): AdminResult = write {
+        firestore.collection(ITEMS).document(itemId)
+            .update(mapOf(ItemFields.STATUS to ItemFields.STATUS_ROLLED_OVER, ItemFields.NOT_FOUND_RESOLVED to true))
+            .await()
+    }
+
     override suspend fun approveItem(itemId: String): AdminResult = write {
         firestore.collection(ITEMS).document(itemId)
             .update(ItemFields.APPROVAL_STATUS, ItemFields.APPROVAL_APPROVED)

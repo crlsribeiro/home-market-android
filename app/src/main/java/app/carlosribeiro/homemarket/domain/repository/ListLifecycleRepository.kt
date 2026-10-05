@@ -19,6 +19,9 @@ interface ListLifecycleRepository {
     /** Writes `items/{itemId}.status` (purchased, back to pending, or not found). */
     suspend fun setItemStatus(itemId: String, status: ItemStatus): AdminResult
 
+    /** iOS "Not available": `status: "rolled_over"` and `notFoundResolved: true`; the item moves to next week. */
+    suspend fun moveNotFoundToNextWeek(itemId: String): AdminResult
+
     /** `approvalStatus: "approved"`; the item stays pending to buy. */
     suspend fun approveItem(itemId: String): AdminResult
 
