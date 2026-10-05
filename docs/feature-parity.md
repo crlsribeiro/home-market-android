@@ -80,7 +80,7 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 | Admin panel: pending approvals with approve and reject | `Views/Admin/AdminPanelView.swift` | M4 | done |
 | Start shopping from the list (cart button, admin only, list `open` or `locked`, not empty) | `Views/MainList/MainListView.swift` | M5 | todo |
 | Lock and reopen the list (web feature; iOS never writes `locked`) | — | M4 | done (admin panel) |
-| Admin panel: "items per person this week" bar chart with expandable item names | `Views/Admin/AdminPanelView.swift` (`WeeklyDashboardSection`) | M4 | todo |
+| Admin panel: "items per person this week" bar chart with expandable item names | `Views/Admin/AdminPanelView.swift` (`WeeklyDashboardSection`) | M4 | done |
 
 ## Shopping mode
 
