@@ -131,7 +131,7 @@ Frozen by the repository owner on 2026-10-05: M6 waits until proposal 2 (`docs/b
 |---|---|---|---|
 | Release build with R8 code and resource shrinking, built in CI | — | M9 | done |
 | Release signing from a git-ignored `keystore.properties` or CI variables; release guide in `docs/release.md` | — | M9 | done |
-| App icon and splash screen (from the iOS app icon) | `Assets.xcassets/AppIcon.appiconset` | M9 | todo |
+| App icon and splash screen (from the iOS app icon) | `Assets.xcassets/AppIcon.appiconset` | M9 | done (adaptive and themed icon; Android 12+ system splash) |
 | Baseline profile | — | M9 | todo |
 | Accessibility pass (TalkBack labels, contrast, 48dp targets) and pt-BR review | — | M9 | todo |
 | README with screenshots, architecture diagram and test strategy | — | M9 | todo |
