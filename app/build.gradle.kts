@@ -70,6 +70,7 @@ android {
     testOptions {
         // Robolectric renders the screenshots with the app's real resources.
         unitTests.isIncludeAndroidResources = true
+        unitTests.all { it.systemProperties["robolectric.pixelCopyRenderMode"] = "hardware" }
     }
 }
 
