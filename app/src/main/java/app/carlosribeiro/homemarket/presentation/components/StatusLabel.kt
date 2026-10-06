@@ -11,9 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.carlosribeiro.homemarket.presentation.theme.statusColors
 
-/** Tone of a [StatusLabel], mapped to container roles (iOS: green for done, orange for pending/urgent). */
-enum class StatusTone { NEUTRAL, SUCCESS, WARNING, ERROR }
-
 /** Small read-only status label (like a M3 badge with text), for item and list states. */
 @Composable
 fun StatusLabel(text: String, tone: StatusTone, modifier: Modifier = Modifier) {

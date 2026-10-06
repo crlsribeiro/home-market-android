@@ -224,4 +224,5 @@
     <string name="item_detail_price_unavailable">Available after receipt upload</string>
     <string name="password_show">Show password</string>
     <string name="password_hide">Hide password</string>
+    <string name="auth_password_requirement">At least %1$d characters</string>
 </resources>
