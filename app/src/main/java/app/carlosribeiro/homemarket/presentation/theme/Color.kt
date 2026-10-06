@@ -7,7 +7,8 @@ import androidx.compose.ui.graphics.Color
 // app matches iOS. Every role is set, so no component falls back to the baseline purple.
 //
 // The surfaces follow the iOS design system instead of the generated green tints: the page is the iOS
-// `Brand.surface` (#F8FAF9), bars, sheets and dialogs are white and outlines are the iOS gray 5.
+// `Brand.surface` (#F8FAF9), sheets and dialogs are white and outlines are the iOS gray 5. The navigation
+// bar and its indicator use the light green-gray tones of the Stitch prototype.
 
 val BrandGreen = Color(0xFF2E7D52)
 
@@ -18,7 +19,7 @@ val LightOnPrimaryContainer = Color(0xFF0C5130)
 val LightInversePrimary = Color(0xFF93D5A9)
 val LightSecondary = Color(0xFF4F6354)
 val LightOnSecondary = Color(0xFFFFFFFF)
-val LightSecondaryContainer = Color(0xFFDCF5E3)
+val LightSecondaryContainer = Color(0xFFD1E9D5)
 val LightOnSecondaryContainer = Color(0xFF0C5130)
 val LightTertiary = Color(0xFF3B6470)
 val LightOnTertiary = Color(0xFFFFFFFF)
@@ -41,7 +42,7 @@ val LightOutline = Color(0xFF717971)
 val LightOutlineVariant = Color(0xFFE5E5EA)
 val LightScrim = Color(0xFF000000)
 val LightSurfaceBright = Color(0xFFF8FAF9)
-val LightSurfaceContainer = Color(0xFFFFFFFF)
+val LightSurfaceContainer = Color(0xFFF2F5F1)
 val LightSurfaceContainerHigh = Color(0xFFFFFFFF)
 val LightSurfaceContainerHighest = Color(0xFFF2F2F7)
 val LightSurfaceContainerLow = Color(0xFFFFFFFF)

@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
@@ -45,18 +46,18 @@ import app.carlosribeiro.homemarket.presentation.theme.brandColors
 
 /**
  * iOS `brandCard`: a white card with a 16 dp radius and a thin gray border, the container of every list
- * row and section. With [onClick] the whole card is one touch target.
+ * row and section. With [onClick] the whole card is one touch target; [color] tints it.
  */
 @Composable
 fun BrandCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    color: Color = brandColors.card,
     contentPadding: PaddingValues = PaddingValues(16.dp),
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(12.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
     val shape = MaterialTheme.shapes.large
-    val color = brandColors.card
     val border = BorderStroke(1.dp, brandColors.cardBorder)
     val body: @Composable () -> Unit = {
         Column(Modifier.padding(contentPadding), verticalArrangement = verticalArrangement, content = content)

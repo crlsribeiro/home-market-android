@@ -58,7 +58,7 @@
     <string name="tab_admin">Admin</string>
     <string name="tab_account">Conta</string>
 
-    <string name="list_greeting">Olá,</string>
+    <string name="list_greeting">Olá, bem-vindo de volta</string>
     <string name="list_week">Semana %1$s</string>
     <string name="list_status_open">ABERTA</string>
     <string name="list_status_locked">BLOQUEADA</string>
@@ -233,4 +233,12 @@
     <string name="item_detail_change_photo">Trocar foto</string>
     <string name="admin_household_name">Nome</string>
     <string name="admin_start_shopping_hint">Toque no carrinho na aba Lista para fechar a lista e começar as compras.</string>
+    <string name="list_more">Mais opções</string>
+    <string name="list_this_week_short">Esta semana</string>
+    <string name="list_purchased_progress">%1$d de %2$d comprados</string>
+    <plurals name="list_item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="many">%d itens</item>
+        <item quantity="other">%d itens</item>
+    </plurals>
 </resources>

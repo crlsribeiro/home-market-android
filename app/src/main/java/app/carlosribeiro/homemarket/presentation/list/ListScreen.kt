@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,10 +53,10 @@ import app.carlosribeiro.homemarket.domain.model.UserRole
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.presentation.components.BrandButton
 import app.carlosribeiro.homemarket.presentation.components.BrandCard
-import app.carlosribeiro.homemarket.presentation.components.InlineTabTopAppBar
 import app.carlosribeiro.homemarket.presentation.components.SectionHeader
 import app.carlosribeiro.homemarket.presentation.components.SignOutDialog
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
+import app.carlosribeiro.homemarket.presentation.theme.brandColors
 import java.time.Instant
 
 @Composable
@@ -76,8 +79,9 @@ fun ListRoute(
 }
 
 /**
- * iOS `MainListView`: sign out on the left of the top bar, start shopping (admin) and add item on the
- * right, then the greeting, the summary cards and the items as cards.
+ * The weekly list, as in the Stitch prototype: a large title with sign out in its menu, the greeting
+ * card, the "this week" panel, "Start shopping" for the admin, the items as cards and the "New item"
+ * floating action button.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -93,19 +97,21 @@ fun ListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     ErrorSnackbars(snackbarHostState, state, onEvent, addItemState, onAddItemEvent)
     var showSignOutDialog by rememberSaveable { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
-        modifier = modifier,
-        topBar = {
-            ListTopBar(
-                canStartShopping = state.canStartShopping,
-                canAddItem = !state.isLoading,
-                onSignOut = { showSignOutDialog = true },
-                onStartShopping = { onEvent(ListUiEvent.StartShopping) },
-                onAddItem = { onAddItemEvent(AddItemUiEvent.Open) }
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = { ListTopBar(onSignOut = { showSignOutDialog = true }, scrollBehavior = scrollBehavior) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = {
+            if (!state.isLoading) {
+                ExtendedFloatingActionButton(
+                    text = { Text(stringResource(R.string.add_item_title)) },
+                    icon = { Icon(painterResource(R.drawable.ic_add), contentDescription = null) },
+                    onClick = { onAddItemEvent(AddItemUiEvent.Open) }
+                )
+            }
+        }
     ) { innerPadding ->
         val contentModifier = Modifier
             .fillMaxSize()
@@ -181,11 +187,19 @@ private fun ListContent(
 ) {
     LazyColumn(
         modifier = modifier,
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = FabClearance),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         item { ListHeader(user = state.user, list = list) }
         item { SummaryCards(state, modifier = Modifier.padding(top = 6.dp)) }
+        if (state.canStartShopping) {
+            item {
+                StartShoppingButton(
+                    onClick = { onEvent(ListUiEvent.StartShopping) },
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
+        }
         thisWeekSection(state.items, onRemove = { onEvent(ListUiEvent.RemoveItem(it)) }, onOpenItem = onOpenItem)
         nextWeekSection(state.nextWeekItems, onOpenItem = onOpenItem)
     }
@@ -196,10 +210,16 @@ private fun LazyListScope.thisWeekSection(
     onRemove: (String) -> Unit,
     onOpenItem: (String) -> Unit
 ) {
-    item { SectionHeader(stringResource(R.string.list_this_week), modifier = Modifier.padding(top = 6.dp)) }
+    item {
+        SectionTitleRow(
+            title = stringResource(R.string.list_this_week),
+            count = items.size,
+            modifier = Modifier.padding(top = 10.dp)
+        )
+    }
     if (items.isEmpty()) {
         item {
-            BrandCard {
+            BrandCard(color = brandColors.mutedCard) {
                 Text(
                     text = stringResource(R.string.list_empty),
                     style = MaterialTheme.typography.bodyMedium,
@@ -262,6 +282,9 @@ private fun NoActiveList(isAdmin: Boolean, isCreating: Boolean, onCreate: () -> 
         }
     }
 }
+
+/** Keeps the last card visible above the floating action button. */
+private val FabClearance = 96.dp
 
 private val previewUser = AppUser("u1", "Maria Silva", "maria@example.com", null, "h1", UserRole.ADMIN)
 
