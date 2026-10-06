@@ -3,26 +3,26 @@
 package app.carlosribeiro.homemarket.presentation.list
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -36,6 +36,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,18 +46,26 @@ import androidx.compose.ui.unit.dp
 import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.ItemError
 import app.carlosribeiro.homemarket.domain.usecase.AddItemUseCase
+import app.carlosribeiro.homemarket.presentation.components.BrandFieldLabel
 import app.carlosribeiro.homemarket.presentation.components.FormTextField
 import app.carlosribeiro.homemarket.presentation.components.PhotoSourceButtons
+import app.carlosribeiro.homemarket.presentation.components.formKeyboard
+import app.carlosribeiro.homemarket.presentation.theme.ControlHeight
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
+import app.carlosribeiro.homemarket.presentation.theme.brandColors
 import coil3.compose.AsyncImage
 
-/** iOS `AddItemView`: name, quantity stepper (1–99), notes, urgent toggle and optional photo. */
+/**
+ * iOS `AddItemView`: a full-height sheet with Cancel, the title and Add on top, then the item name,
+ * the quantity stepper (1–99), notes, the urgent switch and an optional photo.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddItemSheet(state: AddItemUiState, onEvent: (AddItemUiEvent) -> Unit) {
     ModalBottomSheet(
         onDismissRequest = { onEvent(AddItemUiEvent.Dismiss) },
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.background
     ) {
         AddItemForm(state = state, onEvent = onEvent)
     }
@@ -62,120 +73,141 @@ fun AddItemSheet(state: AddItemUiState, onEvent: (AddItemUiEvent) -> Unit) {
 
 @Composable
 fun AddItemForm(state: AddItemUiState, onEvent: (AddItemUiEvent) -> Unit, modifier: Modifier = Modifier) {
-    val inset = Modifier.padding(horizontal = 16.dp)
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.add_item_title),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = inset
-        )
-        FormTextField(
-            value = state.name,
-            onValueChange = { onEvent(AddItemUiEvent.NameChanged(it)) },
-            label = stringResource(R.string.add_item_name),
-            error = stringResource(R.string.add_item_error_name_required)
-                .takeIf { state.error == ItemError.NAME_REQUIRED },
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Sentences,
-                imeAction = ImeAction.Next
-            ),
-            modifier = inset.padding(top = 8.dp)
-        )
-        QuantityStepper(
-            quantity = state.quantity,
-            onDecrease = { onEvent(AddItemUiEvent.DecreaseQuantity) },
-            onIncrease = { onEvent(AddItemUiEvent.IncreaseQuantity) }
-        )
-        OutlinedTextField(
-            value = state.notes,
-            onValueChange = { onEvent(AddItemUiEvent.NotesChanged(it)) },
-            label = { Text(stringResource(R.string.add_item_notes)) },
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-            modifier = inset.fillMaxWidth()
-        )
-        UrgentRow(urgent = state.urgent, onUrgentChange = { onEvent(AddItemUiEvent.UrgentChanged(it)) })
-        PhotoSection(
-            photoUri = state.photoUri,
-            onPhoto = { onEvent(AddItemUiEvent.PhotoPicked(it)) },
-            onRemovePhoto = { onEvent(AddItemUiEvent.RemovePhoto) },
-            modifier = inset
-        )
-        SheetActions(
+    Column(modifier = modifier.fillMaxWidth()) {
+        SheetTopBar(
             canSubmit = state.canSubmit,
             onCancel = { onEvent(AddItemUiEvent.Dismiss) },
-            onSubmit = { onEvent(AddItemUiEvent.Submit) },
-            modifier = inset.padding(top = 8.dp)
+            onSubmit = { onEvent(AddItemUiEvent.Submit) }
         )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            FormTextField(
+                value = state.name,
+                onValueChange = { onEvent(AddItemUiEvent.NameChanged(it)) },
+                label = stringResource(R.string.add_item_name),
+                leadingIcon = R.drawable.ic_shopping_cart,
+                required = true,
+                error = stringResource(R.string.add_item_error_name_required)
+                    .takeIf { state.error == ItemError.NAME_REQUIRED },
+                keyboardOptions = formKeyboard(capitalization = KeyboardCapitalization.Sentences)
+            )
+            QuantityStepper(
+                quantity = state.quantity,
+                onDecrease = { onEvent(AddItemUiEvent.DecreaseQuantity) },
+                onIncrease = { onEvent(AddItemUiEvent.IncreaseQuantity) }
+            )
+            FormTextField(
+                value = state.notes,
+                onValueChange = { onEvent(AddItemUiEvent.NotesChanged(it)) },
+                label = stringResource(R.string.add_item_notes_label),
+                leadingIcon = R.drawable.ic_note,
+                placeholder = stringResource(R.string.add_item_notes),
+                keyboardOptions = formKeyboard(
+                    imeAction = ImeAction.Done,
+                    capitalization = KeyboardCapitalization.Sentences
+                )
+            )
+            UrgentRow(urgent = state.urgent, onUrgentChange = { onEvent(AddItemUiEvent.UrgentChanged(it)) })
+            PhotoSection(
+                photoUri = state.photoUri,
+                onPhoto = { onEvent(AddItemUiEvent.PhotoPicked(it)) },
+                onRemovePhoto = { onEvent(AddItemUiEvent.RemovePhoto) }
+            )
+        }
     }
 }
 
+/** iOS navigation bar of the sheet: Cancel, the centered title and the bold Add. */
 @Composable
-private fun SheetActions(
-    canSubmit: Boolean,
-    onCancel: () -> Unit,
-    onSubmit: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+private fun SheetTopBar(canSubmit: Boolean, onCancel: () -> Unit, onSubmit: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp)
     ) {
-        TextButton(onClick = onCancel) { Text(stringResource(R.string.action_cancel)) }
-        Button(onClick = onSubmit, enabled = canSubmit) { Text(stringResource(R.string.add_item_action)) }
+        TextButton(onClick = onCancel, modifier = Modifier.align(Alignment.CenterStart)) {
+            Text(stringResource(R.string.action_cancel))
+        }
+        Text(
+            text = stringResource(R.string.add_item_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .semantics { heading() }
+        )
+        TextButton(onClick = onSubmit, enabled = canSubmit, modifier = Modifier.align(Alignment.CenterEnd)) {
+            Text(stringResource(R.string.add_item_action), fontWeight = FontWeight.Bold)
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** The quantity in a field-shaped box with the minus and plus buttons, like the iOS stepper. */
 @Composable
 private fun QuantityStepper(quantity: Int, onDecrease: () -> Unit, onIncrease: () -> Unit) {
-    ListItem(
-        headlineContent = { Text(stringResource(R.string.add_item_quantity_value, quantity)) },
-        trailingContent = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilledTonalIconButton(onClick = onDecrease, enabled = quantity > AddItemUseCase.MIN_QUANTITY) {
-                    Icon(
-                        painterResource(R.drawable.ic_remove),
-                        contentDescription = stringResource(R.string.add_item_decrease)
-                    )
-                }
-                FilledTonalIconButton(onClick = onIncrease, enabled = quantity < AddItemUseCase.MAX_QUANTITY) {
-                    Icon(
-                        painterResource(R.drawable.ic_add),
-                        contentDescription = stringResource(R.string.add_item_increase)
-                    )
-                }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        BrandFieldLabel(stringResource(R.string.add_item_quantity))
+        FieldBox {
+            Text(
+                text = stringResource(R.string.add_item_quantity_value, quantity),
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
+            FilledTonalIconButton(onClick = onDecrease, enabled = quantity > AddItemUseCase.MIN_QUANTITY) {
+                Icon(
+                    painterResource(R.drawable.ic_remove),
+                    contentDescription = stringResource(R.string.add_item_decrease)
+                )
             }
-        },
-        colors = ListItemDefaults.colors(containerColor = BottomSheetDefaults.ContainerColor)
-    )
+            FilledTonalIconButton(onClick = onIncrease, enabled = quantity < AddItemUseCase.MAX_QUANTITY) {
+                Icon(
+                    painterResource(R.drawable.ic_add),
+                    contentDescription = stringResource(R.string.add_item_increase)
+                )
+            }
+        }
+    }
 }
 
-/** The whole row toggles, as Material 3 recommends for a list item with a switch. */
-@OptIn(ExperimentalMaterial3Api::class)
+/** The whole box toggles, as Material 3 recommends for a row with a switch. */
 @Composable
 private fun UrgentRow(urgent: Boolean, onUrgentChange: (Boolean) -> Unit) {
-    ListItem(
-        headlineContent = { Text(stringResource(R.string.add_item_urgent)) },
-        trailingContent = { Switch(checked = urgent, onCheckedChange = null) },
-        colors = ListItemDefaults.colors(containerColor = BottomSheetDefaults.ContainerColor),
-        modifier = Modifier.toggleable(value = urgent, role = Role.Switch, onValueChange = onUrgentChange)
+    FieldBox(modifier = Modifier.toggleable(value = urgent, role = Role.Switch, onValueChange = onUrgentChange)) {
+        Text(
+            text = stringResource(R.string.add_item_urgent),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(checked = urgent, onCheckedChange = null)
+    }
+}
+
+/** A white row in the field shape (iOS stepper and toggle boxes). */
+@Composable
+private fun FieldBox(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = ControlHeight)
+            .clip(MaterialTheme.shapes.medium)
+            .background(brandColors.card)
+            .border(1.dp, brandColors.cardBorder, MaterialTheme.shapes.medium)
+            .then(modifier)
+            .padding(start = 16.dp, end = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        content = content
     )
 }
 
 @Composable
-private fun PhotoSection(
-    photoUri: String?,
-    onPhoto: (String) -> Unit,
-    onRemovePhoto: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+private fun PhotoSection(photoUri: String?, onPhoto: (String) -> Unit, onRemovePhoto: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         if (photoUri != null) {
             AsyncImage(
                 model = photoUri,
@@ -186,7 +218,12 @@ private fun PhotoSection(
                     .height(PhotoPreviewHeight)
                     .clip(MaterialTheme.shapes.medium)
             )
-            TextButton(onClick = onRemovePhoto) { Text(stringResource(R.string.add_item_remove_photo)) }
+            TextButton(
+                onClick = onRemovePhoto,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text(stringResource(R.string.add_item_remove_photo))
+            }
         }
         PhotoSourceButtons(onPhoto = onPhoto, enabled = true)
     }
@@ -200,7 +237,7 @@ private val PhotoPreviewHeight = 160.dp
 @Composable
 private fun AddItemFormPreview() {
     HomeMarketTheme(dynamicColor = false) {
-        Surface(color = BottomSheetDefaults.ContainerColor) {
+        Surface(color = MaterialTheme.colorScheme.background) {
             AddItemForm(state = AddItemUiState(isOpen = true, name = "Leite", quantity = 2, urgent = true), onEvent = {
             })
         }

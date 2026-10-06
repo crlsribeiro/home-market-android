@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -22,11 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,7 +48,9 @@ import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListStatus
 import app.carlosribeiro.homemarket.domain.model.WeekList
 import app.carlosribeiro.homemarket.presentation.admin.messageRes
-import app.carlosribeiro.homemarket.presentation.components.SubmitButton
+import app.carlosribeiro.homemarket.presentation.components.BrandButton
+import app.carlosribeiro.homemarket.presentation.components.BrandButtonStyle
+import app.carlosribeiro.homemarket.presentation.components.InlineTabTopAppBar
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import java.time.Instant
 
@@ -71,28 +68,32 @@ fun ShoppingModeScreen(state: ShoppingUiState, onEvent: (ShoppingUiEvent) -> Uni
             onEvent(ShoppingUiEvent.DismissError)
         }
     }
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.shopping_title)) },
-                navigationIcon = { AbandonButton(onClick = { showAbandonDialog = true }) },
-                scrollBehavior = scrollBehavior
+            InlineTabTopAppBar(
+                title = stringResource(R.string.shopping_title),
+                navigationIcon = { AbandonButton(onClick = { showAbandonDialog = true }) }
             )
-        },
-        bottomBar = { CloseListBar(isClosing = state.isClosing, onClose = { onEvent(ShoppingUiEvent.CloseList) }) }
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 16.dp)
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            item { ProgressCard(state, modifier = Modifier.padding(16.dp)) }
+            item { ProgressCard(state) }
             shoppingSections(state, onEvent)
+            item {
+                CloseListSection(
+                    isClosing = state.isClosing,
+                    onClose = { onEvent(ShoppingUiEvent.CloseList) },
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
         }
     }
 
@@ -114,18 +115,23 @@ private fun LazyListScope.shoppingSections(state: ShoppingUiState, onEvent: (Sho
             ToGetRow(
                 item = item,
                 onGotIt = { onEvent(ShoppingUiEvent.TogglePurchased(item)) },
-                onNotAvailable = { onEvent(ShoppingUiEvent.NotFound(item)) }
+                onNotAvailable = { onEvent(ShoppingUiEvent.NotFound(item)) },
+                modifier = Modifier.animateItem()
             )
         }
     }
     if (state.notFound.isNotEmpty()) {
         item { SectionTitle(R.string.shopping_not_found) }
-        items(state.notFound, key = { it.id }) { NotFoundRow(it) }
+        items(state.notFound, key = { it.id }) { NotFoundRow(it, modifier = Modifier.animateItem()) }
     }
     if (state.picked.isNotEmpty()) {
         item { SectionTitle(R.string.shopping_picked) }
         items(state.picked, key = { it.id }) { item ->
-            PickedRow(item = item, onUndo = { onEvent(ShoppingUiEvent.TogglePurchased(item)) })
+            PickedRow(
+                item = item,
+                onUndo = { onEvent(ShoppingUiEvent.TogglePurchased(item)) },
+                modifier = Modifier.animateItem()
+            )
         }
     }
     if (state.items.isEmpty()) {
@@ -134,7 +140,10 @@ private fun LazyListScope.shoppingSections(state: ShoppingUiState, onEvent: (Sho
                 text = stringResource(R.string.shopping_no_items),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 24.dp)
             )
         }
     }
@@ -152,25 +161,23 @@ private fun AbandonButton(onClick: () -> Unit) {
     }
 }
 
-/** "Close list" stays pinned above the navigation bar, reachable however long the list is. */
+/** iOS: the red "Close list" at the end of the list, with what happens to the pending items. */
 @Composable
-private fun CloseListBar(isClosing: Boolean, onClose: () -> Unit) {
-    Surface(color = MaterialTheme.colorScheme.surfaceContainer) {
-        Column(
-            modifier = Modifier
-                .navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            SubmitButton(text = stringResource(R.string.shopping_close_list), isLoading = isClosing, onClick = onClose)
-            Text(
-                text = stringResource(R.string.shopping_close_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+private fun CloseListSection(isClosing: Boolean, onClose: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        BrandButton(
+            text = stringResource(R.string.shopping_close_list),
+            onClick = onClose,
+            style = BrandButtonStyle.DESTRUCTIVE,
+            isLoading = isClosing
+        )
+        Text(
+            text = stringResource(R.string.shopping_close_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

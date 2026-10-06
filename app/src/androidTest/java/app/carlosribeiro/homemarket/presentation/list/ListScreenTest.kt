@@ -3,6 +3,7 @@ package app.carlosribeiro.homemarket.presentation.list
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -98,7 +99,7 @@ class ListScreenTest {
             }
         }
 
-        composeRule.onNodeWithText(context.getString(R.string.add_item_title)).performClick()
+        composeRule.onNodeWithContentDescription(context.getString(R.string.add_item_title)).performClick()
         assertEquals(listOf(AddItemUiEvent.Open), events)
     }
 

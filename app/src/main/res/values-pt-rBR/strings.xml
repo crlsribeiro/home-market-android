@@ -10,7 +10,6 @@
     <string name="auth_last_name">Sobrenome</string>
     <string name="auth_sign_in">Entrar</string>
     <string name="auth_create_account">Criar conta</string>
-    <string name="auth_have_account">Já tenho uma conta</string>
     <string name="auth_sign_out">Sair</string>
     <string name="auth_sign_out_title">Sair da conta?</string>
     <string name="auth_sign_out_message">Você vai sair da sua conta.</string>
@@ -44,10 +43,6 @@
     <string name="onboarding_error_name_required">Digite um nome para a casa.</string>
     <string name="onboarding_error_code_required">Digite o código de convite.</string>
     <string name="onboarding_error_code_not_found">Código inválido. Confira e tente de novo.</string>
-    <plurals name="account_household_members">
-        <item quantity="one">%1$s · %2$d membro</item>
-        <item quantity="other">%1$s · %2$d membros</item>
-    </plurals>
 
     <string name="admin_title">Painel do admin</string>
     <string name="admin_household">Casa</string>
@@ -56,9 +51,7 @@
     <string name="admin_copy_code">Copiar</string>
     <string name="admin_share_code">Compartilhar</string>
     <string name="admin_new_code">Gerar novo código de convite</string>
-    <string name="admin_new_code_hint">O código antigo deixa de funcionar.</string>
     <string name="admin_share_message">Entre na casa %1$s no Home Market com o código de convite %2$s</string>
-    <string name="auth_or">ou</string>
     <string name="auth_continue_with_google">Continuar com Google</string>
     <string name="auth_error_google_unavailable">Não foi possível entrar com o Google. Verifique se há uma conta Google neste aparelho.</string>
     <string name="tab_list">Lista</string>
@@ -145,7 +138,7 @@
     <string name="account_delete_confirm">Sim, excluir minha conta</string>
     <string name="account_delete_keep">Não, manter minha conta</string>
     <string name="register_add_photo">Adicionar foto de perfil</string>
-    <string name="register_photo_optional">Foto (opcional)</string>
+    <string name="register_photo_optional">Foto de perfil (opcional)</string>
     <string name="register_phone_optional">Telefone (opcional)</string>
     <string name="register_legal_prefix">Ao criar uma conta, você concorda com os nossos</string>
     <string name="register_terms">Termos de Uso</string>
@@ -217,15 +210,10 @@
     <string name="history_receipt_reupload">Reenviar recibo (foto ilegível)</string>
     <string name="item_detail_price">Preço</string>
     <string name="item_detail_price_per_unit">%1$s por unidade</string>
-    <string name="item_detail_price_total">Total</string>
     <string name="item_detail_price_unavailable">Disponível após enviar o recibo</string>
     <string name="password_show">Mostrar senha</string>
     <string name="password_hide">Ocultar senha</string>
     <string name="auth_password_requirement">Pelo menos %1$d caracteres</string>
-    <string name="list_empty_title">Nada para comprar ainda</string>
-    <string name="item_detail_notes_label">Descrição</string>
-    <string name="item_detail_remove_dialog_title">Remover item?</string>
-    <string name="item_detail_remove_dialog_message">O item será removido da lista desta semana.</string>
     <string name="admin_badge_label">Admin</string>
     <string name="admin_new_code_confirm_title">Gerar um novo código de convite?</string>
     <string name="admin_new_code_confirm_message">O código atual deixa de funcionar. Quem ainda não entrou vai precisar do novo código.</string>
@@ -234,4 +222,15 @@
     <string name="admin_reject_item">Rejeitar %1$s</string>
     <string name="admin_hide_items">Ocultar itens</string>
     <string name="history_invalid_price">Informe um preço válido</string>
+    <string name="auth_email_placeholder">seu@email.com</string>
+    <string name="auth_confirm_password_placeholder">Confirme sua senha</string>
+    <string name="register_photo">Foto</string>
+    <string name="auth_password_placeholder">Sua senha</string>
+    <string name="onboarding_name_placeholder">ex.: Família Silva</string>
+    <string name="onboarding_code_placeholder">ex.: ABC12345</string>
+    <string name="add_item_notes_label">Observações</string>
+    <string name="add_item_quantity">Quantidade</string>
+    <string name="item_detail_change_photo">Trocar foto</string>
+    <string name="admin_household_name">Nome</string>
+    <string name="admin_start_shopping_hint">Toque no carrinho na aba Lista para fechar a lista e começar as compras.</string>
 </resources>
