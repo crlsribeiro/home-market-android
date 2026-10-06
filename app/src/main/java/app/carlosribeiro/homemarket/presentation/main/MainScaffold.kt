@@ -77,10 +77,10 @@ fun MainScaffold(
         }
     ) {
         when (current) {
-            MainTab.LIST -> ListRoute(onOpenItem = onOpenItem)
+            MainTab.LIST -> ListRoute(onOpenItem = onOpenItem, onSignOut = onSignOut)
             MainTab.ADMIN -> AdminPanelRoute()
             MainTab.HISTORY -> HistoryRoute(onOpenPurchase = onOpenPurchase)
-            MainTab.ACCOUNT -> AccountRoute(onSignOut = onSignOut)
+            MainTab.ACCOUNT -> AccountRoute()
         }
     }
 }

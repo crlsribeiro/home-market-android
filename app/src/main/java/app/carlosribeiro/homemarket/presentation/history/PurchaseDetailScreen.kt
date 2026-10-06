@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,20 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem as MaterialListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -36,13 +30,17 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -55,10 +53,16 @@ import app.carlosribeiro.homemarket.domain.model.PurchaseDetail
 import app.carlosribeiro.homemarket.domain.model.PurchaseItem
 import app.carlosribeiro.homemarket.domain.util.Money
 import app.carlosribeiro.homemarket.presentation.admin.messageRes
+import app.carlosribeiro.homemarket.presentation.components.BrandButton
+import app.carlosribeiro.homemarket.presentation.components.BrandButtonStyle
+import app.carlosribeiro.homemarket.presentation.components.BrandCard
 import app.carlosribeiro.homemarket.presentation.components.DetailTopAppBar
-import app.carlosribeiro.homemarket.presentation.components.PhotoSourceButtons
+import app.carlosribeiro.homemarket.presentation.components.FormTextField
+import app.carlosribeiro.homemarket.presentation.components.PhotoSourceMenu
 import app.carlosribeiro.homemarket.presentation.components.SectionHeader
+import app.carlosribeiro.homemarket.presentation.components.formKeyboard
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
+import app.carlosribeiro.homemarket.presentation.theme.brandColors
 import java.util.Locale
 
 @Composable
@@ -123,6 +127,7 @@ fun PurchaseDetailScreen(
     }
 }
 
+/** iOS `PurchaseDetailView`: the total card, the items as cards, then the receipt upload button. */
 @Composable
 private fun PurchaseDetailContent(
     detail: PurchaseDetail,
@@ -135,12 +140,17 @@ private fun PurchaseDetailContent(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(vertical = 16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         TotalCard(detail = detail, locale = locale)
-        SectionHeader(stringResource(R.string.history_items))
-        ItemsSection(items = detail.items, locale = locale, onEdit = { onEvent(PurchaseDetailUiEvent.EditItem(it)) })
-        ReceiptCard(
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            SectionHeader(stringResource(R.string.history_items))
+            ItemsSection(items = detail.items, locale = locale, onEdit = {
+                onEvent(PurchaseDetailUiEvent.EditItem(it))
+            })
+        }
+        ReceiptButton(
             isProcessed = detail.purchase.receiptProcessed,
             isUploading = isUploadingReceipt,
             onPicked = { onEvent(PurchaseDetailUiEvent.ReceiptPicked(it)) }
@@ -148,102 +158,96 @@ private fun PurchaseDetailContent(
     }
 }
 
-/** The purchase total as the screen's hero, with the store below. */
+/** iOS total card: "Total" and the green amount, with the store below. */
 @Composable
 private fun TotalCard(detail: PurchaseDetail, locale: Locale) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-    ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(R.string.history_total), style = MaterialTheme.typography.labelLarge)
-            Text(MoneyFormatter.format(detail.purchase.total, locale), style = MaterialTheme.typography.displaySmall)
+    BrandCard(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(
+            modifier = Modifier.semantics(mergeDescendants = true) {},
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                detail.purchase.storeName ?: stringResource(R.string.history_unknown_store),
-                style = MaterialTheme.typography.bodyMedium
+                text = stringResource(R.string.history_total),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = MoneyFormatter.format(detail.purchase.total, locale),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = brandColors.success
             )
         }
+        Text(
+            text = detail.purchase.storeName ?: stringResource(R.string.history_unknown_store),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
 @Composable
 private fun ItemsSection(items: List<PurchaseItem>, locale: Locale, onEdit: (PurchaseItem) -> Unit) {
     if (items.isEmpty()) {
-        Text(
-            stringResource(R.string.history_no_items),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+        BrandCard {
+            Text(
+                stringResource(R.string.history_no_items),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
-    items.forEachIndexed { index, item ->
-        if (index > 0) HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-        PurchaseItemRow(item = item, locale = locale, onEdit = { onEdit(item) })
-    }
+    items.forEach { item -> PurchaseItemRow(item = item, locale = locale, onEdit = { onEdit(item) }) }
 }
 
 @Composable
 private fun PurchaseItemRow(item: PurchaseItem, locale: Locale, onEdit: () -> Unit) {
-    MaterialListItem(
-        headlineContent = { Text(item.name) },
-        supportingContent = {
-            Text(
-                stringResource(
-                    R.string.history_item_quantity_price,
-                    item.quantity,
-                    MoneyFormatter.format(item.unitPrice, locale)
-                )
-            )
-        },
-        trailingContent = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+    BrandCard(contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 4.dp, bottom = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(item.name, style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    MoneyFormatter.format(item.totalPrice, locale),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
+                    stringResource(
+                        R.string.history_item_quantity_price,
+                        item.quantity,
+                        MoneyFormatter.format(item.unitPrice, locale)
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                IconButton(onClick = onEdit) {
-                    Icon(
-                        painterResource(R.drawable.ic_edit),
-                        contentDescription = stringResource(R.string.history_edit_item)
-                    )
-                }
+            }
+            Text(
+                MoneyFormatter.format(item.totalPrice, locale),
+                style = MaterialTheme.typography.bodyLarge,
+                color = brandColors.success
+            )
+            IconButton(onClick = onEdit) {
+                Icon(
+                    painterResource(R.drawable.ic_edit),
+                    contentDescription = stringResource(R.string.history_edit_item),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
-    )
+    }
 }
 
+/** iOS: one outline button to upload (or re-upload) the receipt; it offers the camera or the gallery. */
 @Composable
-private fun ReceiptCard(isProcessed: Boolean, isUploading: Boolean, onPicked: (String) -> Unit) {
-    OutlinedCard(
-        Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-    ) {
-        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painterResource(R.drawable.ic_receipt_long),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(end = 16.dp)
-            )
-            Text(
-                stringResource(if (isProcessed) R.string.history_receipt_reupload else R.string.history_receipt_upload),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(1f)
-            )
-            if (isUploading) CircularProgressIndicator(Modifier.size(24.dp))
-        }
-        PhotoSourceButtons(
-            onPhoto = onPicked,
-            enabled = !isUploading,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+private fun ReceiptButton(isProcessed: Boolean, isUploading: Boolean, onPicked: (String) -> Unit) {
+    var showMenu by remember { mutableStateOf(false) }
+    Box {
+        BrandButton(
+            text = stringResource(
+                if (isProcessed) R.string.history_receipt_reupload else R.string.history_receipt_upload
+            ),
+            onClick = { showMenu = true },
+            style = BrandButtonStyle.OUTLINE,
+            icon = R.drawable.ic_upload,
+            isLoading = isUploading
         )
+        PhotoSourceMenu(expanded = showMenu, onDismiss = { showMenu = false }, onPhoto = onPicked)
     }
 }
 
@@ -256,31 +260,21 @@ private fun EditPurchaseItemDialog(draft: PurchaseItemDraft, onEvent: (PurchaseD
         title = { Text(stringResource(R.string.history_edit_item)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
+                FormTextField(
                     value = draft.name,
                     onValueChange = { onEvent(PurchaseDetailUiEvent.DraftNameChanged(it)) },
-                    label = { Text(stringResource(R.string.history_item_name)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Next
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    label = stringResource(R.string.history_item_name),
+                    leadingIcon = R.drawable.ic_shopping_cart,
+                    keyboardOptions = formKeyboard(capitalization = KeyboardCapitalization.Sentences)
                 )
-                OutlinedTextField(
+                FormTextField(
                     value = draft.price,
                     onValueChange = { onEvent(PurchaseDetailUiEvent.DraftPriceChanged(it)) },
-                    label = { Text(stringResource(R.string.history_unit_price)) },
-                    singleLine = true,
-                    isError = priceInvalid,
-                    supportingText = if (priceInvalid) {
-                        { Text(stringResource(R.string.history_invalid_price)) }
-                    } else {
-                        null
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { save() }),
-                    modifier = Modifier.fillMaxWidth()
+                    label = stringResource(R.string.history_unit_price),
+                    leadingIcon = R.drawable.ic_receipt_long,
+                    error = stringResource(R.string.history_invalid_price).takeIf { priceInvalid },
+                    keyboardOptions = formKeyboard(type = KeyboardType.Decimal, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { save() })
                 )
             }
         },

@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /** Widest the form gets on tablets and landscape, so fields stay readable. */
-private val MaxFormWidth = 480.dp
+internal val MaxFormWidth = 480.dp
 
 /**
  * Scrollable form shared by the sign-in and registration screens: vertically centered when it fits,

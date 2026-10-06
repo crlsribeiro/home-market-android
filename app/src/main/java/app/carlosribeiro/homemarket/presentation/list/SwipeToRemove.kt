@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -47,11 +48,12 @@ fun SwipeToRemove(onRemove: () -> Unit, modifier: Modifier = Modifier, content: 
             )
         },
         backgroundContent = {
-            // Only while swiping towards the start: the row itself is opaque, so nothing shows at rest.
+            // Only while swiping towards the start, in the card's shape: the card is opaque at rest.
             if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
+                        .clip(MaterialTheme.shapes.large)
                         .background(MaterialTheme.colorScheme.errorContainer)
                         .padding(horizontal = 24.dp),
                     contentAlignment = Alignment.CenterEnd

@@ -16,9 +16,9 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 |---|---|---|---|
 | Loading screen while the auth state resolves | `Views/Common/RootView.swift` | M1 | done |
 | Routing: signed out → Login; signed in without household → Onboarding; otherwise main tabs | `Views/Common/RootView.swift` | M1, M2 | done |
-| Main tabs: List, Admin (admin only), History, Account | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | in progress (List, Admin, History and a basic Account tab done) |
+| Main tabs: List, Admin (admin only), History, Account; sign out from the List top bar, as on iOS | `Views/Common/RootView.swift` | M3 (List), M2 (Admin), M7 (History, admin only on Android), M8 (Account) | in progress (List, Admin, History and a basic Account tab done) |
 | Full-screen takeover while the list status is `shopping`: Shopping mode for the admin, waiting screen for members | `Views/Common/RootView.swift` | M5 | done |
-| Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme), later milestones (components) | in progress |
+| Brand design system (colors, buttons, cards, badges) | `Views/Common/DesignSystem.swift` | M0 (Material 3 theme), later milestones (components) | done (`#F8FAF9` page, white 16 dp cards with a thin border, 54 dp fields and buttons with 12 dp corners, uppercase field labels, capsule badges; every screen follows the iOS layout) |
 
 ## Authentication
 

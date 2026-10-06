@@ -5,27 +5,20 @@ package app.carlosribeiro.homemarket.presentation.admin
 import android.content.ClipData
 import android.content.Intent
 import android.content.res.Configuration
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem as MaterialListItem
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -49,7 +42,9 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -58,6 +53,9 @@ import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.domain.model.Household
 import app.carlosribeiro.homemarket.domain.model.UserRole
+import app.carlosribeiro.homemarket.presentation.components.BrandButton
+import app.carlosribeiro.homemarket.presentation.components.BrandButtonStyle
+import app.carlosribeiro.homemarket.presentation.components.BrandCard
 import app.carlosribeiro.homemarket.presentation.components.DetailTopAppBar
 import app.carlosribeiro.homemarket.presentation.components.ErrorText
 import app.carlosribeiro.homemarket.presentation.components.SectionHeader
@@ -65,6 +63,7 @@ import app.carlosribeiro.homemarket.presentation.components.StatusLabel
 import app.carlosribeiro.homemarket.presentation.components.StatusTone
 import app.carlosribeiro.homemarket.presentation.components.TabTopAppBar
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
+import app.carlosribeiro.homemarket.presentation.theme.brandColors
 import kotlinx.coroutines.launch
 
 @Composable
@@ -126,21 +125,36 @@ fun AdminPanelScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = 16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            SectionHeader(stringResource(R.string.admin_household))
-            HouseholdSection(name = state.household?.name.orEmpty(), members = state.members)
-            SectionHeader(stringResource(R.string.admin_invite_code))
-            InviteCode(state = state, onEvent = onEvent, onCopyCode = onCopyCode, onShareCode = onShareCode)
-            state.currentList?.let { list ->
-                SectionHeader(stringResource(R.string.admin_list_status_title))
-                ListStatusSection(list = list, onEvent = onEvent)
+            AdminSection(stringResource(R.string.admin_household)) {
+                BrandCard {
+                    HouseholdSection(name = state.household?.name.orEmpty(), members = state.members)
+                    InviteCode(state = state, onEvent = onEvent, onCopyCode = onCopyCode, onShareCode = onShareCode)
+                }
             }
-            SectionHeader(stringResource(R.string.admin_pending_approvals))
-            PendingApprovalsSection(items = state.pendingApprovals, onEvent = onEvent)
-            SectionHeader(stringResource(R.string.admin_items_per_person))
-            ItemsPerPersonSection(stats = personStats(state.items))
+            state.currentList?.let { list ->
+                AdminSection(stringResource(R.string.admin_list_status_title)) {
+                    BrandCard { ListStatusSection(list = list, onEvent = onEvent) }
+                }
+            }
+            AdminSection(stringResource(R.string.admin_pending_approvals)) {
+                PendingApprovalsSection(items = state.pendingApprovals, onEvent = onEvent)
+            }
+            AdminSection(stringResource(R.string.admin_items_per_person)) {
+                ItemsPerPersonSection(stats = personStats(state.items))
+            }
         }
+    }
+}
+
+/** iOS section: the caption, then its cards 10 dp apart. */
+@Composable
+fun AdminSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        SectionHeader(title)
+        content()
     }
 }
 
@@ -157,47 +171,44 @@ private fun AdminTopBar(onBack: (() -> Unit)?, scrollBehavior: TopAppBarScrollBe
 
 @Composable
 private fun HouseholdSection(name: String, members: List<AppUser>) {
-    MaterialListItem(
-        headlineContent = { Text(name, style = MaterialTheme.typography.titleMedium) }
-    )
+    LabeledRow(label = stringResource(R.string.admin_household_name), value = name)
     members.forEach { member ->
-        MaterialListItem(
-            headlineContent = { Text(member.displayName.ifEmpty { stringResource(R.string.admin_no_name) }) },
-            leadingContent = { MemberAvatar(member.displayName) },
-            trailingContent = {
-                if (member.role == UserRole.ADMIN) {
-                    StatusLabel(text = stringResource(R.string.admin_badge_label), tone = StatusTone.NEUTRAL)
-                }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = member.displayName.ifEmpty { stringResource(R.string.admin_no_name) },
+                style = MaterialTheme.typography.bodyLarge
+            )
+            if (member.role == UserRole.ADMIN) {
+                StatusLabel(text = stringResource(R.string.admin_badge_label), tone = StatusTone.PRIMARY)
             }
-        )
+        }
     }
     if (members.size == 1) {
         Text(
             stringResource(R.string.admin_only_member),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            style = MaterialTheme.typography.bodySmall,
+            color = brandColors.warning
         )
     }
 }
 
-/** The member's initial in a tonal circle, the Material 3 list avatar. */
+/** A label with its value trailing (iOS `LabeledContent`). */
 @Composable
-private fun MemberAvatar(name: String) {
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
-        contentAlignment = Alignment.Center
+fun LabeledRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.semantics(mergeDescendants = true) {},
+        verticalAlignment = Alignment.CenterVertically
     ) {
+        Text(text = label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
         Text(
-            text = name.trim().take(1).uppercase().ifEmpty { "?" },
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            text = value,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
+/** The code in the brand color with copy and share, then "Generate new invite code" (tint button). */
 @Composable
 private fun InviteCode(
     state: AdminPanelUiState,
@@ -206,71 +217,55 @@ private fun InviteCode(
     onShareCode: () -> Unit
 ) {
     var showRegenerateDialog by rememberSaveable { mutableStateOf(false) }
+    var copied by rememberSaveable(state.household?.inviteToken) { mutableStateOf(false) }
     val code = state.household?.inviteToken.orEmpty()
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = code,
-            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = FontFamily.Monospace),
-            color = MaterialTheme.colorScheme.primary
-        )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            IconLabelButton(
-                icon = R.drawable.ic_content_copy,
-                text = stringResource(R.string.admin_copy_code),
-                enabled = code.isNotEmpty(),
-                onClick = { onCopyCode(code) }
-            )
-            IconLabelButton(
-                icon = R.drawable.ic_share,
-                text = stringResource(R.string.admin_share_code),
-                enabled = code.isNotEmpty(),
-                onClick = onShareCode
-            )
+    if (code.isNotEmpty()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            SelectionContainer(Modifier.weight(1f)) {
+                Text(
+                    text = code,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+            IconButton(onClick = {
+                onCopyCode(code)
+                copied = true
+            }) {
+                Icon(
+                    painterResource(if (copied) R.drawable.ic_check else R.drawable.ic_content_copy),
+                    contentDescription = stringResource(R.string.admin_copy_code),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            IconButton(onClick = onShareCode) {
+                Icon(
+                    painterResource(R.drawable.ic_share),
+                    contentDescription = stringResource(R.string.admin_share_code),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
-        FilledTonalButton(
-            onClick = { showRegenerateDialog = true },
-            enabled = !state.isRegenerating,
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding
-        ) {
-            Icon(
-                painterResource(R.drawable.ic_refresh),
-                contentDescription = null,
-                modifier = Modifier.size(ButtonDefaults.IconSize)
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(stringResource(R.string.admin_new_code))
-        }
-        Text(
-            stringResource(R.string.admin_new_code_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        state.error?.let { ErrorText(stringResource(R.string.auth_error_unknown)) }
     }
+    BrandButton(
+        text = stringResource(R.string.admin_new_code),
+        onClick = { showRegenerateDialog = true },
+        style = BrandButtonStyle.TINT,
+        icon = R.drawable.ic_link,
+        isLoading = state.isRegenerating
+    )
+    state.error?.let { ErrorText(stringResource(R.string.auth_error_unknown)) }
     if (showRegenerateDialog) {
         RegenerateCodeDialog(
             onConfirm = {
                 showRegenerateDialog = false
+                copied = false
                 onEvent(AdminPanelUiEvent.RegenerateInviteToken)
             },
             onDismiss = { showRegenerateDialog = false }
         )
-    }
-}
-
-@Composable
-private fun IconLabelButton(@DrawableRes icon: Int, text: String, enabled: Boolean, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        enabled = enabled,
-        contentPadding = ButtonDefaults.ButtonWithIconContentPadding
-    ) {
-        Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-        Text(text)
     }
 }
 

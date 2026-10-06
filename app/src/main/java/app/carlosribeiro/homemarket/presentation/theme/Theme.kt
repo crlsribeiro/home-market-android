@@ -113,10 +113,11 @@ fun HomeMarketTheme(
         else -> LightColorScheme
     }
 
-    CompositionLocalProvider(LocalStatusColors provides if (darkTheme) DarkStatusColors else LightStatusColors) {
+    CompositionLocalProvider(LocalBrandColors provides if (darkTheme) DarkBrandColors else LightBrandColors) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,
+            shapes = Shapes,
             content = content
         )
     }

@@ -3,38 +3,39 @@
 package app.carlosribeiro.homemarket.presentation.list
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -47,16 +48,18 @@ import app.carlosribeiro.homemarket.domain.model.ListItem
 import app.carlosribeiro.homemarket.domain.model.ListStatus
 import app.carlosribeiro.homemarket.domain.model.UserRole
 import app.carlosribeiro.homemarket.domain.model.WeekList
-import app.carlosribeiro.homemarket.presentation.components.EmptyState
+import app.carlosribeiro.homemarket.presentation.components.BrandButton
+import app.carlosribeiro.homemarket.presentation.components.BrandCard
+import app.carlosribeiro.homemarket.presentation.components.InlineTabTopAppBar
 import app.carlosribeiro.homemarket.presentation.components.SectionHeader
-import app.carlosribeiro.homemarket.presentation.components.SubmitButton
-import app.carlosribeiro.homemarket.presentation.components.TabTopAppBar
+import app.carlosribeiro.homemarket.presentation.components.SignOutDialog
 import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
 import java.time.Instant
 
 @Composable
 fun ListRoute(
     onOpenItem: (String) -> Unit,
+    onSignOut: () -> Unit,
     viewModel: ListViewModel = hiltViewModel(),
     addItemViewModel: AddItemViewModel = hiltViewModel()
 ) {
@@ -67,11 +70,15 @@ fun ListRoute(
         onEvent = viewModel::onEvent,
         addItemState = addItemState,
         onAddItemEvent = addItemViewModel::onEvent,
-        onOpenItem = onOpenItem
+        onOpenItem = onOpenItem,
+        onSignOut = onSignOut
     )
 }
 
-/** iOS `MainListView`: the household's current weekly list. */
+/**
+ * iOS `MainListView`: sign out on the left of the top bar, start shopping (admin) and add item on the
+ * right, then the greeting, the summary cards and the items as cards.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
@@ -80,35 +87,25 @@ fun ListScreen(
     modifier: Modifier = Modifier,
     addItemState: AddItemUiState = AddItemUiState(),
     onAddItemEvent: (AddItemUiEvent) -> Unit = {},
-    onOpenItem: (String) -> Unit = {}
+    onOpenItem: (String) -> Unit = {},
+    onSignOut: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     ErrorSnackbars(snackbarHostState, state, onEvent, addItemState, onAddItemEvent)
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val listState = rememberLazyListState()
-    val fabExpanded by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+    var showSignOutDialog by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = { TabTopAppBar(title = stringResource(R.string.tab_list), scrollBehavior = scrollBehavior) },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = {
-            if (!state.isLoading) {
-                val addLabel = stringResource(R.string.add_item_title)
-                ExtendedFloatingActionButton(
-                    text = { Text(addLabel) },
-                    icon = {
-                        // Collapsed, the icon alone has to name the action.
-                        Icon(
-                            painterResource(R.drawable.ic_add),
-                            contentDescription = if (fabExpanded) null else addLabel
-                        )
-                    },
-                    onClick = { onAddItemEvent(AddItemUiEvent.Open) },
-                    expanded = fabExpanded
-                )
-            }
-        }
+        modifier = modifier,
+        topBar = {
+            ListTopBar(
+                canStartShopping = state.canStartShopping,
+                canAddItem = !state.isLoading,
+                onSignOut = { showSignOutDialog = true },
+                onStartShopping = { onEvent(ListUiEvent.StartShopping) },
+                onAddItem = { onAddItemEvent(AddItemUiEvent.Open) }
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         val contentModifier = Modifier
             .fillMaxSize()
@@ -128,7 +125,6 @@ fun ListScreen(
             else -> ListContent(
                 state = state,
                 list = state.currentList,
-                listState = listState,
                 onEvent = onEvent,
                 onOpenItem = onOpenItem,
                 modifier = contentModifier
@@ -138,6 +134,15 @@ fun ListScreen(
 
     if (addItemState.isOpen) {
         AddItemSheet(state = addItemState, onEvent = onAddItemEvent)
+    }
+    if (showSignOutDialog) {
+        SignOutDialog(
+            onConfirm = {
+                showSignOutDialog = false
+                onSignOut()
+            },
+            onDismiss = { showSignOutDialog = false }
+        )
     }
 }
 
@@ -170,36 +175,17 @@ private fun ErrorSnackbars(
 private fun ListContent(
     state: ListUiState,
     list: WeekList,
-    listState: LazyListState,
     onEvent: (ListUiEvent) -> Unit,
     onOpenItem: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val horizontal = Modifier.padding(horizontal = 16.dp)
     LazyColumn(
         modifier = modifier,
-        state = listState,
-        contentPadding = PaddingValues(top = 8.dp, bottom = FabClearance)
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        item {
-            Box(horizontal) { ListHeader(user = state.user, list = list) }
-        }
-        item {
-            Box(horizontal.padding(top = 16.dp)) { SummaryCards(state) }
-        }
-        if (state.canStartShopping) {
-            item {
-                FilledTonalButton(
-                    onClick = { onEvent(ListUiEvent.StartShopping) },
-                    modifier = horizontal
-                        .padding(top = 12.dp)
-                        .fillMaxWidth()
-                ) {
-                    Icon(painterResource(R.drawable.ic_shopping_cart), contentDescription = null)
-                    Text(stringResource(R.string.shopping_start), modifier = Modifier.padding(start = 8.dp))
-                }
-            }
-        }
+        item { ListHeader(user = state.user, list = list) }
+        item { SummaryCards(state, modifier = Modifier.padding(top = 6.dp)) }
         thisWeekSection(state.items, onRemove = { onEvent(ListUiEvent.RemoveItem(it)) }, onOpenItem = onOpenItem)
         nextWeekSection(state.nextWeekItems, onOpenItem = onOpenItem)
     }
@@ -210,22 +196,21 @@ private fun LazyListScope.thisWeekSection(
     onRemove: (String) -> Unit,
     onOpenItem: (String) -> Unit
 ) {
-    item { SectionHeader(stringResource(R.string.list_this_week)) }
+    item { SectionHeader(stringResource(R.string.list_this_week), modifier = Modifier.padding(top = 6.dp)) }
     if (items.isEmpty()) {
         item {
-            EmptyState(
-                icon = R.drawable.ic_shopping_cart,
-                title = stringResource(R.string.list_empty_title),
-                message = stringResource(R.string.list_empty)
-            )
+            BrandCard {
+                Text(
+                    text = stringResource(R.string.list_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     } else {
-        itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
-            Column(Modifier.animateItem()) {
-                if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-                SwipeToRemove(onRemove = { onRemove(item.id) }) {
-                    ListItemRow(item, onClick = { onOpenItem(item.id) })
-                }
+        items(items, key = { it.id }) { item ->
+            SwipeToRemove(onRemove = { onRemove(item.id) }, modifier = Modifier.animateItem()) {
+                ListItemRow(item, onClick = { onOpenItem(item.id) })
             }
         }
     }
@@ -233,37 +218,50 @@ private fun LazyListScope.thisWeekSection(
 
 private fun LazyListScope.nextWeekSection(items: List<ListItem>, onOpenItem: (String) -> Unit) {
     if (items.isEmpty()) return
-    item { SectionHeader(stringResource(R.string.list_next_week, items.size)) }
-    itemsIndexed(items, key = { _, item -> "next-${item.id}" }) { index, item ->
-        Column(Modifier.animateItem()) {
-            if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp))
-            ListItemRow(item, onClick = { onOpenItem(item.id) })
-        }
+    item {
+        SectionHeader(stringResource(R.string.list_next_week, items.size), modifier = Modifier.padding(top = 6.dp))
+    }
+    items(items, key = { "next-${it.id}" }) { item ->
+        ListItemRow(item, onClick = { onOpenItem(item.id) }, modifier = Modifier.animateItem())
     }
 }
 
+/** iOS: the cart icon in the brand color, the title and message, and "New weekly list" for the admin. */
 @Composable
 private fun NoActiveList(isAdmin: Boolean, isCreating: Boolean, onCreate: () -> Unit, modifier: Modifier = Modifier) {
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        EmptyState(
-            icon = R.drawable.ic_shopping_cart,
-            title = stringResource(R.string.list_no_active_title),
-            message = stringResource(if (isAdmin) R.string.list_no_active_admin else R.string.list_no_active_member)
-        ) {
-            if (isAdmin) {
-                SubmitButton(
-                    text = stringResource(R.string.list_create),
-                    isLoading = isCreating,
-                    onClick = onCreate,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            }
+    Column(
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            painterResource(R.drawable.ic_shopping_cart),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(40.dp)
+        )
+        Text(
+            text = stringResource(R.string.list_no_active_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = stringResource(if (isAdmin) R.string.list_no_active_admin else R.string.list_no_active_member),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        if (isAdmin) {
+            BrandButton(
+                text = stringResource(R.string.list_create),
+                onClick = onCreate,
+                icon = R.drawable.ic_add,
+                isLoading = isCreating,
+                modifier = Modifier.widthIn(max = 480.dp)
+            )
         }
     }
 }
-
-/** Keeps the last item visible above the floating action button. */
-private val FabClearance = 88.dp
 
 private val previewUser = AppUser("u1", "Maria Silva", "maria@example.com", null, "h1", UserRole.ADMIN)
 
