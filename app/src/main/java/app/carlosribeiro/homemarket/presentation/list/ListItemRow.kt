@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,12 +31,18 @@ import app.carlosribeiro.homemarket.presentation.theme.brandColors
 import coil3.compose.AsyncImage
 
 /**
- * iOS `ItemRow` in its card: the thumbnail, the name with the urgent badge, "qty · author" (and the
- * notes), and the status badge trailing. The whole card opens the item.
+ * Item card of the Stitch prototype: the thumbnail, the name with the urgent badge, "qty · author" (and
+ * the notes), the status badge and a status circle (filled once purchased). The whole card opens the item;
+ * items are only checked off in shopping mode, as on iOS.
  */
 @Composable
 fun ListItemRow(item: ListItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    BrandCard(modifier = modifier, onClick = onClick, contentPadding = PaddingValues(12.dp)) {
+    BrandCard(
+        modifier = modifier,
+        onClick = onClick,
+        color = brandColors.mutedCard,
+        contentPadding = PaddingValues(12.dp)
+    ) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             ItemThumbnail(item)
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -44,8 +52,8 @@ fun ListItemRow(item: ListItem, onClick: () -> Unit, modifier: Modifier = Modifi
                 ) {
                     Text(
                         text = item.name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -70,6 +78,7 @@ fun ListItemRow(item: ListItem, onClick: () -> Unit, modifier: Modifier = Modifi
                 }
             }
             ItemStatusLabel(item)
+            StatusCircle(purchased = item.status == ItemStatus.PURCHASED)
         }
     }
 }
@@ -80,15 +89,15 @@ private fun ItemThumbnail(item: ListItem) {
     Box(
         modifier = Modifier
             .size(ThumbnailSize)
-            .clip(MaterialTheme.shapes.small)
-            .background(brandColors.tint),
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.secondaryContainer),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = item.name.take(1).uppercase(),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.onSecondaryContainer
         )
         item.photoUrl?.let { url ->
             AsyncImage(
@@ -112,5 +121,14 @@ private fun ItemStatusLabel(item: ListItem) {
     StatusLabel(stringResource(label), tone)
 }
 
-/** iOS thumbnail size. */
-private val ThumbnailSize = 44.dp
+/** Decorative: the badge already says the status. */
+@Composable
+private fun StatusCircle(purchased: Boolean) {
+    Icon(
+        painterResource(if (purchased) R.drawable.ic_check_circle_filled else R.drawable.ic_radio_unchecked),
+        contentDescription = null,
+        tint = if (purchased) brandColors.success else MaterialTheme.colorScheme.outline
+    )
+}
+
+private val ThumbnailSize = 48.dp

@@ -59,7 +59,7 @@
     <string name="tab_admin">Admin</string>
     <string name="tab_account">Account</string>
 
-    <string name="list_greeting">Hi,</string>
+    <string name="list_greeting">Hi, welcome back</string>
     <string name="list_week">Week %1$s</string>
     <string name="list_status_open">OPEN</string>
     <string name="list_status_locked">LOCKED</string>
@@ -234,4 +234,11 @@
     <string name="item_detail_change_photo">Change photo</string>
     <string name="admin_household_name">Name</string>
     <string name="admin_start_shopping_hint">Tap the cart icon on the List tab to close it and start shopping.</string>
+    <string name="list_more">More options</string>
+    <string name="list_this_week_short">This week</string>
+    <string name="list_purchased_progress">%1$d of %2$d purchased</string>
+    <plurals name="list_item_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
 </resources>
