@@ -6,12 +6,15 @@ import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.AppUser
 import app.carlosribeiro.homemarket.domain.model.UserRole
 
-/** Top-level destinations, in the iOS tab order. */
-enum class MainTab(@StringRes val label: Int, @DrawableRes val icon: Int) {
+/**
+ * Top-level destinations, in the iOS tab order. [selectedIcon] is the filled variant shown while the tab
+ * is selected (Material 3 navigation), or the same [icon] when there is none.
+ */
+enum class MainTab(@StringRes val label: Int, @DrawableRes val icon: Int, @DrawableRes val selectedIcon: Int = icon) {
     LIST(R.string.tab_list, R.drawable.ic_list),
-    ADMIN(R.string.tab_admin, R.drawable.ic_admin_panel_settings),
+    ADMIN(R.string.tab_admin, R.drawable.ic_admin_panel_settings, R.drawable.ic_admin_panel_settings_filled),
     HISTORY(R.string.tab_history, R.drawable.ic_history),
-    ACCOUNT(R.string.tab_account, R.drawable.ic_account_circle);
+    ACCOUNT(R.string.tab_account, R.drawable.ic_account_circle, R.drawable.ic_account_circle_filled);
 
     companion object {
         /**

@@ -1,9 +1,13 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package app.carlosribeiro.homemarket.presentation.auth
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,24 +36,29 @@ fun ForgotPasswordDialog(state: ForgotPasswordUiState, onEvent: (ForgotPasswordU
         )
         return
     }
+    val error = state.error.resolve()
+    val send = { onEvent(ForgotPasswordUiEvent.Send) }
     AlertDialog(
         onDismissRequest = dismiss,
         title = { Text(stringResource(R.string.forgot_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text(stringResource(R.string.forgot_message), style = MaterialTheme.typography.bodyMedium)
                 FormTextField(
                     value = state.email,
                     onValueChange = { onEvent(ForgotPasswordUiEvent.EmailChanged(it)) },
                     label = stringResource(R.string.auth_email),
+                    leadingIcon = R.drawable.ic_mail,
+                    error = error.on(AuthField.EMAIL),
                     enabled = !state.isSending,
-                    keyboardOptions = formKeyboard(type = KeyboardType.Email, imeAction = ImeAction.Send)
+                    keyboardOptions = formKeyboard(type = KeyboardType.Email, imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(onSend = { if (!state.isSending) send() })
                 )
-                state.error?.let { ErrorText(stringResource(it.messageRes())) }
+                error.general?.let { ErrorText(it) }
             }
         },
         confirmButton = {
-            TextButton(onClick = { onEvent(ForgotPasswordUiEvent.Send) }, enabled = !state.isSending) {
+            TextButton(onClick = send, enabled = !state.isSending) {
                 Text(stringResource(R.string.forgot_send))
             }
         },

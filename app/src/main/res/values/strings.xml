@@ -6,7 +6,6 @@
 
     <string name="auth_email">Email</string>
     <string name="auth_password">Password</string>
-    <string name="auth_password_hint">Password (at least %1$d characters)</string>
     <string name="auth_confirm_password">Confirm password</string>
     <string name="auth_first_name">First name</string>
     <string name="auth_last_name">Last name</string>
@@ -53,7 +52,6 @@
 
     <string name="admin_title">Admin panel</string>
     <string name="admin_household">Household</string>
-    <string name="admin_badge">ADMIN</string>
     <string name="admin_only_member">You\'re the only one here. Invite someone to collaborate!</string>
     <string name="admin_invite_code">Invite code</string>
     <string name="admin_copy_code">Copy</string>
@@ -222,4 +220,19 @@
     <string name="item_detail_price_per_unit">%1$s per unit</string>
     <string name="item_detail_price_total">Total</string>
     <string name="item_detail_price_unavailable">Available after receipt upload</string>
+    <string name="password_show">Show password</string>
+    <string name="password_hide">Hide password</string>
+    <string name="auth_password_requirement">At least %1$d characters</string>
+    <string name="list_empty_title">Nothing to buy yet</string>
+    <string name="item_detail_notes_label">Description</string>
+    <string name="item_detail_remove_dialog_title">Remove item?</string>
+    <string name="item_detail_remove_dialog_message">The item will be removed from this week\'s list.</string>
+    <string name="admin_badge_label">Admin</string>
+    <string name="admin_new_code_confirm_title">Generate a new invite code?</string>
+    <string name="admin_new_code_confirm_message">The current code stops working. Anyone who hasn\'t joined yet will need the new code.</string>
+    <string name="admin_new_code_confirm">Generate</string>
+    <string name="admin_approve_item">Approve %1$s</string>
+    <string name="admin_reject_item">Reject %1$s</string>
+    <string name="admin_hide_items">Hide items</string>
+    <string name="history_invalid_price">Enter a valid price</string>
 </resources>

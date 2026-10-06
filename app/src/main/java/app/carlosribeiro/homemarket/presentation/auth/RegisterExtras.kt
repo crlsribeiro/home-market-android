@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package app.carlosribeiro.homemarket.presentation.auth
 
 import androidx.compose.foundation.background
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -75,6 +78,7 @@ fun RegisterPhoto(photoUri: String?, enabled: Boolean, onPhotoPicked: (String) -
             DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.add_item_camera)) },
+                    leadingIcon = { Icon(painterResource(R.drawable.ic_photo_camera), contentDescription = null) },
                     onClick = {
                         showMenu = false
                         photoPicker.takePhoto()
@@ -82,6 +86,7 @@ fun RegisterPhoto(photoUri: String?, enabled: Boolean, onPhotoPicked: (String) -
                 )
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.add_item_gallery)) },
+                    leadingIcon = { Icon(painterResource(R.drawable.ic_photo_library), contentDescription = null) },
                     onClick = {
                         showMenu = false
                         photoPicker.pickFromGallery()

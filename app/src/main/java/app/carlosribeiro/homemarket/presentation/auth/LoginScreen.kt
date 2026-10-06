@@ -1,10 +1,18 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package app.carlosribeiro.homemarket.presentation.auth
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -13,9 +21,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -57,29 +67,77 @@ fun LoginScreen(
     onGoogleSignIn: () -> Unit = {},
     onForgotPassword: () -> Unit = {}
 ) {
+    val error = state.error.resolve()
     AuthFormLayout(modifier = modifier) {
+        LoginHeader()
+        LoginFields(state = state, error = error, onEvent = onEvent, onForgotPassword = onForgotPassword)
+        error.general?.let { ErrorText(it, modifier = Modifier.fillMaxWidth()) }
+        SubmitButton(
+            text = stringResource(R.string.auth_sign_in),
+            isLoading = state.isLoading,
+            onClick = { onEvent(LoginUiEvent.Submit) }
+        )
+        GoogleSignInSection(enabled = !state.isLoading, onClick = onGoogleSignIn)
+        FilledTonalButton(
+            onClick = onCreateAccount,
+            enabled = !state.isLoading,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(stringResource(R.string.auth_create_account))
+        }
+    }
+}
+
+/** The app's cart mark, its name and the tagline. */
+@Composable
+private fun LoginHeader() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_shopping_cart),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(56.dp)
+        )
         Text(
             text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.primary
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = stringResource(R.string.app_tagline),
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
-        Spacer(Modifier.height(12.dp))
-        FormTextField(
-            value = state.email,
-            onValueChange = { onEvent(LoginUiEvent.EmailChanged(it)) },
-            label = stringResource(R.string.auth_email),
-            enabled = !state.isLoading,
-            keyboardOptions = formKeyboard(type = KeyboardType.Email)
-        )
+    }
+}
+
+@Composable
+private fun LoginFields(
+    state: LoginUiState,
+    error: ResolvedAuthError,
+    onEvent: (LoginUiEvent) -> Unit,
+    onForgotPassword: () -> Unit
+) {
+    FormTextField(
+        value = state.email,
+        onValueChange = { onEvent(LoginUiEvent.EmailChanged(it)) },
+        label = stringResource(R.string.auth_email),
+        leadingIcon = R.drawable.ic_mail,
+        error = error.on(AuthField.EMAIL),
+        enabled = !state.isLoading,
+        keyboardOptions = formKeyboard(type = KeyboardType.Email)
+    )
+    Column(modifier = Modifier.fillMaxWidth()) {
         FormTextField(
             value = state.password,
             onValueChange = { onEvent(LoginUiEvent.PasswordChanged(it)) },
             label = stringResource(R.string.auth_password),
+            leadingIcon = R.drawable.ic_lock,
+            error = error.on(AuthField.PASSWORD),
             enabled = !state.isLoading,
             keyboardOptions = formKeyboard(type = KeyboardType.Password, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = { onEvent(LoginUiEvent.Submit) })
@@ -91,33 +149,25 @@ fun LoginScreen(
         ) {
             Text(stringResource(R.string.forgot_link))
         }
-        state.error?.let { ErrorText(stringResource(it.messageRes())) }
-        SubmitButton(
-            text = stringResource(R.string.auth_sign_in),
-            isLoading = state.isLoading,
-            onClick = { onEvent(LoginUiEvent.Submit) }
-        )
-        GoogleSignInSection(enabled = !state.isLoading, onClick = onGoogleSignIn)
-        TextButton(onClick = onCreateAccount, enabled = !state.isLoading) {
-            Text(stringResource(R.string.auth_create_account))
-        }
     }
 }
 
 @Composable
 private fun GoogleSignInSection(enabled: Boolean, onClick: () -> Unit) {
-    Text(
-        text = stringResource(R.string.auth_or),
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    OutlinedButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        HorizontalDivider(modifier = Modifier.weight(1f))
+        Text(
+            text = stringResource(R.string.auth_or),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        HorizontalDivider(modifier = Modifier.weight(1f))
+    }
+    OutlinedButton(onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
         Text(stringResource(R.string.auth_continue_with_google))
     }
 }

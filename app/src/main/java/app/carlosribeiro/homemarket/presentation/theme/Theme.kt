@@ -1,13 +1,17 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package app.carlosribeiro.homemarket.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 
 private val LightColorScheme = lightColorScheme(
@@ -15,6 +19,7 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = LightOnPrimary,
     primaryContainer = LightPrimaryContainer,
     onPrimaryContainer = LightOnPrimaryContainer,
+    inversePrimary = LightInversePrimary,
     secondary = LightSecondary,
     onSecondary = LightOnSecondary,
     secondaryContainer = LightSecondaryContainer,
@@ -29,7 +34,23 @@ private val LightColorScheme = lightColorScheme(
     onSurface = LightOnSurface,
     surfaceVariant = LightSurfaceVariant,
     onSurfaceVariant = LightOnSurfaceVariant,
-    outline = LightOutline
+    surfaceTint = LightSurfaceTint,
+    inverseSurface = LightInverseSurface,
+    inverseOnSurface = LightInverseOnSurface,
+    error = LightError,
+    onError = LightOnError,
+    errorContainer = LightErrorContainer,
+    onErrorContainer = LightOnErrorContainer,
+    outline = LightOutline,
+    outlineVariant = LightOutlineVariant,
+    scrim = LightScrim,
+    surfaceBright = LightSurfaceBright,
+    surfaceContainer = LightSurfaceContainer,
+    surfaceContainerHigh = LightSurfaceContainerHigh,
+    surfaceContainerHighest = LightSurfaceContainerHighest,
+    surfaceContainerLow = LightSurfaceContainerLow,
+    surfaceContainerLowest = LightSurfaceContainerLowest,
+    surfaceDim = LightSurfaceDim
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -37,6 +58,7 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = DarkOnPrimary,
     primaryContainer = DarkPrimaryContainer,
     onPrimaryContainer = DarkOnPrimaryContainer,
+    inversePrimary = DarkInversePrimary,
     secondary = DarkSecondary,
     onSecondary = DarkOnSecondary,
     secondaryContainer = DarkSecondaryContainer,
@@ -51,17 +73,33 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = DarkOnSurface,
     surfaceVariant = DarkSurfaceVariant,
     onSurfaceVariant = DarkOnSurfaceVariant,
-    outline = DarkOutline
+    surfaceTint = DarkSurfaceTint,
+    inverseSurface = DarkInverseSurface,
+    inverseOnSurface = DarkInverseOnSurface,
+    error = DarkError,
+    onError = DarkOnError,
+    errorContainer = DarkErrorContainer,
+    onErrorContainer = DarkOnErrorContainer,
+    outline = DarkOutline,
+    outlineVariant = DarkOutlineVariant,
+    scrim = DarkScrim,
+    surfaceBright = DarkSurfaceBright,
+    surfaceContainer = DarkSurfaceContainer,
+    surfaceContainerHigh = DarkSurfaceContainerHigh,
+    surfaceContainerHighest = DarkSurfaceContainerHighest,
+    surfaceContainerLow = DarkSurfaceContainerLow,
+    surfaceContainerLowest = DarkSurfaceContainerLowest,
+    surfaceDim = DarkSurfaceDim
 )
 
 /**
- * App theme. Uses the wallpaper-based dynamic colors on Android 12+ and the brand
- * green scheme everywhere else, in light and dark.
+ * App theme: the brand green scheme in light and dark, like the iOS app. Dynamic (wallpaper) color is
+ * off by default so the brand stays recognisable; [dynamicColor] can turn it on for Android 12+.
  */
 @Composable
 fun HomeMarketTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -75,9 +113,11 @@ fun HomeMarketTheme(
         else -> LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalStatusColors provides if (darkTheme) DarkStatusColors else LightStatusColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }
