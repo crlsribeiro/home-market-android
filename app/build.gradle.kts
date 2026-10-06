@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.roborazzi)
 }
 
 android {
@@ -66,6 +67,21 @@ android {
     buildFeatures {
         compose = true
     }
+    testOptions {
+        // Robolectric renders the screenshots with the app's real resources.
+        unitTests.isIncludeAndroidResources = true
+    }
+}
+
+// Every @Preview becomes a Robolectric screenshot: ./gradlew recordRoborazziDebug writes the PNGs to
+// app/build/outputs/roborazzi. CI publishes them so the layout can be reviewed without an emulator.
+roborazzi {
+    generateComposePreviewRobolectricTests {
+        enable = true
+        packages = listOf("app.carlosribeiro.homemarket")
+        includePrivatePreviews = true
+        robolectricConfig = mapOf("sdk" to "[35]", "qualifiers" to "RobolectricDeviceQualifiers.Pixel7")
+    }
 }
 
 room {
@@ -107,6 +123,13 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.preview.scanner.support)
+    testImplementation(libs.composable.preview.scanner)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
