@@ -97,10 +97,12 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 ## Push notifications
 
+Frozen by the repository owner on 2026-10-05: M6 waits until proposal 2 (`docs/backend-proposals.md`) is decided.
+
 | iOS screen / feature | iOS source | Milestone | Status |
 |---|---|---|---|
-| Ask for notification permission after sign-in and save the FCM token to `users/{uid}.fcmToken` | `Services/PushNotificationService.swift` | M6 | todo |
-| Receive "item added" and "item not found" notifications | `functions/src/index.ts` (web repo) | M6 | todo |
+| Ask for notification permission after sign-in and save the FCM token to `users/{uid}.fcmToken` | `Services/PushNotificationService.swift` | M6 | frozen |
+| Receive "item added" and "item not found" notifications | `functions/src/index.ts` (web repo) | M6 | frozen |
 
 ## History
 
@@ -127,7 +129,12 @@ The iOS source file is given for each screen so the behaviour can be checked. Ba
 
 | Item | Source | Milestone | Status |
 |---|---|---|---|
+| Release build with R8 code and resource shrinking, built in CI | — | M9 | done |
+| Release signing from a git-ignored `keystore.properties` or CI variables; release guide in `docs/release.md` | — | M9 | done |
 | App icon and splash screen (from the iOS app icon) | `Assets.xcassets/AppIcon.appiconset` | M9 | done (adaptive and themed icon; Android 12+ system splash) |
+| Baseline profile | — | M9 | todo |
+| Accessibility pass (TalkBack labels, contrast, 48dp targets) and pt-BR review | — | M9 | todo |
+| README with screenshots, architecture diagram and test strategy | — | M9 | todo |
 
 ## Scope decisions
 
