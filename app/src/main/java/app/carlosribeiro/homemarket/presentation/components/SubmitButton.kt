@@ -1,7 +1,7 @@
 package app.carlosribeiro.homemarket.presentation.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -19,7 +19,7 @@ fun SubmitButton(text: String, isLoading: Boolean, onClick: () -> Unit, modifier
         enabled = !isLoading,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp)
+            .heightIn(min = 48.dp)
     ) {
         if (isLoading) {
             CircularProgressIndicator(
