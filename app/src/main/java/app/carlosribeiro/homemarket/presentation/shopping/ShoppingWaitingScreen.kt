@@ -1,24 +1,28 @@
 package app.carlosribeiro.homemarket.presentation.shopping
 
 import android.content.res.Configuration
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem as MaterialListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -35,42 +39,28 @@ import app.carlosribeiro.homemarket.presentation.theme.HomeMarketTheme
  */
 @Composable
 fun ShoppingWaitingScreen(state: ShoppingUiState, modifier: Modifier = Modifier) {
-    Surface(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally
+    Scaffold(modifier = modifier) { innerPadding ->
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
-            Box(
+            // Centered when it fits, scrollable when it does not (small phones, large font scales).
+            Column(
                 modifier = Modifier
-                    .size(112.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .heightIn(min = if (constraints.hasBoundedHeight) maxHeight else 0.dp)
+                    .padding(vertical = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_shopping_cart),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp)
-                )
-            }
-            Text(text = stringResource(R.string.waiting_title), style = MaterialTheme.typography.titleLarge)
-            Text(
-                text = stringResource(
-                    R.string.waiting_message,
-                    state.user?.displayName.orEmpty().substringBefore(' ')
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-            ProgressCard(state)
-            OutlinedCard {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    InfoRow("📦", stringResource(R.string.waiting_info_picking))
-                    InfoRow("🔔", stringResource(R.string.waiting_info_notified))
-                    InfoRow("✅", stringResource(R.string.waiting_info_update))
+                WaitingHeader(firstName = state.user?.displayName.orEmpty().substringBefore(' '))
+                ProgressCard(state, modifier = Modifier.padding(horizontal = 16.dp))
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    InfoRow(R.drawable.ic_inventory_2, stringResource(R.string.waiting_info_picking))
+                    InfoRow(R.drawable.ic_notifications, stringResource(R.string.waiting_info_notified))
+                    InfoRow(R.drawable.ic_check_circle, stringResource(R.string.waiting_info_update))
                 }
             }
         }
@@ -78,15 +68,47 @@ fun ShoppingWaitingScreen(state: ShoppingUiState, modifier: Modifier = Modifier)
 }
 
 @Composable
-private fun InfoRow(emoji: String, text: String) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(text = emoji, style = MaterialTheme.typography.titleLarge)
+private fun WaitingHeader(firstName: String) {
+    Column(
+        modifier = Modifier.padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(112.dp)
+                .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_shopping_cart),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(48.dp)
+            )
+        }
         Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            text = stringResource(R.string.waiting_title),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = stringResource(R.string.waiting_message, firstName),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
     }
+}
+
+@Composable
+private fun InfoRow(@DrawableRes icon: Int, text: String) {
+    MaterialListItem(
+        headlineContent = { Text(text) },
+        leadingContent = {
+            Icon(painterResource(icon), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        }
+    )
 }
 
 @Preview(name = "Light", showBackground = true)

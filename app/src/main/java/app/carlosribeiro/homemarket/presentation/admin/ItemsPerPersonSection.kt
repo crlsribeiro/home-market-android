@@ -1,16 +1,13 @@
 package app.carlosribeiro.homemarket.presentation.admin
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem as MaterialListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,9 +15,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -34,57 +30,50 @@ fun ItemsPerPersonSection(stats: List<PersonStat>) {
         Text(
             text = stringResource(R.string.admin_no_items_this_week),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
         return
     }
     val maxCount = stats.maxOf { it.itemCount }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        stats.forEach { stat -> PersonRow(stat = stat, maxCount = maxCount) }
-    }
+    stats.forEach { stat -> PersonRow(stat = stat, maxCount = maxCount) }
 }
 
 @Composable
 private fun PersonRow(stat: PersonStat, maxCount: Int) {
     var expanded by rememberSaveable(stat.uid) { mutableStateOf(false) }
     val name = stat.name.ifEmpty { stringResource(R.string.admin_no_name) }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(role = Role.Button, onClickLabel = stringResource(R.string.admin_show_items)) {
-                expanded = !expanded
-            }
-            .padding(vertical = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(
-            text = pluralStringResource(R.plurals.admin_person_items, stat.itemCount, name, stat.itemCount),
-            style = MaterialTheme.typography.bodyMedium
-        )
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Box(modifier = Modifier.weight(1f)) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(stat.itemCount.toFloat() / maxCount)
-                        .height(20.dp)
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(MaterialTheme.colorScheme.primary)
-                )
-            }
-            Text(
-                text = stat.itemCount.toString(),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(28.dp)
+    val clickLabel = stringResource(if (expanded) R.string.admin_hide_items else R.string.admin_show_items)
+    MaterialListItem(
+        modifier = Modifier.clickable(role = Role.Button, onClickLabel = clickLabel) { expanded = !expanded },
+        headlineContent = {
+            Text(pluralStringResource(R.plurals.admin_person_items, stat.itemCount, name, stat.itemCount))
+        },
+        supportingContent = {
+            LinearProgressIndicator(
+                progress = { stat.itemCount.toFloat() / maxCount },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+            )
+        },
+        trailingContent = {
+            Icon(
+                painterResource(if (expanded) R.drawable.ic_expand_less else R.drawable.ic_expand_more),
+                contentDescription = null
             )
         }
-        if (expanded) {
+    )
+    if (expanded) {
+        Column(
+            modifier = Modifier.padding(start = 32.dp, end = 16.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             stat.itemNames.forEach { itemName ->
                 Text(
                     text = itemName,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 12.dp)
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

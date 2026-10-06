@@ -2,11 +2,13 @@ package app.carlosribeiro.homemarket.presentation.account
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,16 +31,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.ProfileError
+import app.carlosribeiro.homemarket.presentation.components.ErrorText
 import app.carlosribeiro.homemarket.presentation.components.PhoneField
 import app.carlosribeiro.homemarket.presentation.components.SubmitButton
 import app.carlosribeiro.homemarket.presentation.components.rememberPhotoPicker
 import coil3.compose.AsyncImage
 
-/** The profile photo; tapping it offers the camera or the gallery, as on iOS. */
+/** The profile photo; tapping it offers the camera or the gallery, as on iOS. A camera badge shows it is tappable. */
 @Composable
 fun AvatarPicker(state: AccountUiState, onPhotoPicked: (String) -> Unit) {
     var showMenu by remember { mutableStateOf(false) }
@@ -48,9 +52,9 @@ fun AvatarPicker(state: AccountUiState, onPhotoPicked: (String) -> Unit) {
     Box {
         Box(
             modifier = Modifier
-                .size(88.dp)
+                .size(AvatarSize)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.primaryContainer)
                 .clickable(onClickLabel = description, role = Role.Button) { showMenu = true },
             contentAlignment = Alignment.Center
         ) {
@@ -58,18 +62,19 @@ fun AvatarPicker(state: AccountUiState, onPhotoPicked: (String) -> Unit) {
                 text = name.split(' ').filter { it.isNotBlank() }.take(2).joinToString("") { it.take(1) }.uppercase()
                     .ifEmpty { "?" },
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             (state.pendingPhotoUri ?: state.user?.photoUrl)?.let { model ->
                 AsyncImage(
                     model = model,
                     contentDescription = description,
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(88.dp)
+                    modifier = Modifier.size(AvatarSize)
                 )
             }
-            if (state.isUploadingPhoto) CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+            if (state.isUploadingPhoto) CircularProgressIndicator()
         }
+        CameraBadge(modifier = Modifier.align(Alignment.BottomEnd))
         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
             DropdownMenuItem(
                 text = { Text(stringResource(R.string.add_item_camera)) },
@@ -91,6 +96,25 @@ fun AvatarPicker(state: AccountUiState, onPhotoPicked: (String) -> Unit) {
     }
 }
 
+@Composable
+private fun CameraBadge(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(BadgeSize)
+            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+            .padding(2.dp)
+            .background(MaterialTheme.colorScheme.primary, CircleShape),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painterResource(R.drawable.ic_photo_camera),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.size(BadgeIconSize)
+        )
+    }
+}
+
 /** Read-only names, email and phone (with the iOS country picker and mask), then "Save changes". */
 @Composable
 fun ProfileForm(state: AccountUiState, onEvent: (AccountUiEvent) -> Unit) {
@@ -103,7 +127,7 @@ fun ProfileForm(state: AccountUiState, onEvent: (AccountUiEvent) -> Unit) {
             onValueChange = { onEvent(AccountUiEvent.EmailChanged(it)) },
             label = { Text(stringResource(R.string.auth_email)) },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth()
         )
         PhoneField(
@@ -112,11 +136,13 @@ fun ProfileForm(state: AccountUiState, onEvent: (AccountUiEvent) -> Unit) {
             onPhoneChange = { onEvent(AccountUiEvent.PhoneChanged(it)) },
             onCountryChange = { onEvent(AccountUiEvent.CountryChanged(it)) }
         )
-        state.error?.let {
-            Text(stringResource(it.messageRes()), color = MaterialTheme.colorScheme.error)
-        }
+        state.error?.let { ErrorText(stringResource(it.messageRes())) }
         state.message?.let { message ->
-            Text(text = message.text(), color = MaterialTheme.colorScheme.primary)
+            Text(
+                text = message.text(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
         SubmitButton(
             text = stringResource(R.string.account_save),
@@ -132,7 +158,7 @@ private fun ReadOnlyField(@StringRes label: Int, value: String) {
         value = value,
         onValueChange = {},
         label = { Text(stringResource(label)) },
-        enabled = false,
+        readOnly = true,
         singleLine = true,
         modifier = Modifier.fillMaxWidth()
     )
@@ -154,3 +180,7 @@ fun ProfileError.messageRes(): Int = when (this) {
     ProfileError.NETWORK -> R.string.auth_error_network
     ProfileError.NOT_SIGNED_IN, ProfileError.UNKNOWN -> R.string.auth_error_unknown
 }
+
+private val AvatarSize = 88.dp
+private val BadgeSize = 28.dp
+private val BadgeIconSize = 16.dp
