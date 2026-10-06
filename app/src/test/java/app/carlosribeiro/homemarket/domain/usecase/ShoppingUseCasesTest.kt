@@ -56,6 +56,7 @@ class ShoppingUseCasesTest {
         coEvery { repository.updateStatus(any(), any()) } returns AdminResult.Success
         coEvery { repository.weeklyCut(any()) } returns AdminResult.Success
         coEvery { repository.setItemStatus(any(), any()) } returns AdminResult.Success
+        coEvery { repository.moveNotFoundToNextWeek(any()) } returns AdminResult.Success
         coEvery { purchaseRepository.createPurchaseForList(any(), any(), any()) } returns AdminResult.Success
     }
 
@@ -113,11 +114,12 @@ class ShoppingUseCasesTest {
     }
 
     @Test
-    fun notAvailable_writesNotFoundLikeTheWeb() = runTest {
+    fun notAvailable_movesTheItemToNextWeekLikeIos() = runTest {
         signedIn(UserRole.ADMIN)
 
         assertEquals(AdminResult.Success, notFound(item(ItemStatus.PENDING)))
-        coVerify { repository.setItemStatus("i1", ItemStatus.NOT_FOUND) }
+        coVerify { repository.moveNotFoundToNextWeek("i1") }
+        coVerify(exactly = 0) { repository.setItemStatus(any(), ItemStatus.NOT_FOUND) }
         assertEquals(invalid, notFound(item(ItemStatus.PURCHASED)))
     }
 
@@ -134,6 +136,7 @@ class ShoppingUseCasesTest {
         coVerify(exactly = 0) { repository.updateStatus(any(), any()) }
         coVerify(exactly = 0) { repository.weeklyCut(any()) }
         coVerify(exactly = 0) { repository.setItemStatus(any(), any()) }
+        coVerify(exactly = 0) { repository.moveNotFoundToNextWeek(any()) }
     }
 
     @Test

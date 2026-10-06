@@ -70,15 +70,15 @@ class TogglePurchasedUseCase @Inject constructor(
 }
 
 /**
- * "Not available" follows the web (docs/backend.md, decision 3): `status: "not_found"`, which makes
- * the `onItemNotFound` Cloud Function notify the person who added the item.
+ * iOS "Not available" (docs/backend.md, decision 3): the item goes straight to next week, with
+ * `status: "rolled_over"` and `notFoundResolved: true`. Nobody has to resolve it later.
  */
 class MarkNotFoundUseCase @Inject constructor(
     private val adminCheck: AdminCheck,
     private val repository: ListLifecycleRepository
 ) {
     suspend operator fun invoke(item: ListItem): AdminResult = adminCheck.guarded(item.status == ItemStatus.PENDING) {
-        repository.setItemStatus(item.id, ItemStatus.NOT_FOUND)
+        repository.moveNotFoundToNextWeek(item.id)
     }
 }
 
