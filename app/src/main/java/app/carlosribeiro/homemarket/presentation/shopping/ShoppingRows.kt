@@ -89,7 +89,7 @@ fun ToGetRow(item: ListItem, onGotIt: () -> Unit, onNotAvailable: () -> Unit) {
                 }
             },
             trailingContent = if (item.urgent) {
-                { StatusLabel(text = stringResource(R.string.item_badge_urgent), tone = StatusTone.ERROR) }
+                { StatusLabel(text = stringResource(R.string.item_badge_urgent), tone = StatusTone.WARNING) }
             } else {
                 null
             }

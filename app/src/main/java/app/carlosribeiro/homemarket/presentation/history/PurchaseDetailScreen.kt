@@ -248,7 +248,7 @@ private fun ReceiptCard(isProcessed: Boolean, isUploading: Boolean, onPicked: (S
 @Composable
 private fun EditPurchaseItemDialog(draft: PurchaseItemDraft, onEvent: (PurchaseDetailUiEvent) -> Unit) {
     val priceInvalid = draft.price.isNotBlank() && Money.parsePrice(draft.price) == null
-    val save = { if (draft.canSave) onEvent(PurchaseDetailUiEvent.SaveEdit) }
+    val save: () -> Unit = { if (draft.canSave) onEvent(PurchaseDetailUiEvent.SaveEdit) }
     AlertDialog(
         onDismissRequest = { onEvent(PurchaseDetailUiEvent.CancelEdit) },
         title = { Text(stringResource(R.string.history_edit_item)) },
