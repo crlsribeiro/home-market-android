@@ -1,0 +1,97 @@
+name: Screenshots
+
+# Renders every @Preview with Roborazzi and publishes the PNGs to the `screenshots` branch, in a folder
+# named after the branch, so the layout can be reviewed without an emulator.
+on:
+  push:
+    branches-ignore:
+      - main
+      - screenshots
+  workflow_dispatch:
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Generate placeholder google-services.json
+        run: |
+          cat > app/google-services.json <<'JSON'
+          {
+            "project_info": {
+              "project_number": "000000000000",
+              "project_id": "placeholder",
+              "storage_bucket": "placeholder.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
+                  "android_client_info": {
+                    "package_name": "app.carlosribeiro.homemarket"
+                  }
+                },
+                "oauth_client": [
+                  {
+                    "client_id": "000000000000-placeholder.apps.googleusercontent.com",
+                    "client_type": 3
+                  }
+                ],
+                "api_key": [
+                  {
+                    "current_key": "placeholder"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          JSON
+
+      # A preview that cannot render (for example a dialog that never goes idle under Robolectric) should
+      # not hide the others, so the images are published even when a few tests fail.
+      - name: Record screenshots
+        run: ./gradlew recordRoborazziDebug --continue || echo "Some previews failed to render"
+
+      - name: Publish to the screenshots branch
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          FOLDER="${BRANCH//\//-}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          if git fetch origin screenshots; then
+            git worktree add ../shots origin/screenshots
+            git -C ../shots switch -c screenshots
+          else
+            git worktree add --detach ../shots
+            git -C ../shots switch --orphan screenshots
+          fi
+          rm -rf "../shots/$FOLDER"
+          mkdir -p "../shots/$FOLDER"
+          ls app/build/outputs/roborazzi/*.png > /dev/null
+          cp app/build/outputs/roborazzi/*.png "../shots/$FOLDER/"
+          git -C ../shots add -A
+          git -C ../shots commit -m "Screenshots for $BRANCH at $GITHUB_SHA" || exit 0
+          git -C ../shots push origin screenshots
