@@ -25,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,15 +53,20 @@ import app.carlosribeiro.homemarket.presentation.components.BrandFieldLabel
 import app.carlosribeiro.homemarket.presentation.components.SectionHeader
 import app.carlosribeiro.homemarket.presentation.components.StatusLabel
 import app.carlosribeiro.homemarket.presentation.components.StatusTone
-import app.carlosribeiro.homemarket.presentation.components.TabTopAppBar
 import app.carlosribeiro.homemarket.presentation.theme.brandColors
 
-/** Large "List" title that collapses on scroll, with the overflow menu holding "Sign out". */
+/** The bold "List" title on the same row as the overflow menu, which holds "Sign out". */
 @Composable
 fun ListTopBar(onSignOut: () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
     var showMenu by remember { mutableStateOf(false) }
-    TabTopAppBar(
-        title = stringResource(R.string.tab_list),
+    TopAppBar(
+        title = {
+            Text(
+                text = stringResource(R.string.tab_list),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+        },
         scrollBehavior = scrollBehavior,
         actions = {
             Box {

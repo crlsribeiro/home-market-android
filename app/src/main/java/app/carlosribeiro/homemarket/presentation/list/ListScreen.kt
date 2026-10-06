@@ -97,7 +97,7 @@ fun ListScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     ErrorSnackbars(snackbarHostState, state, onEvent, addItemState, onAddItemEvent)
     var showSignOutDialog by rememberSaveable { mutableStateOf(false) }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
