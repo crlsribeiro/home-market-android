@@ -69,8 +69,10 @@ jobs:
           }
           JSON
 
+      # A preview that cannot render (for example a dialog that never goes idle under Robolectric) should
+      # not hide the others, so the images are published even when a few tests fail.
       - name: Record screenshots
-        run: ./gradlew recordRoborazziDebug --stacktrace
+        run: ./gradlew recordRoborazziDebug --continue || echo "Some previews failed to render"
 
       - name: Publish to the screenshots branch
         env:
@@ -88,6 +90,7 @@ jobs:
           fi
           rm -rf "../shots/$FOLDER"
           mkdir -p "../shots/$FOLDER"
+          ls app/build/outputs/roborazzi/*.png > /dev/null
           cp app/build/outputs/roborazzi/*.png "../shots/$FOLDER/"
           git -C ../shots add -A
           git -C ../shots commit -m "Screenshots for $BRANCH at $GITHUB_SHA" || exit 0
