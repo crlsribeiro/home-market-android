@@ -1,16 +1,12 @@
 package app.carlosribeiro.homemarket.presentation.list
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,59 +16,51 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.carlosribeiro.homemarket.R
 import app.carlosribeiro.homemarket.domain.model.ApprovalStatus
 import app.carlosribeiro.homemarket.domain.model.ItemStatus
 import app.carlosribeiro.homemarket.domain.model.ListItem
+import app.carlosribeiro.homemarket.presentation.components.StatusLabel
+import app.carlosribeiro.homemarket.presentation.components.StatusTone
 import coil3.compose.AsyncImage
 
-/** iOS `ItemRow`: thumbnail, name, urgent badge, quantity, author and status badge. */
+/**
+ * iOS `ItemRow` as a Material 3 list item: thumbnail, name, quantity · author (and notes), and the
+ * urgent and status labels trailing. The whole row opens the item.
+ */
 @Composable
 fun ListItemRow(item: ListItem, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(onClick = onClick, modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ItemThumbnail(item)
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = item.name,
-                        style = MaterialTheme.typography.titleSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-                    if (item.isUrgentToBuy) {
-                        StatusBadge(stringResource(R.string.item_badge_urgent), MaterialTheme.colorScheme.error)
-                    }
+    ListItem(
+        headlineContent = { Text(text = item.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        supportingContent = {
+            Column {
+                Text(text = stringResource(R.string.item_quantity_author, item.quantity, item.addedByName))
+                if (item.notes.isNotBlank()) {
+                    Text(text = item.notes, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                Text(
-                    text = stringResource(R.string.item_quantity_author, item.quantity, item.addedByName),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
-            ItemStatusBadge(item)
-        }
-    }
+        },
+        leadingContent = { ItemThumbnail(item) },
+        trailingContent = {
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (item.isUrgentToBuy) {
+                    StatusLabel(stringResource(R.string.item_badge_urgent), StatusTone.WARNING)
+                }
+                ItemStatusLabel(item)
+            }
+        },
+        modifier = modifier.clickable(onClick = onClick)
+    )
 }
 
 @Composable
 private fun ItemThumbnail(item: ListItem) {
-    val shape = RoundedCornerShape(10.dp)
     Box(
         modifier = Modifier
-            .size(44.dp)
-            .clip(shape)
+            .size(ThumbnailSize)
+            .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
     ) {
@@ -86,34 +74,38 @@ private fun ItemThumbnail(item: ListItem) {
                 model = url,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(44.dp)
+                modifier = Modifier.size(ThumbnailSize)
             )
         }
     }
 }
 
 @Composable
-private fun ItemStatusBadge(item: ListItem) {
-    val colors = MaterialTheme.colorScheme
-    val (label, color) = when {
-        item.status == ItemStatus.PURCHASED -> R.string.item_badge_purchased to colors.primary
-        item.status == ItemStatus.NOT_FOUND -> R.string.item_badge_not_found to colors.error
-        item.approvalStatus == ApprovalStatus.PENDING -> R.string.item_badge_awaiting_approval to colors.tertiary
-        else -> R.string.item_badge_pending to colors.tertiary
+private fun ItemStatusLabel(item: ListItem) {
+    val (label, tone) = when {
+        item.status == ItemStatus.PURCHASED -> R.string.item_badge_purchased to StatusTone.SUCCESS
+        item.status == ItemStatus.NOT_FOUND -> R.string.item_badge_not_found to StatusTone.ERROR
+        item.approvalStatus == ApprovalStatus.PENDING -> R.string.item_badge_awaiting_approval to StatusTone.WARNING
+        else -> R.string.item_badge_pending to StatusTone.WARNING
     }
-    StatusBadge(stringResource(label), color)
+    StatusLabel(stringResource(label), tone)
 }
 
+/**
+ * Kept for callers that still pass a color; prefer [StatusLabel]. The color picks the tone: error for
+ * urgent / not found, primary for done, tertiary for pending, anything else neutral.
+ */
 @Composable
 fun StatusBadge(text: String, color: Color, modifier: Modifier = Modifier) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.labelSmall,
-        fontWeight = FontWeight.Bold,
-        color = color,
-        modifier = modifier
-            .clip(CircleShape)
-            .background(color.copy(alpha = 0.14f))
-            .padding(horizontal = 8.dp, vertical = 2.dp)
-    )
+    val colors = MaterialTheme.colorScheme
+    val tone = when (color) {
+        colors.error -> StatusTone.ERROR
+        colors.primary -> StatusTone.SUCCESS
+        colors.tertiary -> StatusTone.WARNING
+        else -> StatusTone.NEUTRAL
+    }
+    StatusLabel(text = text, tone = tone, modifier = modifier)
 }
+
+/** Material 3 list item image size. */
+private val ThumbnailSize = 56.dp

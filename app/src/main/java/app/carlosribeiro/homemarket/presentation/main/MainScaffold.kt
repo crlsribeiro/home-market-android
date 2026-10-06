@@ -58,10 +58,16 @@ fun MainScaffold(
         modifier = modifier,
         navigationSuiteItems = {
             tabs.forEach { tab ->
+                val isSelected = tab == current
                 item(
-                    selected = tab == current,
+                    selected = isSelected,
                     onClick = { selected = tab },
-                    icon = { Icon(painterResource(tab.icon), contentDescription = null) },
+                    icon = {
+                        Icon(
+                            painterResource(if (isSelected) tab.selectedIcon else tab.icon),
+                            contentDescription = null
+                        )
+                    },
                     label = { Text(stringResource(tab.label)) }
                 )
             }

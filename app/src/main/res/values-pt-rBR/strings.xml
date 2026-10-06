@@ -224,4 +224,8 @@
     <string name="password_show">Mostrar senha</string>
     <string name="password_hide">Ocultar senha</string>
     <string name="auth_password_requirement">Pelo menos %1$d caracteres</string>
+    <string name="list_empty_title">Nada para comprar ainda</string>
+    <string name="item_detail_notes_label">Descrição</string>
+    <string name="item_detail_remove_dialog_title">Remover item?</string>
+    <string name="item_detail_remove_dialog_message">O item será removido da lista desta semana.</string>
 </resources>
